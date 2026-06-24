@@ -1,0 +1,69 @@
+.TH IR 1 "July 2024" "ir-cli-utility" "User Commands"
+
+.SH NAME
+ir \- a cross-platform file system utility
+
+.SH SYNOPSIS
+.B ir
+[\fIaction\fR] [\fIarguments...\fR]
+
+.SH DESCRIPTION
+.B ir
+is a command-line utility for file system operations, built with a focus on performance and minimal dependencies by making direct syscalls to the underlying operating system.
+.PP
+The name
+.B ir
+is short for "indoctrinatedrecluse," the alias of the project's author.
+
+.SH ACTIONS
+.TP
+.B list [\fIswitches\fR]
+Lists files and directories with detailed information.
+.TP
+.B rename [\fIswitches\fR] <\fIsource\fR> <\fIdestination\fR>
+Renames a file or folder.
+.TP
+.B help [\fIaction\fR]
+Displays general help, or help for a specific \fIaction\fR.
+
+.SH OPTIONS
+Run 'ir help <action>' to see the options for a specific action.
+
+.SS list
+.TP
+.B -a
+Shows all files, including hidden ones.
+.TP
+.B -s
+Sorts the output by file size, from largest to smallest.
+.TP
+.B -t
+Sorts the output by modification time, from newest to oldest.
+.TP
+.B --filter \fIextension\fR
+Filters the list to only show files with the specified file \fIextension\fR.
+
+.SS rename
+.TP
+.B -f, --force
+Overwrites the destination if it already exists.
+.TP
+.B -i, --interactive
+Prompts for confirmation before renaming.
+.TP
+.B --force-links
+Allows the renaming of symbolic links themselves.
+
+.SH EXAMPLES
+.TP
+List all files, sorted by size:
+.B ir list -as
+.TP
+Rename a file, with confirmation:
+.B ir rename -i old.txt new.log
+.TP
+Forcefully rename a folder, overwriting the destination:
+.B ir rename -f old_dir new_dir
+
+.SH AUTHOR
+Written by indoctrinatedrecluse.

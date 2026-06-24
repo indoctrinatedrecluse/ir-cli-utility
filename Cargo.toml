@@ -1,0 +1,28 @@
+[package]
+name = "ir-cli-utility"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "ir_cli_utility"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ir"
+path = "src/main.rs"
+
+[dependencies]
+chrono = "0.4"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.52.0", features = [
+    "Win32_Foundation",
+    "Win32_Storage_FileSystem",
+    "Win32_Security",
+    "Win32_System_SystemInformation",
+    "Win32_System_Time",
+    "Win32_System_Diagnostics_Debug",
+] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
