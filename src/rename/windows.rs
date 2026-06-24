@@ -24,7 +24,6 @@ fn get_last_error_message() -> String {
 }
 
 pub fn rename(source: &str, destination: &str, options: RenameOptions) {
-    let source_path = Path::new(source);
     let dest_path = Path::new(destination);
 
     // 1. Check if source exists
