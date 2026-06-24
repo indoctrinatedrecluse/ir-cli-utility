@@ -30,6 +30,10 @@ Lists files and directories with detailed information.
 *   `-t`: Sorts the output by modification time, from newest to oldest.
 *   `--filter <extension>`: Filters the list to only show files with the specified extension.
 
+**Output Columns:**
+*   **Windows:** Permissions, Size, Created, Modified, Name
+*   **Linux:** Permissions, Size, Owner, Group, Modified, Changed, Name
+
 ### `rename`
 Renames a file or folder.
 
@@ -48,8 +52,3 @@ sudo cp docs/ir.1 /usr/local/share/man/man1/
 gzip /usr/local/share/man/man1/ir.1
 ```
 Then view it with `man ir`.
-
-**Output Columns (for `list` action):**
-
-*   **Windows:** Permissions, Size, Created, Modified, Name
-*   **Linux:** Permissions, Size, Owner, Group, Modified, Changed, Name
