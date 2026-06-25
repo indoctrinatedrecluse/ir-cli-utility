@@ -8,6 +8,7 @@ pub fn print_general_help() {
     println!("    copy      Copies files and folders.");
     println!("    remove    Removes files and folders.");
     println!("    create    Creates files and folders.");
+    println!("    move      Moves files and folders.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -86,4 +87,18 @@ pub fn print_create_help() {
     println!("\nSWITCHES:");
     println!("        --create-file    Forces the creation of a file, even if it has no extension.");
     println!("    -p, --force-subdirs  Creates parent directories as needed.");
+}
+
+pub fn print_move_help() {
+    println!("ir-move");
+    println!("\nUSAGE:");
+    println!("    ir move [SWITCHES] <SOURCE> <DESTINATION>");
+    println!("\nDESCRIPTION:");
+    println!("    Moves a file or folder from SOURCE to DESTINATION.");
+    println!("\nARGUMENTS:");
+    println!("    <SOURCE>         The path to the file or folder to move.");
+    println!("    <DESTINATION>    The path to the destination folder or new file path.");
+    println!("\nSWITCHES:");
+    println!("        --force          Overwrites destination files if they already exist.");
+    println!("        --rename <NAME>  When moving a single file, saves it under a new name.");
 }

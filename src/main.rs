@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -249,6 +249,42 @@ fn main() {
                 help::print_create_help();
             }
         }
+        "move" => {
+            let mut options = MoveOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "--force" {
+                    options.force = true;
+                } else if arg == "--rename" {
+                    if let Some(new_name) = args_iter.next() {
+                        if is_path(new_name) || new_name.starts_with('-') {
+                            eprintln!("Error: --rename requires a valid filename, not a path or a switch.");
+                            valid = false; break;
+                        }
+                        options.rename = Some(new_name.clone());
+                    } else {
+                        eprintln!("Error: --rename switch requires a filename argument.");
+                        valid = false; break;
+                    }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if positionals.len() != 2 {
+                eprintln!("Error: 'move' requires exactly two arguments: a source and a destination.");
+                valid = false;
+            }
+
+            if valid {
+                ir_cli_utility::move_item(&positionals[0], &positionals[1], options);
+            } else {
+                help::print_move_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -257,6 +293,7 @@ fn main() {
                     "copy" => help::print_copy_help(),
                     "remove" => help::print_remove_help(),
                     "create" => help::print_create_help(),
+                    "move" => help::print_move_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

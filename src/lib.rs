@@ -4,6 +4,7 @@ pub mod rename;
 pub mod copy;
 pub mod remove;
 pub mod create;
+pub mod r#move;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -44,6 +45,12 @@ pub struct CreateOptions {
     pub force_subdirs: bool,
 }
 
+#[derive(Default)]
+pub struct MoveOptions {
+    pub force: bool,
+    pub rename: Option<String>,
+}
+
 pub fn list(options: ListOptions) {
     list::list(options);
 }
@@ -62,4 +69,8 @@ pub fn remove(path: &str, options: &RemoveOptions) {
 
 pub fn create(path: &str, options: CreateOptions) {
     create::create(path, options);
+}
+
+pub fn move_item(source: &str, destination: &str, options: MoveOptions) {
+    r#move::move_item(source, destination, options);
 }

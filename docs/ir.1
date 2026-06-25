@@ -32,6 +32,9 @@ Removes files and folders.
 .B create [\fIswitches\fR] <\fIpath...\fR>
 Creates files and folders.
 .TP
+.B move [\fIswitches\fR] <\fIsource\fR> <\fIdestination\fR>
+Moves files and folders.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -105,6 +108,14 @@ Forces the creation of a file, even if it has no extension.
 .B -p, --force-subdirs
 Creates parent directories as needed.
 
+.SS move
+.TP
+.B --force
+Overwrites destination files if they already exist.
+.TP
+.B --rename <\fIname\fR>
+When moving a single file, saves it under a new name.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -121,6 +132,9 @@ Remove a file interactively, moving it to the trash:
 .TP
 Create a new directory, including parent directories:
 .B ir create -p ./new/project/docs
+.TP
+Move a folder to a new location:
+.B ir move ./old_location ./new_location
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

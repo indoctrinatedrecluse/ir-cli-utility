@@ -20,6 +20,7 @@ ir help rename
 ir help copy
 ir help remove
 ir help create
+ir help move
 ```
 
 ### `list`
@@ -35,16 +36,20 @@ Copies files and folders. See `ir help copy` for more.
 Removes files and folders. See `ir help remove` for more.
 
 ### `create`
-Creates files and folders.
+Creates files and folders. See `ir help create` for more.
 
-**Usage:** `ir create [switches] <PATH...>`
+### `move`
+Moves files and folders.
+
+**Usage:** `ir move [switches] <SOURCE> <DESTINATION>`
 
 **Arguments:**
-*   `<PATH...>`: One or more paths for the items to be created.
+*   `<SOURCE>`: The path to the file or folder to move.
+*   `<DESTINATION>`: The path to the destination folder or new file path.
 
 **Switches:**
-*   `--create-file`: Forces the creation of a file, even if it has no extension.
-*   `-p`, `--force-subdirs`: Creates parent directories as needed.
+*   `--force`: Overwrites destination files if they already exist.
+*   `--rename <NAME>`: When moving a single file, saves it under a new name.
 
 ## Documentation
 
