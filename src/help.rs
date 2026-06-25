@@ -10,6 +10,7 @@ pub fn print_general_help() {
     println!("    create    Creates files and folders.");
     println!("    move      Moves files and folders.");
     println!("    archive   Creates or extracts archives.");
+    println!("    cat       Prints file contents.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -120,4 +121,24 @@ pub fn print_archive_help() {
     println!("        --format <FORMAT>  Specifies the archive format (e.g., zip, tar.gz).");
     println!("        --force            Overwrites the destination archive if it already exists.");
     println!("        --verbose          Prints the name of each file as it is being processed.");
+}
+
+pub fn print_cat_help() {
+    println!("ir-cat");
+    println!("\nUSAGE:");
+    println!("    ir cat [SWITCHES] <PATH>");
+    println!("\nDESCRIPTION:");
+    println!("    Prints file contents to standard output.");
+    println!("\nARGUMENTS:");
+    println!("    <PATH>    The path to the file to print.");
+    println!("\nSWITCHES:");
+    println!("    -n, --line-numbers       Prefix each output line with its source line number.");
+    println!("        --head <N>           Prints the first N lines.");
+    println!("        --tail <N>           Prints the last N lines.");
+    println!("        --range <START:END>  Prints a 1-based inclusive line range.");
+    println!("        --binary             Prints a hexadecimal preview of the file bytes.");
+    println!("        --encoding <ENC>     Decodes text as utf-8, utf-16, or ascii.");
+    println!("\nRULES:");
+    println!("    - --head, --tail, and --range cannot be used together.");
+    println!("    - --binary cannot be used with text formatting switches.");
 }

@@ -38,6 +38,9 @@ Moves files and folders.
 .B archive [\fIswitches\fR] <\fIpath\fR>
 Creates, extracts, or tests archives.
 .TP
+.B cat [\fIswitches\fR] <\fIpath\fR>
+Prints file contents to standard output.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -142,6 +145,29 @@ Overwrites the destination archive if it already exists.
 .B --verbose
 Prints the name of each file as it is being processed.
 
+.SS cat
+.TP
+.B -n, --line-numbers
+Prefixes each output line with its source line number.
+.TP
+.B --head <\fIN\fR>
+Prints the first \fIN\fR lines.
+.TP
+.B --tail <\fIN\fR>
+Prints the last \fIN\fR lines.
+.TP
+.B --range <\fISTART:END\fR>
+Prints a 1-based inclusive line range.
+.TP
+.B --binary
+Prints a hexadecimal preview of the file bytes.
+.TP
+.B --encoding <\fIencoding\fR>
+Decodes text as utf-8, utf-16, or ascii.
+.PP
+\fB--head\fR, \fB--tail\fR, and \fB--range\fR cannot be used together.
+\fB--binary\fR cannot be used with text formatting switches.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -164,6 +190,9 @@ Move a folder to a new location:
 .TP
 Create a zip archive of a directory:
 .B ir archive ./my_folder --format zip
+.TP
+Print lines 10 through 20 of a file with line numbers:
+.B ir cat -n --range 10:20 ./notes.txt
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

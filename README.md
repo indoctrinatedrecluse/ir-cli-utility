@@ -22,6 +22,7 @@ ir help remove
 ir help create
 ir help move
 ir help archive
+ir help cat
 ```
 
 ### `list`
@@ -58,6 +59,26 @@ Creates, extracts, or tests archives.
 *   `--format <FORMAT>`: Specifies the archive format (e.g., zip, tar.gz).
 *   `--force`: Overwrites the destination archive if it already exists.
 *   `--verbose`: Prints the name of each file as it is being processed.
+
+### `cat`
+Prints file contents to standard output.
+
+**Usage:** `ir cat [switches] <PATH>`
+
+**Arguments:**
+*   `<PATH>`: The path to the file to print.
+
+**Switches:**
+*   `-n`, `--line-numbers`: Prefix each output line with its source line number.
+*   `--head <N>`: Prints the first `N` lines.
+*   `--tail <N>`: Prints the last `N` lines.
+*   `--range <START:END>`: Prints a 1-based inclusive line range.
+*   `--binary`: Prints a hexadecimal preview of the file bytes.
+*   `--encoding <ENC>`: Decodes text as `utf-8`, `utf-16`, or `ascii`.
+
+**Rules:**
+*   `--head`, `--tail`, and `--range` cannot be used together.
+*   `--binary` cannot be used with text formatting switches.
 
 ## Documentation
 

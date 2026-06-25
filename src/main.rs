@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -344,6 +344,96 @@ fn main() {
                 help::print_archive_help();
             }
         }
+        "cat" => {
+            let mut options = CatOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-n" || arg == "--line-numbers" {
+                    options.line_numbers = true;
+                } else if arg == "--head" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(count) => options.head = Some(count),
+                        None => {
+                            eprintln!("Error: --head requires a non-negative line count.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--tail" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(count) => options.tail = Some(count),
+                        None => {
+                            eprintln!("Error: --tail requires a non-negative line count.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--range" {
+                    if let Some(range) = args_iter.next() {
+                        match parse_line_range(range) {
+                            Some(parsed) => options.range = Some(parsed),
+                            None => {
+                                eprintln!("Error: --range requires a START:END line range.");
+                                valid = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        eprintln!("Error: --range requires a START:END line range.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "--binary" {
+                    options.binary = true;
+                } else if arg == "--encoding" {
+                    if let Some(encoding) = args_iter.next() {
+                        if encoding.starts_with('-') {
+                            eprintln!("Error: --encoding requires an encoding name.");
+                            valid = false;
+                            break;
+                        }
+                        options.encoding = Some(encoding.clone());
+                    } else {
+                        eprintln!("Error: --encoding requires an encoding name.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for cat.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            let selector_count = usize::from(options.head.is_some())
+                + usize::from(options.tail.is_some())
+                + usize::from(options.range.is_some());
+            if selector_count > 1 {
+                eprintln!("Error: --head, --tail, and --range cannot be used together.");
+                valid = false;
+            }
+
+            if options.binary && (options.line_numbers || selector_count > 0 || options.encoding.is_some()) {
+                eprintln!("Error: --binary cannot be used with text formatting switches.");
+                valid = false;
+            }
+
+            if positionals.len() != 1 {
+                eprintln!("Error: 'cat' requires exactly one path argument.");
+                valid = false;
+            }
+
+            if valid {
+                ir_cli_utility::cat(&positionals[0], options);
+            } else {
+                help::print_cat_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -354,6 +444,7 @@ fn main() {
                     "create" => help::print_create_help(),
                     "move" => help::print_move_help(),
                     "archive" => help::print_archive_help(),
+                    "cat" => help::print_cat_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
@@ -367,5 +458,17 @@ fn main() {
             eprintln!("Error: Unknown action '{}'", action);
             help::print_general_help();
         }
+    }
+}
+
+fn parse_line_range(range: &str) -> Option<(usize, usize)> {
+    let (start, end) = range.split_once(':')?;
+    let start = start.parse::<usize>().ok()?;
+    let end = end.parse::<usize>().ok()?;
+
+    if start == 0 || end == 0 || start > end {
+        None
+    } else {
+        Some((start, end))
     }
 }

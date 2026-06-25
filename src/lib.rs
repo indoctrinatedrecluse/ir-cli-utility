@@ -6,6 +6,7 @@ pub mod remove;
 pub mod create;
 pub mod r#move;
 pub mod archive;
+pub mod cat;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -63,6 +64,16 @@ pub struct ArchiveOptions {
     pub verbose: bool,
 }
 
+#[derive(Default, Clone)]
+pub struct CatOptions {
+    pub line_numbers: bool,
+    pub head: Option<usize>,
+    pub tail: Option<usize>,
+    pub range: Option<(usize, usize)>,
+    pub binary: bool,
+    pub encoding: Option<String>,
+}
+
 pub fn list(options: ListOptions) {
     list::list(options);
 }
@@ -89,4 +100,8 @@ pub fn move_item(source: &str, destination: &str, options: MoveOptions) {
 
 pub fn archive(path: &str, options: ArchiveOptions) {
     archive::archive(path, options);
+}
+
+pub fn cat(path: &str, options: CatOptions) {
+    cat::cat(path, options);
 }
