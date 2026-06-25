@@ -1,0 +1,36 @@
+# Rust build artifacts
+/target/
+
+# Local test and coverage output
+/coverage/
+/tarpaulin-report.html
+*.profraw
+*.profdata
+
+# Logs and crash dumps
+*.log
+*.dmp
+
+# Temporary files and folders
+/tmp/
+/temp/
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Dependency/vendor caches
+/vendor/
+/.cargo/
