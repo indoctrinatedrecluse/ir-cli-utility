@@ -5,6 +5,9 @@ pub fn print_general_help() {
     println!("\nACTIONS:");
     println!("    list      Lists files and directories with detailed information.");
     println!("    rename    Renames a file or folder.");
+    println!("    copy      Copies files and folders.");
+    println!("    remove    Removes files and folders.");
+    println!("    create    Creates files and folders.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -25,15 +28,62 @@ pub fn print_list_help() {
 pub fn print_rename_help() {
     println!("ir-rename");
     println!("\nUSAGE:");
-    println!("    ir rename [SWITCHES] <SOURCE> <DESTINATION>");
+    println!("    ir rename [SWITCHES] <SOURCE_PATH> <NEW_NAME>");
     println!("\nDESCRIPTION:");
-    println!("    Renames a file or folder from SOURCE to DESTINATION.");
+    println!("    Renames a file or folder at SOURCE_PATH to NEW_NAME in the same directory.");
+    println!("\nARGUMENTS:");
+    println!("    <SOURCE_PATH>    The full or relative path to the file/folder to rename.");
+    println!("    <NEW_NAME>       The new name for the file/folder (not a path).");
     println!("\nSWITCHES:");
     println!("    -f, --force          Overwrites the destination if it already exists.");
     println!("    -i, --interactive    Prompts for confirmation before renaming.");
     println!("        --force-links    Allows the renaming of symbolic links themselves.");
+}
+
+pub fn print_copy_help() {
+    println!("ir-copy");
+    println!("\nUSAGE:");
+    println!("    ir copy [SWITCHES] <SOURCE> <DESTINATION>");
+    println!("\nDESCRIPTION:");
+    println!("    Copies a file or folder from SOURCE to the DESTINATION directory.");
+    println!("\nARGUMENTS:");
+    println!("    <SOURCE>         The path to the file or folder to copy.");
+    println!("    <DESTINATION>    The path to the destination folder.");
+    println!("\nSWITCHES:");
+    println!("        --force          Overwrites destination files if they already exist.");
+    println!("    -r                   (Default) Copies directories and their contents recursively.");
+    println!("    -f                   Copies only files from the source, not subdirectories.");
+    println!("    -l                   Copies only subdirectories from the source, not files.");
+    println!("        --rename <NAME>  When copying a single file, saves it under a new name.");
     println!("\nRULES:");
-    println!("    - The '-f' and '-i' switches cannot be used together.");
-    println!("    - By default, the command will not overwrite an existing file or folder.");
-    println!("    - By default, the command will not rename a symbolic link.");
+    println!("    - The '-r' switch cannot be used with '-f' or '-l'.");
+}
+
+pub fn print_remove_help() {
+    println!("ir-remove");
+    println!("\nUSAGE:");
+    println!("    ir remove [SWITCHES] <PATH...>");
+    println!("\nDESCRIPTION:");
+    println!("    Removes the specified files or folders.");
+    println!("\nARGUMENTS:");
+    println!("    <PATH...>    One or more paths to the files or folders to remove.");
+    println!("\nSWITCHES:");
+    println!("    -f, --force          Force removes files and directories without prompting.");
+    println!("    -i, --interactive    Prompts for confirmation before every removal.");
+    println!("    -t, --trash          Moves items to the system trash instead of permanently deleting.");
+    println!("    -v, --verbose        Prints the name of each file as it is being removed.");
+    println!("    -y                   Skips the confirmation prompt for non-empty folders.");
+}
+
+pub fn print_create_help() {
+    println!("ir-create");
+    println!("\nUSAGE:");
+    println!("    ir create [SWITCHES] <PATH...>");
+    println!("\nDESCRIPTION:");
+    println!("    Creates files or folders at the specified paths.");
+    println!("\nARGUMENTS:");
+    println!("    <PATH...>    One or more paths for the items to be created.");
+    println!("\nSWITCHES:");
+    println!("        --create-file    Forces the creation of a file, even if it has no extension.");
+    println!("    -p, --force-subdirs  Creates parent directories as needed.");
 }

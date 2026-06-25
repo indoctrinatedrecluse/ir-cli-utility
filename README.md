@@ -17,32 +17,34 @@ Displays general help or help for a specific action.
 ir help
 ir help list
 ir help rename
+ir help copy
+ir help remove
+ir help create
 ```
 
 ### `list`
-Lists files and directories with detailed information.
-
-**Usage:** `ir list [switches]`
-
-**Switches:**
-*   `-a`: Shows all files, including hidden ones.
-*   `-s`: Sorts the output by file size, from largest to smallest.
-*   `-t`: Sorts the output by modification time, from newest to oldest.
-*   `--filter <extension>`: Filters the list to only show files with the specified extension.
-
-**Output Columns:**
-*   **Windows:** Permissions, Size, Created, Modified, Name
-*   **Linux:** Permissions, Size, Owner, Group, Modified, Changed, Name
+Lists files and directories with detailed information. See `ir help list` for more.
 
 ### `rename`
-Renames a file or folder.
+Renames a file or folder. See `ir help rename` for more.
 
-**Usage:** `ir rename [switches] <SOURCE> <DESTINATION>`
+### `copy`
+Copies files and folders. See `ir help copy` for more.
+
+### `remove`
+Removes files and folders. See `ir help remove` for more.
+
+### `create`
+Creates files and folders.
+
+**Usage:** `ir create [switches] <PATH...>`
+
+**Arguments:**
+*   `<PATH...>`: One or more paths for the items to be created.
 
 **Switches:**
-*   `-f`, `--force`: Overwrites the destination if it already exists.
-*   `-i`, `--interactive`: Prompts for confirmation before renaming.
-*   `--force-links`: Allows the renaming of symbolic links themselves.
+*   `--create-file`: Forces the creation of a file, even if it has no extension.
+*   `-p`, `--force-subdirs`: Creates parent directories as needed.
 
 ## Documentation
 
@@ -52,3 +54,28 @@ sudo cp docs/ir.1 /usr/local/share/man/man1/
 gzip /usr/local/share/man/man1/ir.1
 ```
 Then view it with `man ir`.
+
+## Testing
+
+The project includes a set of integration tests located in the `/tests` directory. These tests are written as shell scripts (`.sh` for Linux, `.ps1` for Windows) and are organized into subdirectories for each action.
+
+Each test script is self-contained. It will:
+1. Build the `ir` executable.
+2. Create a temporary environment (files and folders).
+3. Run the specific `ir` command being tested.
+4. Verify that the outcome is correct.
+5. Clean up the temporary environment.
+
+To run a test, navigate to the appropriate directory and execute the script. For example:
+
+**On Linux:**
+```sh
+cd tests/rename
+./01_simple_file_rename.sh
+```
+
+**On Windows (PowerShell):**
+```powershell
+cd tests/rename
+.\01_simple_file_rename.ps1
+```

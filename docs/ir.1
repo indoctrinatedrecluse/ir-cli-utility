@@ -20,8 +20,17 @@ is short for "indoctrinatedrecluse," the alias of the project's author.
 .B list [\fIswitches\fR]
 Lists files and directories with detailed information.
 .TP
-.B rename [\fIswitches\fR] <\fIsource\fR> <\fIdestination\fR>
+.B rename [\fIswitches\fR] <\fIsource_path\fR> <\fInew_name\fR>
 Renames a file or folder.
+.TP
+.B copy [\fIswitches\fR] <\fIsource\fR> <\fIdestination\fR>
+Copies files and folders.
+.TP
+.B remove [\fIswitches\fR] <\fIpath...\fR>
+Removes files and folders.
+.TP
+.B create [\fIswitches\fR] <\fIpath...\fR>
+Creates files and folders.
 .TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
@@ -54,16 +63,64 @@ Prompts for confirmation before renaming.
 .B --force-links
 Allows the renaming of symbolic links themselves.
 
+.SS copy
+.TP
+.B --force
+Overwrites destination files if they already exist.
+.TP
+.B -r
+(Default) Copies directories and their contents recursively.
+.TP
+.B -f
+Copies only files from the source, not subdirectories.
+.TP
+.B -l
+Copies only subdirectories from the source, not files.
+.TP
+.B --rename <\fIname\fR>
+When copying a single file, saves it under a new name.
+
+.SS remove
+.TP
+.B -f, --force
+Force removes files and directories without prompting.
+.TP
+.B -i, --interactive
+Prompts for confirmation before every removal.
+.TP
+.B -t, --trash
+Moves items to the system trash instead of permanently deleting.
+.TP
+.B -v, --verbose
+Prints the name of each file as it is being removed.
+.TP
+.B -y
+Skips the confirmation prompt for non-empty folders.
+
+.SS create
+.TP
+.B --create-file
+Forces the creation of a file, even if it has no extension.
+.TP
+.B -p, --force-subdirs
+Creates parent directories as needed.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
 .B ir list -as
 .TP
-Rename a file, with confirmation:
+Rename a file using a relative path:
 .B ir rename -i old.txt new.log
 .TP
-Forcefully rename a folder, overwriting the destination:
-.B ir rename -f old_dir new_dir
+Copy a file to another directory with a new name:
+.B ir copy ./myfile.txt ../backup/ --rename mybackup.txt
+.TP
+Remove a file interactively, moving it to the trash:
+.B ir remove -it my_document.pdf
+.TP
+Create a new directory, including parent directories:
+.B ir create -p ./new/project/docs
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

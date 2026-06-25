@@ -2,7 +2,7 @@ use crate::RenameOptions;
 use std::ffi::{OsStr, OsString};
 use std::io::{self, Write};
 use std::os::windows::ffi::{OsStrExt, OsStringExt};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::ptr::null_mut;
 use windows_sys::Win32::Foundation::GetLastError;
 use windows_sys::Win32::System::Diagnostics::Debug::{FormatMessageW, FORMAT_MESSAGE_FROM_SYSTEM, FORMAT_MESSAGE_IGNORE_INSERTS};
@@ -23,8 +23,16 @@ fn get_last_error_message() -> String {
     OsString::from_wide(&buffer[..length as usize]).to_string_lossy().trim().to_string()
 }
 
-pub fn rename(source: &str, destination: &str, options: RenameOptions) {
-    let dest_path = Path::new(destination);
+pub fn rename(source: &str, new_name: &str, options: RenameOptions) {
+    let source_path = Path::new(source);
+
+    // Construct the full destination path
+    let mut dest_path = if let Some(parent) = source_path.parent() {
+        parent.to_path_buf()
+    } else {
+        PathBuf::from(".")
+    };
+    dest_path.push(new_name);
 
     // 1. Check if source exists
     let source_attrs = unsafe { GetFileAttributesW(OsStr::new(source).encode_wide().chain(Some(0)).collect::<Vec<_>>().as_ptr()) };
@@ -43,13 +51,13 @@ pub fn rename(source: &str, destination: &str, options: RenameOptions) {
 
     // 3. Prevent renaming a folder to a file
     if source_is_dir && dest_path.extension().is_some() {
-        eprintln!("Error: Cannot rename a folder ('{}') to a file with an extension ('{}').", source, destination);
+        eprintln!("Error: Cannot rename a folder ('{}') to a file with an extension ('{}').", source, new_name);
         return;
     }
 
     // 4. Interactive prompt
     if options.interactive {
-        print!("Rename '{}' to '{}'? [y/N] ", source, destination);
+        print!("Rename '{}' to '{}'? [y/N] ", source, dest_path.display());
         io::stdout().flush().unwrap();
         let mut input = String::new();
         if io::stdin().read_line(&mut input).is_err() || input.trim().to_lowercase() != "y" {
@@ -60,7 +68,7 @@ pub fn rename(source: &str, destination: &str, options: RenameOptions) {
 
     // 5. Perform the rename
     let source_wide: Vec<u16> = OsStr::new(source).encode_wide().chain(Some(0)).collect();
-    let dest_wide: Vec<u16> = OsStr::new(destination).encode_wide().chain(Some(0)).collect();
+    let dest_wide: Vec<u16> = dest_path.as_os_str().encode_wide().chain(Some(0)).collect();
 
     let mut flags = 0;
     if options.force {
@@ -70,8 +78,8 @@ pub fn rename(source: &str, destination: &str, options: RenameOptions) {
     let result = unsafe { MoveFileExW(source_wide.as_ptr(), dest_wide.as_ptr(), flags) };
 
     if result == 0 {
-        eprintln!("Error renaming '{}' to '{}': {}", source, destination, get_last_error_message());
+        eprintln!("Error renaming '{}' to '{}': {}", source, dest_path.display(), get_last_error_message());
     } else {
-        println!("Successfully renamed '{}' to '{}'.", source, destination);
+        println!("Successfully renamed '{}' to '{}'.", source, dest_path.display());
     }
 }

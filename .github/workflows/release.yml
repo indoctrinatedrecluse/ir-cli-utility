@@ -1,0 +1,48 @@
+# This is a GitHub Actions workflow to build and release the ir-cli-utility.
+
+name: Build and Release
+
+on:
+  # This allows the workflow to be triggered by pushing a tag (e.g., v0.1.0, v1.0.0).
+  push:
+    tags:
+      - 'v*'
+
+  # This allows you to run this workflow manually from the Actions tab in GitHub.
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    # We are only building for Windows for now, as requested.
+    runs-on: windows-latest
+
+    steps:
+      # 1. Checks out your repository under $GITHUB_WORKSPACE, so your job can access it.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Installs the Rust toolchain.
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      # 3. Builds the executable in release mode for performance.
+      - name: Build executable
+        run: cargo build --release
+
+      # 4. Packages the executable into a zip file for the release.
+      #    The ${{ github.ref_name }} variable automatically gets the tag name (e.g., "v0.1.0").
+      - name: Package for release
+        run: |
+          cd target/release
+          Compress-Archive -Path ir.exe -DestinationPath ir-windows-${{ github.ref_name }}.zip
+          cd ../..
+
+      # 5. Creates the GitHub Release and uploads the zip file as an asset.
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        # **FIX**: The 'files' parameter is a top-level property for v2 of this action.
+        files: target/release/ir-windows-${{ github.ref_name }}.zip
+        env:
+          # The GITHUB_TOKEN is automatically created by GitHub Actions.
+          # It has the necessary permissions to create a release in your repository.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

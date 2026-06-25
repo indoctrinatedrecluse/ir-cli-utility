@@ -1,5 +1,9 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions};
+
+fn is_path(s: &str) -> bool {
+    s.contains('/') || s.contains('\\')
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -13,7 +17,6 @@ fn main() {
 
     match action.as_str() {
         "list" => {
-            // ... (list argument parsing remains the same)
             let mut options = ListOptions::default();
             let mut list_args = args[2..].iter().peekable();
             let mut valid = true;
@@ -76,8 +79,13 @@ fn main() {
             }
 
             if positionals.len() != 2 {
-                eprintln!("Error: 'rename' requires exactly two arguments: a source and a destination.");
+                eprintln!("Error: 'rename' requires exactly two arguments: a source path and a new name.");
                 valid = false;
+            } else {
+                if is_path(&positionals[1]) {
+                    eprintln!("Error: The destination argument ('{}') must be a new name, not a path.", positionals[1]);
+                    valid = false;
+                }
             }
 
             if valid {
@@ -86,11 +94,169 @@ fn main() {
                 help::print_rename_help();
             }
         }
+        "copy" => {
+            let mut options = CopyOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "--force" {
+                    options.force = true;
+                } else if arg == "--rename" {
+                    if let Some(new_name) = args_iter.next() {
+                        if is_path(new_name) || new_name.starts_with('-') {
+                            eprintln!("Error: --rename requires a valid filename, not a path or a switch.");
+                            valid = false; break;
+                        }
+                        options.rename = Some(new_name.clone());
+                    } else {
+                        eprintln!("Error: --rename switch requires a filename argument.");
+                        valid = false; break;
+                    }
+                } else if arg.starts_with('-') {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'r' => options.recursive = true,
+                            'f' => options.files_only = true,
+                            'l' => options.folders_only = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for copy.", char);
+                                valid = false; break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if options.recursive && (options.files_only || options.folders_only) {
+                eprintln!("Error: The '-r' switch cannot be used with '-f' or '-l'.");
+                valid = false;
+            }
+            if options.files_only && options.folders_only {
+                options.recursive = true;
+                options.files_only = false;
+                options.folders_only = false;
+            }
+            if !options.files_only && !options.folders_only {
+                options.recursive = true;
+            }
+
+            if positionals.len() != 2 {
+                eprintln!("Error: 'copy' requires exactly two arguments: a source and a destination.");
+                valid = false;
+            }
+
+            if valid {
+                ir_cli_utility::copy(&positionals[0], &positionals[1], options);
+            } else {
+                help::print_copy_help();
+            }
+        }
+        "remove" => {
+            let mut options = RemoveOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+
+            for arg in &args[2..] {
+                if arg == "--force" {
+                    options.force = true;
+                } else if arg == "--trash" {
+                    options.trash = true;
+                } else if arg == "--interactive" {
+                    options.interactive = true;
+                } else if arg == "--verbose" {
+                    options.verbose = true;
+                } else if arg.starts_with('-') {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'f' => options.force = true,
+                            't' => options.trash = true,
+                            'i' => options.interactive = true,
+                            'y' => options.yes = true,
+                            'v' => options.verbose = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for remove.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if positionals.is_empty() {
+                eprintln!("Error: 'remove' requires at least one path argument.");
+                valid = false;
+            }
+
+            if options.force {
+                options.interactive = false;
+                options.yes = true;
+            }
+
+            if valid {
+                for path in positionals {
+                    ir_cli_utility::remove(&path, &options);
+                }
+            } else {
+                help::print_remove_help();
+            }
+        }
+        "create" => {
+            let mut options = CreateOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+
+            for arg in &args[2..] {
+                if arg == "--create-file" {
+                    options.create_file = true;
+                } else if arg == "--force-subdirs" {
+                    options.force_subdirs = true;
+                } else if arg.starts_with('-') {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'p' => options.force_subdirs = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for create.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if positionals.is_empty() {
+                eprintln!("Error: 'create' requires a path argument.");
+                valid = false;
+            }
+
+            if valid {
+                for path in positionals {
+                    ir_cli_utility::create(&path, options.clone());
+                }
+            } else {
+                help::print_create_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
                     "list" => help::print_list_help(),
                     "rename" => help::print_rename_help(),
+                    "copy" => help::print_copy_help(),
+                    "remove" => help::print_remove_help(),
+                    "create" => help::print_create_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
