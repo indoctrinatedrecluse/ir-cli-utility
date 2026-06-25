@@ -9,6 +9,7 @@ pub fn print_general_help() {
     println!("    remove    Removes files and folders.");
     println!("    create    Creates files and folders.");
     println!("    move      Moves files and folders.");
+    println!("    archive   Creates or extracts archives.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -101,4 +102,22 @@ pub fn print_move_help() {
     println!("\nSWITCHES:");
     println!("        --force          Overwrites destination files if they already exist.");
     println!("        --rename <NAME>  When moving a single file, saves it under a new name.");
+}
+
+pub fn print_archive_help() {
+    println!("ir-archive");
+    println!("\nUSAGE:");
+    println!("    ir archive [SWITCHES] <PATH>");
+    println!("\nDESCRIPTION:");
+    println!("    Creates, extracts, or tests an archive.");
+    println!("\nARGUMENTS:");
+    println!("    <PATH>    The path to the source file/folder or the archive to be processed.");
+    println!("\nSWITCHES:");
+    println!("        --dest <PATH>      Specify a destination path for the output.");
+    println!("        --arc              (Default) Creates an archive from the source path.");
+    println!("        --unarc            Extracts the contents of the archive specified in <PATH>.");
+    println!("        --test             Tests the integrity of the specified archive.");
+    println!("        --format <FORMAT>  Specifies the archive format (e.g., zip, tar.gz).");
+    println!("        --force            Overwrites the destination archive if it already exists.");
+    println!("        --verbose          Prints the name of each file as it is being processed.");
 }

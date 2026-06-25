@@ -13,6 +13,12 @@ path = "src/main.rs"
 
 [dependencies]
 chrono = "0.4"
+zip = "0.6"
+tar = "0.4"
+flate2 = "1.0"
+sevenz-rust = "0.4"
+iso9660 = "0.1.1" # Corrected version
+walkdir = "2"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.52.0", features = [

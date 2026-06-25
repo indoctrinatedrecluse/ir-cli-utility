@@ -5,6 +5,7 @@ pub mod copy;
 pub mod remove;
 pub mod create;
 pub mod r#move;
+pub mod archive;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -51,6 +52,17 @@ pub struct MoveOptions {
     pub rename: Option<String>,
 }
 
+#[derive(Default, Clone)]
+pub struct ArchiveOptions {
+    pub dest: Option<String>,
+    pub arc: bool,
+    pub unarc: bool,
+    pub format: Option<String>,
+    pub test: bool,
+    pub force: bool,
+    pub verbose: bool,
+}
+
 pub fn list(options: ListOptions) {
     list::list(options);
 }
@@ -73,4 +85,8 @@ pub fn create(path: &str, options: CreateOptions) {
 
 pub fn move_item(source: &str, destination: &str, options: MoveOptions) {
     r#move::move_item(source, destination, options);
+}
+
+pub fn archive(path: &str, options: ArchiveOptions) {
+    archive::archive(path, options);
 }

@@ -35,6 +35,9 @@ Creates files and folders.
 .B move [\fIswitches\fR] <\fIsource\fR> <\fIdestination\fR>
 Moves files and folders.
 .TP
+.B archive [\fIswitches\fR] <\fIpath\fR>
+Creates, extracts, or tests archives.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -116,6 +119,29 @@ Overwrites destination files if they already exist.
 .B --rename <\fIname\fR>
 When moving a single file, saves it under a new name.
 
+.SS archive
+.TP
+.B --dest <\fIpath\fR>
+Specify a destination path for the output.
+.TP
+.B --arc
+(Default) Creates an archive from the source path.
+.TP
+.B --unarc
+Extracts the contents of the archive specified in <\fIpath\fR>.
+.TP
+.B --test
+Tests the integrity of the specified archive.
+.TP
+.B --format <\fIformat\fR>
+Specifies the archive format (e.g., zip, tar.gz).
+.TP
+.B --force
+Overwrites the destination archive if it already exists.
+.TP
+.B --verbose
+Prints the name of each file as it is being processed.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -135,6 +161,9 @@ Create a new directory, including parent directories:
 .TP
 Move a folder to a new location:
 .B ir move ./old_location ./new_location
+.TP
+Create a zip archive of a directory:
+.B ir archive ./my_folder --format zip
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

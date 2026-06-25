@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -285,6 +285,65 @@ fn main() {
                 help::print_move_help();
             }
         }
+        "archive" => {
+            let mut options = ArchiveOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "--dest" {
+                    if let Some(dest) = args_iter.next() {
+                        if !std::path::Path::new(dest).is_dir() {
+                            eprintln!("Error: Destination path '{}' is not a valid directory.", dest);
+                            valid = false; break;
+                        }
+                        options.dest = Some(dest.clone());
+                    } else {
+                        eprintln!("Error: --dest switch requires a path argument.");
+                        valid = false; break;
+                    }
+                } else if arg == "--arc" {
+                    options.arc = true;
+                } else if arg == "--unarc" {
+                    options.unarc = true;
+                } else if arg == "--format" {
+                    if let Some(format) = args_iter.next() {
+                        options.format = Some(format.clone());
+                    } else {
+                        eprintln!("Error: --format switch requires a format string.");
+                        valid = false; break;
+                    }
+                } else if arg == "--test" {
+                    options.test = true;
+                } else if arg == "--force" {
+                    options.force = true;
+                } else if arg == "--verbose" {
+                    options.verbose = true;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if options.arc && options.unarc {
+                eprintln!("Error: --arc and --unarc cannot be used together.");
+                valid = false;
+            }
+            if !options.arc && !options.unarc {
+                options.arc = true; // Default action
+            }
+
+            if positionals.len() != 1 {
+                eprintln!("Error: 'archive' requires exactly one path argument.");
+                valid = false;
+            }
+
+            if valid {
+                ir_cli_utility::archive(&positionals[0], options);
+            } else {
+                help::print_archive_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -294,6 +353,7 @@ fn main() {
                     "remove" => help::print_remove_help(),
                     "create" => help::print_create_help(),
                     "move" => help::print_move_help(),
+                    "archive" => help::print_archive_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

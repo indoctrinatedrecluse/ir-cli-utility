@@ -21,6 +21,7 @@ ir help copy
 ir help remove
 ir help create
 ir help move
+ir help archive
 ```
 
 ### `list`
@@ -39,17 +40,24 @@ Removes files and folders. See `ir help remove` for more.
 Creates files and folders. See `ir help create` for more.
 
 ### `move`
-Moves files and folders.
+Moves files and folders. See `ir help move` for more.
 
-**Usage:** `ir move [switches] <SOURCE> <DESTINATION>`
+### `archive`
+Creates, extracts, or tests archives.
+
+**Usage:** `ir archive [switches] <PATH>`
 
 **Arguments:**
-*   `<SOURCE>`: The path to the file or folder to move.
-*   `<DESTINATION>`: The path to the destination folder or new file path.
+*   `<PATH>`: The path to the source file/folder or the archive to be processed.
 
 **Switches:**
-*   `--force`: Overwrites destination files if they already exist.
-*   `--rename <NAME>`: When moving a single file, saves it under a new name.
+*   `--dest <PATH>`: Specify a destination path for the output.
+*   `--arc`: (Default) Creates an archive from the source path.
+*   `--unarc`: Extracts the contents of the archive specified in `<PATH>`.
+*   `--test`: Tests the integrity of the specified archive.
+*   `--format <FORMAT>`: Specifies the archive format (e.g., zip, tar.gz).
+*   `--force`: Overwrites the destination archive if it already exists.
+*   `--verbose`: Prints the name of each file as it is being processed.
 
 ## Documentation
 
