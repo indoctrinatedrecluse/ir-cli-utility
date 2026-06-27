@@ -11,6 +11,7 @@ pub fn print_general_help() {
     println!("    move      Moves files and folders.");
     println!("    archive   Creates or extracts archives.");
     println!("    cat       Prints file contents.");
+    println!("    grep      Searches for patterns in files or stdin.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -142,3 +143,31 @@ pub fn print_cat_help() {
     println!("    - --head, --tail, and --range cannot be used together.");
     println!("    - --binary cannot be used with text formatting switches.");
 }
+
+pub fn print_grep_help() {
+    println!("ir-grep");
+    println!("\nUSAGE:");
+    println!("    ir grep [SWITCHES] <PATTERN> [FILE...]");
+    println!("\nDESCRIPTION:");
+    println!("    Searches for lines matching a pattern in files or stdin (for piping).");
+    println!("    If no files are specified, reads from standard input.");
+    println!("\nARGUMENTS:");
+    println!("    <PATTERN>  The pattern to search for.");
+    println!("    [FILE...]  Optional file paths to search. If omitted, reads from stdin.");
+    println!("\nSWITCHES:");
+    println!("    -i, --ignore-case              Perform case-insensitive matching.");
+    println!("    -n, --line-number              Prefix each output line with its line number.");
+    println!("    -c, --count                    Count matching lines instead of displaying them.");
+    println!("    -l, --files-with-matches       Print file names with matches only (no content).");
+    println!("    -v, --invert-match             Select lines that do NOT match the pattern.");
+    println!("    -x, --line-regexp              Match the entire line only.");
+    println!("    -F, --fixed-strings            Treat pattern as a literal string, not regex.");
+    println!("    -E, --extended-regexp          Use extended regular expression syntax.");
+    println!("\nEXAMPLES:");
+    println!("    ir grep 'error' file.txt                   Search for 'error' in a file");
+    println!("    dir | ir grep 'README'                     Search piped output from dir command");
+    println!("    ir list | ir grep -i '.txt'                Pipe from another ir command");
+    println!("    ir grep -n 'warning' app.log               Show line numbers with matches");
+    println!("    ir grep -c 'TODO' src/main.rs              Count matching lines");
+}
+

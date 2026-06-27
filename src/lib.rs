@@ -7,6 +7,7 @@ pub mod create;
 pub mod r#move;
 pub mod archive;
 pub mod cat;
+pub mod grep;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -74,6 +75,18 @@ pub struct CatOptions {
     pub encoding: Option<String>,
 }
 
+#[derive(Default, Clone)]
+pub struct GrepOptions {
+    pub case_insensitive: bool,
+    pub line_numbers: bool,
+    pub count: bool,
+    pub list: bool,
+    pub invert_match: bool,
+    pub entire_line: bool,
+    pub fixed_string: bool,
+    pub extended_regex: bool,
+}
+
 pub fn list(options: ListOptions) {
     list::list(options);
 }
@@ -104,4 +117,8 @@ pub fn archive(path: &str, options: ArchiveOptions) {
 
 pub fn cat(path: &str, options: CatOptions) {
     cat::cat(path, options);
+}
+
+pub fn grep(pattern: &str, paths: Vec<String>, options: GrepOptions) {
+    grep::grep(pattern, paths, options);
 }

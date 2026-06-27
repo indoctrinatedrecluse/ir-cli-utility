@@ -23,6 +23,7 @@ ir help create
 ir help move
 ir help archive
 ir help cat
+ir help grep
 ```
 
 ### `list`
@@ -79,6 +80,34 @@ Prints file contents to standard output.
 **Rules:**
 *   `--head`, `--tail`, and `--range` cannot be used together.
 *   `--binary` cannot be used with text formatting switches.
+
+### `grep`
+Searches for patterns in files or stdin (for piping).
+
+**Usage:** `ir grep [switches] <PATTERN> [FILE...]`
+
+**Arguments:**
+*   `<PATTERN>`: The pattern to search for.
+*   `[FILE...]`: Optional file paths to search. If omitted, reads from stdin for piping.
+
+**Switches:**
+*   `-i`, `--ignore-case`: Perform case-insensitive matching.
+*   `-n`, `--line-number`: Prefix each output line with its line number.
+*   `-c`, `--count`: Count matching lines instead of displaying them.
+*   `-l`, `--files-with-matches`: Print file names with matches only (no content).
+*   `-v`, `--invert-match`: Select lines that do NOT match the pattern.
+*   `-x`, `--line-regexp`: Match the entire line only.
+*   `-F`, `--fixed-strings`: Treat pattern as a literal string, not regex.
+*   `-E`, `--extended-regexp`: Use extended regular expression syntax.
+
+**Examples:**
+```
+ir grep 'error' file.txt                    # Search for 'error' in a file
+dir | ir grep 'README'                      # Search piped output from dir command
+ir list | ir grep -i '.txt'                 # Pipe from another ir command
+ir grep -n 'warning' app.log                # Show line numbers with matches
+ir grep -c 'TODO' src/main.rs               # Count matching lines
+```
 
 ## Documentation
 

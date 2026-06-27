@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -434,6 +434,55 @@ fn main() {
                 help::print_cat_help();
             }
         }
+        "grep" => {
+            let mut options = GrepOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-i" || arg == "--ignore-case" {
+                    options.case_insensitive = true;
+                } else if arg == "-n" || arg == "--line-number" {
+                    options.line_numbers = true;
+                } else if arg == "-c" || arg == "--count" {
+                    options.count = true;
+                } else if arg == "-l" || arg == "--files-with-matches" {
+                    options.list = true;
+                } else if arg == "-v" || arg == "--invert-match" {
+                    options.invert_match = true;
+                } else if arg == "-x" || arg == "--line-regexp" {
+                    options.entire_line = true;
+                } else if arg == "-F" || arg == "--fixed-strings" {
+                    options.fixed_string = true;
+                } else if arg == "-E" || arg == "--extended-regexp" {
+                    options.extended_regex = true;
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for grep.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if positionals.is_empty() {
+                eprintln!("Error: 'grep' requires at least a pattern argument.");
+                valid = false;
+            }
+
+            if options.fixed_string && options.extended_regex {
+                eprintln!("Error: '-F' (--fixed-strings) and '-E' (--extended-regexp) cannot be used together.");
+                valid = false;
+            }
+
+            if valid {
+                let pattern = positionals.remove(0);
+                ir_cli_utility::grep(&pattern, positionals, options);
+            } else {
+                help::print_grep_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -445,6 +494,7 @@ fn main() {
                     "move" => help::print_move_help(),
                     "archive" => help::print_archive_help(),
                     "cat" => help::print_cat_help(),
+                    "grep" => help::print_grep_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
