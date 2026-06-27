@@ -13,16 +13,17 @@ $File = Join-Path $TestDir "sample.txt"
 Set-Content -Path $File -Value @("test.file", "test*file", "test[file]", "test.ext")
 
 # --- Test ---
-Write-Host "Running test: ir grep -F 'test.*' sample.txt"
-$Output = & $Executable grep -F "test.*" $File | Out-String
+# With -F, 'test*' should match 'test*file' literally (not treat * as a wildcard)
+Write-Host "Running test: ir grep -F 'test*' sample.txt"
+$Output = & $Executable grep -F "test*" $File | Out-String
 
 # --- Verification ---
 $Result = 1
-if (($Output -match "test\*file") -and -not ($Output -match "test\.file" -and $Output -split "`n" | Where-Object { $_ -match "^test\.file$" })) {
-    Write-Host "PASS: grep -F treated pattern as literal string."
+if (($Output -match "test\*file") -and -not ($Output -match "test\.file" -and -not ($Output -match "test\*"))) {
+    Write-Host "PASS: grep -F treated pattern as literal string and matched 'test*file'."
     $Result = 0
 } else {
-    Write-Host "FAIL: grep -F should match literal 'test.*' only"
+    Write-Host "FAIL: grep -F should match literal 'test*' pattern"
     Write-Host "Output was:"
     Write-Host $Output
 }

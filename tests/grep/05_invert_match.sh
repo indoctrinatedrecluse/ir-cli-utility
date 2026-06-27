@@ -19,12 +19,12 @@ echo "Running test: ir grep -v 'a' sample.txt"
 OUTPUT=$("$EXECUTABLE" grep -v "a" "$FILE")
 
 # --- Verification ---
-LINE_COUNT=$(echo "$OUTPUT" | wc -l)
-if [[ "$OUTPUT" == *"banana"* ]] && [[ "$OUTPUT" == *"berry"* ]] && [ "$LINE_COUNT" -eq 2 ]; then
-    echo "PASS: grep -v found 2 lines without 'a'."
+# Only 'berry' does NOT contain 'a'. All others (apple, banana, apricot, avocado) contain 'a'
+if echo "$OUTPUT" | grep -q "berry" && ! echo "$OUTPUT" | grep -q "apple"; then
+    echo "PASS: grep -v found only 'berry' (the line without 'a')."
     RESULT=0
 else
-    echo "FAIL: grep -v should have found 2 lines (banana, berry)"
+    echo "FAIL: grep -v should have found only 'berry'"
     echo "Output was:"
     echo "$OUTPUT"
     RESULT=1

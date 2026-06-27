@@ -18,13 +18,13 @@ $Output = & $Executable grep -v "a" $File | Out-String
 
 # --- Verification ---
 $Result = 1
-$Lines = $Output -split "`n" | Where-Object { $_ -match "\S" }
-if (($Lines.Count -eq 2) -and ($Output -match "banana") -and ($Output -match "berry")) {
-    Write-Host "PASS: grep -v found 2 lines without 'a'."
+# Only 'berry' does NOT contain 'a'. All others (apple, banana, apricot, avocado) contain 'a'
+if (($Output -match "berry") -and -not ($Output -match "apple") -and -not ($Output -match "banana")) {
+    Write-Host "PASS: grep -v found only 'berry' (the line without 'a')."
     $Result = 0
 } else {
-    Write-Host "FAIL: grep -v should have found 2 lines (banana, berry)"
-    Write-Host "Found $($Lines.Count) lines:"
+    Write-Host "FAIL: grep -v should have found only 'berry'"
+    Write-Host "Output was:"
     Write-Host $Output
 }
 

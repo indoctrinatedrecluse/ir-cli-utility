@@ -103,8 +103,8 @@ fn grep_content(content: &str, pattern: &str, options: &GrepOptions, file_path: 
 
 fn compile_pattern(pattern: &str, options: &GrepOptions) -> Result<Regex, String> {
     if options.fixed_string {
-        // Escape special regex characters for literal matching
-        Ok(Regex::Literal(regex_escape(pattern)))
+        // For literal matching, don't escape - just use the pattern as-is for substring matching
+        Ok(Regex::Literal(pattern.to_string()))
     } else if options.extended_regex {
         // Use the pattern as-is for extended regex
         Regex::Extended(pattern.to_string()).validate()
@@ -114,19 +114,6 @@ fn compile_pattern(pattern: &str, options: &GrepOptions) -> Result<Regex, String
     }
 }
 
-fn regex_escape(s: &str) -> String {
-    s.chars()
-        .flat_map(|c| {
-            match c {
-                '.' | '*' | '+' | '?' | '^' | '$' | '(' | ')' | '[' | ']' | '{' | '}' | '|'
-                | '\\' => {
-                    vec!['\\', c]
-                }
-                _ => vec![c],
-            }
-        })
-        .collect()
-}
 
 fn should_match(line: &str, regex: &Regex, options: &GrepOptions) -> bool {
     let is_match = match regex {
