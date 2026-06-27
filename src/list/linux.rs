@@ -17,6 +17,7 @@ struct FileInfo {
     modified: String,
     modified_sec: i64,
     changed: String,
+    is_dir: bool,
 }
 
 // ... (helper functions remain the same)
@@ -87,17 +88,20 @@ pub fn list(options: ListOptions) {
 
         if unsafe { lstat(c_path.as_ptr(), stat_buf.as_mut_ptr()) } == 0 {
             let stat_info = unsafe { stat_buf.assume_init() };
-            let size = stat_info.st_size as u64;
+            let is_dir = (stat_info.st_mode & S_IFMT) == S_IFDIR;
+            let size = if is_dir { 0 } else { stat_info.st_size as u64 };
+
             files.push(FileInfo {
                 name: filename_str.into_owned(),
                 permissions: format_permissions(stat_info.st_mode),
                 size,
-                size_formatted: format_size(size),
+                size_formatted: if is_dir { "---".to_string() } else { format_size(size) },
                 owner: get_user_name(stat_info.st_uid),
                 group: get_group_name(stat_info.st_gid),
                 modified: format_time(stat_info.st_mtime, stat_info.st_mtime_nsec),
                 modified_sec: stat_info.st_mtime,
                 changed: format_time(stat_info.st_ctime, stat_info.st_ctime_nsec),
+                is_dir,
             });
         }
     }

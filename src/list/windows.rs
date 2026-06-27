@@ -32,6 +32,7 @@ struct FileInfo {
     created: String,
     modified: String,
     modified_ft: FILETIME,
+    is_dir: bool,
 }
 
 // --- Helper functions ---
@@ -81,15 +82,18 @@ pub fn list(options: ListOptions) {
             if filename_str != "." && filename_str != ".." {
                 let is_hidden = find_data.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN != 0;
                 if options.show_all || !is_hidden {
-                    let size = (find_data.nFileSizeHigh as u64) << 32 | find_data.nFileSizeLow as u64;
+                    let is_dir = (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+                    let size = if is_dir { 0 } else { (find_data.nFileSizeHigh as u64) << 32 | find_data.nFileSizeLow as u64 };
+
                     files.push(FileInfo {
                         name: filename_str.to_string(),
                         permissions: format_permissions(find_data.dwFileAttributes),
                         size,
-                        size_formatted: format_size(size),
+                        size_formatted: if is_dir { "---".to_string() } else { format_size(size) },
                         created: format_filetime(&find_data.ftCreationTime),
                         modified: format_filetime(&find_data.ftLastWriteTime),
                         modified_ft: find_data.ftLastWriteTime,
+                        is_dir,
                     });
                 }
             }
