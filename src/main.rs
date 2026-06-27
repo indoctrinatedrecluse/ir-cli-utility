@@ -34,11 +34,18 @@ fn main() {
                             'a' => options.show_all = true,
                             's' => options.sort_by_size = true,
                             't' => options.sort_by_time = true,
+                            'f' => options.files_only = true,
+                            'l' => options.folders_only = true,
                             _ => { eprintln!("Error: Unknown switch '-{}'", char); valid = false; break; }
                         }
                     }
                     if !valid { break; }
                 } else { eprintln!("Error: Invalid argument '{}'", arg); valid = false; break; }
+            }
+
+            if options.files_only && options.folders_only {
+                eprintln!("Error: '-f' (files only) and '-l' (folders only) cannot be used together.");
+                valid = false;
             }
 
             if valid { ir_cli_utility::list(options); } else { help::print_list_help(); }

@@ -15,6 +15,8 @@ pub struct ListOptions {
     pub sort_by_size: bool,
     pub sort_by_time: bool,
     pub filter: Option<String>,
+    pub files_only: bool,
+    pub folders_only: bool,
 }
 
 #[derive(Default)]

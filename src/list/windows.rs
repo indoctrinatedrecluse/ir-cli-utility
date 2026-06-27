@@ -114,6 +114,15 @@ pub fn list(options: ListOptions) {
         files
     };
 
+    // Apply files-only or folders-only filter
+    let filtered_files: Vec<FileInfo> = if options.files_only {
+        filtered_files.into_iter().filter(|file| !file.is_dir).collect()
+    } else if options.folders_only {
+        filtered_files.into_iter().filter(|file| file.is_dir).collect()
+    } else {
+        filtered_files
+    };
+
     // Sorting
     let mut sorted_files = filtered_files;
     if options.sort_by_size {

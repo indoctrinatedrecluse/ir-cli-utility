@@ -26,6 +26,8 @@ pub fn print_list_help() {
     println!("    -a        Shows all files, including hidden ones.");
     println!("    -s        Sorts the output by file size, from largest to smallest.");
     println!("    -t        Sorts the output by modification time, from newest to oldest.");
+    println!("    -f        Lists only files (excludes directories).");
+    println!("    -l        Lists only directories/folders (excludes files).");
     println!("    --filter <ext> Filters by file extension.");
 }
 
