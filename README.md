@@ -27,22 +27,90 @@ ir help grep
 ```
 
 ### `list`
-Lists files and directories with detailed information. See `ir help list` for more.
+Lists files and directories with detailed information.
+
+**Usage:** `ir list [switches]`
+
+**Switches:**
+*   `-a`: Shows all files, including hidden ones.
+*   `-s`: Sorts the output by file size, from largest to smallest.
+*   `-t`: Sorts the output by modification time, from newest to oldest.
+*   `-f`: Lists only files (excludes directories).
+*   `-l`: Lists only directories/folders (excludes files).
+*   `--filter <ext>`: Filters by file extension.
 
 ### `rename`
-Renames a file or folder. See `ir help rename` for more.
+Renames a file or folder.
+
+**Usage:** `ir rename [switches] <SOURCE_PATH> <NEW_NAME>`
+
+**Arguments:**
+*   `<SOURCE_PATH>`: The full or relative path to the file/folder to rename.
+*   `<NEW_NAME>`: The new name for the file/folder (not a path).
+
+**Switches:**
+*   `-f`, `--force`: Overwrites the destination if it already exists.
+*   `-i`, `--interactive`: Prompts for confirmation before renaming.
+*   `--force-links`: Allows the renaming of symbolic links themselves.
 
 ### `copy`
-Copies files and folders. See `ir help copy` for more.
+Copies files and folders.
+
+**Usage:** `ir copy [switches] <SOURCE> <DESTINATION>`
+
+**Arguments:**
+*   `<SOURCE>`: The path to the file or folder to copy.
+*   `<DESTINATION>`: The path to the destination folder.
+
+**Switches:**
+*   `--force`: Overwrites destination files if they already exist.
+*   `-r`: (Default) Copies directories and their contents recursively.
+*   `-f`: Copies only files from the source, not subdirectories.
+*   `-l`: Copies only subdirectories from the source, not files.
+*   `--rename <NAME>`: When copying a single file, saves it under a new name.
+
+**Rules:**
+*   The `-r` switch cannot be used with `-f` or `-l`.
 
 ### `remove`
-Removes files and folders. See `ir help remove` for more.
+Removes files and folders.
+
+**Usage:** `ir remove [switches] <PATH...>`
+
+**Arguments:**
+*   `<PATH...>`: One or more paths to the files or folders to remove.
+
+**Switches:**
+*   `-f`, `--force`: Force removes files and directories without prompting.
+*   `-i`, `--interactive`: Prompts for confirmation before every removal.
+*   `-t`, `--trash`: Moves items to the system trash instead of permanently deleting.
+*   `-v`, `--verbose`: Prints the name of each file as it is being removed.
+*   `-y`: Skips the confirmation prompt for non-empty folders.
 
 ### `create`
-Creates files and folders. See `ir help create` for more.
+Creates files and folders.
+
+**Usage:** `ir create [switches] <PATH...>`
+
+**Arguments:**
+*   `<PATH...>`: One or more paths for the items to be created.
+
+**Switches:**
+*   `--create-file`: Forces the creation of a file, even if it has no extension.
+*   `-p`, `--force-subdirs`: Creates parent directories as needed.
 
 ### `move`
-Moves files and folders. See `ir help move` for more.
+Moves files and folders.
+
+**Usage:** `ir move [switches] <SOURCE> <DESTINATION>`
+
+**Arguments:**
+*   `<SOURCE>`: The path to the file or folder to move.
+*   `<DESTINATION>`: The path to the destination folder or new file path.
+
+**Switches:**
+*   `--force`: Overwrites destination files if they already exist.
+*   `--rename <NAME>`: When moving a single file, saves it under a new name.
 
 ### `archive`
 Creates, extracts, or tests archives.

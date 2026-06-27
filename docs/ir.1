@@ -41,6 +41,9 @@ Creates, extracts, or tests archives.
 .B cat [\fIswitches\fR] <\fIpath\fR>
 Prints file contents to standard output.
 .TP
+.B grep [\fIswitches\fR] <\fIpattern\fR> [<\fIfile...\fR>]
+Searches for patterns in files or stdin (for piping).
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -57,6 +60,12 @@ Sorts the output by file size, from largest to smallest.
 .TP
 .B -t
 Sorts the output by modification time, from newest to oldest.
+.TP
+.B -f
+Lists only files (excludes directories).
+.TP
+.B -l
+Lists only directories/folders (excludes files).
 .TP
 .B --filter \fIextension\fR
 Filters the list to only show files with the specified file \fIextension\fR.
@@ -168,6 +177,32 @@ Decodes text as utf-8, utf-16, or ascii.
 \fB--head\fR, \fB--tail\fR, and \fB--range\fR cannot be used together.
 \fB--binary\fR cannot be used with text formatting switches.
 
+.SS grep
+.TP
+.B -i, --ignore-case
+Perform case-insensitive matching.
+.TP
+.B -n, --line-number
+Prefixes each output line with its line number.
+.TP
+.B -c, --count
+Counts matching lines instead of displaying them.
+.TP
+.B -l, --files-with-matches
+Prints file names with matches only (no content).
+.TP
+.B -v, --invert-match
+Selects lines that do NOT match the pattern.
+.TP
+.B -x, --line-regexp
+Matches the entire line only.
+.TP
+.B -F, --fixed-strings
+Treats pattern as a literal string, not regex.
+.TP
+.B -E, --extended-regexp
+Uses extended regular expression syntax.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -193,6 +228,15 @@ Create a zip archive of a directory:
 .TP
 Print lines 10 through 20 of a file with line numbers:
 .B ir cat -n --range 10:20 ./notes.txt
+.TP
+Search for a pattern in a file:
+.B ir grep 'error' app.log
+.TP
+Search piped output from another command:
+.B ir list | ir grep -i '.txt'
+.TP
+Count matching lines in a file:
+.B ir grep -c 'TODO' src/main.rs
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.
