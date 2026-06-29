@@ -44,6 +44,9 @@ Prints file contents to standard output.
 .B grep [\fIswitches\fR] <\fIpattern\fR> [<\fIfile...\fR>]
 Searches for patterns in files or stdin (for piping).
 .TP
+.B find [<\fIpath...\fR>] [\fIexpression\fR]
+Finds files and directories by name, type, depth, or emptiness.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -203,6 +206,29 @@ Treats pattern as a literal string, not regex.
 .B -E, --extended-regexp
 Uses extended regular expression syntax.
 
+.SS find
+.TP
+.B -name <\fIpattern\fR>
+Matches a file or directory name using * and ? wildcards.
+.TP
+.B -iname <\fIpattern\fR>
+Like -name, but case-insensitive.
+.TP
+.B -type f
+Matches files only.
+.TP
+.B -type d
+Matches directories only.
+.TP
+.B -maxdepth <\fIN\fR>
+Descends at most \fIN\fR levels below each root.
+.TP
+.B -mindepth <\fIN\fR>
+Does not print entries shallower than \fIN\fR levels below each root.
+.TP
+.B -empty
+Matches empty files and empty directories.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -237,6 +263,15 @@ Search piped output from another command:
 .TP
 Count matching lines in a file:
 .B ir grep -c 'TODO' src/main.rs
+.TP
+Find Rust files under the current directory:
+.B ir find . -name '*.rs'
+.TP
+Find files directly under the current directory:
+.B ir find . -maxdepth 1 -type f
+.TP
+Search paths supplied through stdin:
+.B echo src | ir find -name '*.rs'
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

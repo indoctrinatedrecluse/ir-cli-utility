@@ -12,6 +12,7 @@ pub fn print_general_help() {
     println!("    archive   Creates or extracts archives.");
     println!("    cat       Prints file contents.");
     println!("    grep      Searches for patterns in files or stdin.");
+    println!("    find      Finds files and directories by name, type, depth, or emptiness.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -171,5 +172,30 @@ pub fn print_grep_help() {
     println!("    ir list | ir grep -i '.txt'                Pipe from another ir command");
     println!("    ir grep -n 'warning' app.log               Show line numbers with matches");
     println!("    ir grep -c 'TODO' src/main.rs              Count matching lines");
+}
+
+pub fn print_find_help() {
+    println!("ir-find");
+    println!("\nUSAGE:");
+    println!("    ir find [PATH...] [EXPRESSION]");
+    println!("\nDESCRIPTION:");
+    println!("    Finds files and directories under one or more paths.");
+    println!("    If no paths are specified, searches the current directory.");
+    println!("    If paths are piped through stdin and no paths are specified, searches those paths.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH...]  Optional root paths to search. Defaults to the current directory.");
+    println!("\nEXPRESSIONS:");
+    println!("    -name <PATTERN>     Match a file or directory name using '*' and '?' wildcards.");
+    println!("    -iname <PATTERN>    Like -name, but case-insensitive.");
+    println!("    -type f             Match files only.");
+    println!("    -type d             Match directories only.");
+    println!("    -maxdepth <N>       Descend at most N levels below each root.");
+    println!("    -mindepth <N>       Do not print entries shallower than N levels below each root.");
+    println!("    -empty              Match empty files and empty directories.");
+    println!("\nEXAMPLES:");
+    println!("    ir find . -name '*.rs'                    Find Rust files under the current directory");
+    println!("    ir find src -type d                       Find directories under src");
+    println!("    ir find . -maxdepth 1 -type f             Find files directly under the current directory");
+    println!("    echo src | ir find -name '*.rs'           Search paths supplied through stdin");
 }
 

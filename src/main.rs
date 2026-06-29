@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -490,6 +490,88 @@ fn main() {
                 help::print_grep_help();
             }
         }
+        "find" => {
+            let mut options = FindOptions::default();
+            let mut paths: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-name" {
+                    match args_iter.next() {
+                        Some(pattern) if !pattern.starts_with('-') => options.name = Some(pattern.clone()),
+                        _ => {
+                            eprintln!("Error: -name requires a pattern.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-iname" {
+                    match args_iter.next() {
+                        Some(pattern) if !pattern.starts_with('-') => options.case_insensitive_name = Some(pattern.clone()),
+                        _ => {
+                            eprintln!("Error: -iname requires a pattern.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-type" {
+                    match args_iter.next().map(String::as_str) {
+                        Some("f") => options.item_type = Some(FindItemType::File),
+                        Some("d") => options.item_type = Some(FindItemType::Directory),
+                        Some(other) => {
+                            eprintln!("Error: Unsupported -type '{}'. Use 'f' or 'd'.", other);
+                            valid = false;
+                            break;
+                        }
+                        None => {
+                            eprintln!("Error: -type requires 'f' or 'd'.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-maxdepth" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(depth) => options.max_depth = Some(depth),
+                        None => {
+                            eprintln!("Error: -maxdepth requires a non-negative number.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-mindepth" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(depth) => options.min_depth = depth,
+                        None => {
+                            eprintln!("Error: -mindepth requires a non-negative number.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-empty" {
+                    options.empty = true;
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for find.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    paths.push(arg.clone());
+                }
+            }
+
+            if let Some(max_depth) = options.max_depth {
+                if options.min_depth > max_depth {
+                    eprintln!("Error: -mindepth cannot be greater than -maxdepth.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::find(paths, options);
+            } else {
+                help::print_find_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -502,6 +584,7 @@ fn main() {
                     "archive" => help::print_archive_help(),
                     "cat" => help::print_cat_help(),
                     "grep" => help::print_grep_help(),
+                    "find" => help::print_find_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

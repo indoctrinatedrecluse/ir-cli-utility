@@ -24,6 +24,7 @@ ir help move
 ir help archive
 ir help cat
 ir help grep
+ir help find
 ```
 
 ### `list`
@@ -175,6 +176,31 @@ dir | ir grep 'README'                      # Search piped output from dir comma
 ir list | ir grep -i '.txt'                 # Pipe from another ir command
 ir grep -n 'warning' app.log                # Show line numbers with matches
 ir grep -c 'TODO' src/main.rs               # Count matching lines
+```
+
+### `find`
+Finds files and directories by name, type, depth, or emptiness.
+
+**Usage:** `ir find [PATH...] [EXPRESSION]`
+
+**Arguments:**
+*   `[PATH...]`: Optional root paths to search. Defaults to the current directory. If paths are piped through stdin and no paths are specified, searches those paths.
+
+**Expressions:**
+*   `-name <PATTERN>`: Match a file or directory name using `*` and `?` wildcards.
+*   `-iname <PATTERN>`: Like `-name`, but case-insensitive.
+*   `-type f`: Match files only.
+*   `-type d`: Match directories only.
+*   `-maxdepth <N>`: Descend at most `N` levels below each root.
+*   `-mindepth <N>`: Do not print entries shallower than `N` levels below each root.
+*   `-empty`: Match empty files and empty directories.
+
+**Examples:**
+```
+ir find . -name '*.rs'                     # Find Rust files under the current directory
+ir find src -type d                        # Find directories under src
+ir find . -maxdepth 1 -type f              # Find files directly under the current directory
+echo src | ir find -name '*.rs'            # Search paths supplied through stdin
 ```
 
 ## Documentation

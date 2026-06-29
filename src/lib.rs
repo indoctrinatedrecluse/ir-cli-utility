@@ -8,6 +8,7 @@ pub mod r#move;
 pub mod archive;
 pub mod cat;
 pub mod grep;
+pub mod find;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -89,6 +90,22 @@ pub struct GrepOptions {
     pub extended_regex: bool,
 }
 
+#[derive(Default, Clone)]
+pub struct FindOptions {
+    pub name: Option<String>,
+    pub case_insensitive_name: Option<String>,
+    pub item_type: Option<FindItemType>,
+    pub max_depth: Option<usize>,
+    pub min_depth: usize,
+    pub empty: bool,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum FindItemType {
+    File,
+    Directory,
+}
+
 pub fn list(options: ListOptions) {
     list::list(options);
 }
@@ -123,4 +140,8 @@ pub fn cat(path: &str, options: CatOptions) {
 
 pub fn grep(pattern: &str, paths: Vec<String>, options: GrepOptions) {
     grep::grep(pattern, paths, options);
+}
+
+pub fn find(paths: Vec<String>, options: FindOptions) {
+    find::find(paths, options);
 }
