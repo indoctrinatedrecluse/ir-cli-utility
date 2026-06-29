@@ -25,6 +25,8 @@ ir help archive
 ir help cat
 ir help grep
 ir help find
+ir help diff
+ir help search
 ```
 
 ### `list`
@@ -201,6 +203,60 @@ ir find . -name '*.rs'                     # Find Rust files under the current d
 ir find src -type d                        # Find directories under src
 ir find . -maxdepth 1 -type f              # Find files directly under the current directory
 echo src | ir find -name '*.rs'            # Search paths supplied through stdin
+```
+
+### `diff`
+Compares two text files.
+
+**Usage:** `ir diff [switches] <LEFT_FILE> <RIGHT_FILE>`
+
+**Arguments:**
+*   `<LEFT_FILE>`: The first file to compare.
+*   `<RIGHT_FILE>`: The second file to compare.
+
+**Switches:**
+*   `-q`, `--brief`: Report only whether the files differ.
+*   `-i`, `--ignore-case`: Ignore ASCII case differences.
+*   `-u`, `--unified`: Print unified-style output.
+
+**Examples:**
+```
+ir diff old.txt new.txt                    # Compare two files
+ir diff -u old.txt new.txt                 # Show unified-style output
+ir diff -q old.txt new.txt                 # Only report whether files differ
+```
+
+### `search`
+Recursively searches file contents under one or more paths.
+
+**Usage:** `ir search [switches] <PHRASE> [PATH...]`
+
+**Arguments:**
+*   `<PHRASE>`: The literal phrase to search for.
+*   `[PATH...]`: Optional root paths to search. Defaults to the current directory. If paths are piped through stdin and no paths are specified, searches those paths.
+
+**Switches:**
+*   `-i`, `--ignore-case`: Perform case-insensitive matching.
+*   `-n`, `--line-number`: Prefix matches with line numbers. Enabled by default.
+*   `--no-line-number`: Do not print line numbers.
+*   `-l`, `--files-with-matches`: Print file names with matches only.
+*   `-c`, `--count`: Count matching lines per file.
+*   `-name <PATTERN>`: Search only file names matching `*` and `?` wildcards.
+*   `-iname <PATTERN>`: Like `-name`, but case-insensitive.
+*   `-maxdepth <N>`: Descend at most `N` levels below each root.
+*   `-mindepth <N>`: Do not search files shallower than `N` levels below each root.
+*   `--include <EXT>`: Search only files with this extension. Can be repeated.
+*   `--exclude <EXT>`: Skip files with this extension. Can be repeated.
+*   `--all`: Include normally skipped file extensions.
+
+Common binary, executable, archive, and document extensions are skipped by default.
+
+**Examples:**
+```
+ir search TODO src                          # Search src recursively
+ir search -i "error code" .                 # Case-insensitive phrase search
+ir search TODO . --include rs               # Search only Rust files
+echo src | ir search TODO                   # Search paths supplied through stdin
 ```
 
 ## Documentation

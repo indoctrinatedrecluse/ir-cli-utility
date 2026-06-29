@@ -9,6 +9,8 @@ pub mod archive;
 pub mod cat;
 pub mod grep;
 pub mod find;
+pub mod diff;
+pub mod search;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -106,6 +108,28 @@ pub enum FindItemType {
     Directory,
 }
 
+#[derive(Default, Clone)]
+pub struct DiffOptions {
+    pub brief: bool,
+    pub ignore_case: bool,
+    pub unified: bool,
+}
+
+#[derive(Default, Clone)]
+pub struct SearchOptions {
+    pub case_insensitive: bool,
+    pub line_numbers: bool,
+    pub files_with_matches: bool,
+    pub count: bool,
+    pub name: Option<String>,
+    pub case_insensitive_name: Option<String>,
+    pub max_depth: Option<usize>,
+    pub min_depth: usize,
+    pub include_extensions: Vec<String>,
+    pub exclude_extensions: Vec<String>,
+    pub include_skipped: bool,
+}
+
 pub fn list(options: ListOptions) {
     list::list(options);
 }
@@ -144,4 +168,12 @@ pub fn grep(pattern: &str, paths: Vec<String>, options: GrepOptions) {
 
 pub fn find(paths: Vec<String>, options: FindOptions) {
     find::find(paths, options);
+}
+
+pub fn diff(left: &str, right: &str, options: DiffOptions) {
+    diff::diff(left, right, options);
+}
+
+pub fn search(phrase: &str, paths: Vec<String>, options: SearchOptions) {
+    search::search(phrase, paths, options);
 }

@@ -47,6 +47,12 @@ Searches for patterns in files or stdin (for piping).
 .B find [<\fIpath...\fR>] [\fIexpression\fR]
 Finds files and directories by name, type, depth, or emptiness.
 .TP
+.B diff [\fIswitches\fR] <\fIleft_file\fR> <\fIright_file\fR>
+Compares two text files.
+.TP
+.B search [\fIswitches\fR] <\fIphrase\fR> [<\fIpath...\fR>]
+Recursively searches file contents under one or more paths.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -229,6 +235,57 @@ Does not print entries shallower than \fIN\fR levels below each root.
 .B -empty
 Matches empty files and empty directories.
 
+.SS diff
+.TP
+.B -q, --brief
+Reports only whether the files differ.
+.TP
+.B -i, --ignore-case
+Ignores ASCII case differences.
+.TP
+.B -u, --unified
+Prints unified-style output.
+
+.SS search
+.TP
+.B -i, --ignore-case
+Perform case-insensitive matching.
+.TP
+.B -n, --line-number
+Prefixes matches with line numbers. Enabled by default.
+.TP
+.B --no-line-number
+Does not print line numbers.
+.TP
+.B -l, --files-with-matches
+Prints file names with matches only.
+.TP
+.B -c, --count
+Counts matching lines per file.
+.TP
+.B -name <\fIpattern\fR>
+Searches only file names matching * and ? wildcards.
+.TP
+.B -iname <\fIpattern\fR>
+Like -name, but case-insensitive.
+.TP
+.B -maxdepth <\fIN\fR>
+Descends at most \fIN\fR levels below each root.
+.TP
+.B -mindepth <\fIN\fR>
+Does not search files shallower than \fIN\fR levels below each root.
+.TP
+.B --include <\fIextension\fR>
+Searches only files with this extension. Can be repeated.
+.TP
+.B --exclude <\fIextension\fR>
+Skips files with this extension. Can be repeated.
+.TP
+.B --all
+Includes normally skipped file extensions.
+.PP
+Common binary, executable, archive, and document extensions are skipped by default.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -272,6 +329,18 @@ Find files directly under the current directory:
 .TP
 Search paths supplied through stdin:
 .B echo src | ir find -name '*.rs'
+.TP
+Compare two files:
+.B ir diff old.txt new.txt
+.TP
+Show unified-style differences:
+.B ir diff -u old.txt new.txt
+.TP
+Search source files recursively:
+.B ir search TODO src
+.TP
+Search only Rust files:
+.B ir search TODO . --include rs
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -572,6 +572,145 @@ fn main() {
                 help::print_find_help();
             }
         }
+        "diff" => {
+            let mut options = DiffOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+
+            for arg in &args[2..] {
+                if arg == "-q" || arg == "--brief" {
+                    options.brief = true;
+                } else if arg == "-i" || arg == "--ignore-case" {
+                    options.ignore_case = true;
+                } else if arg == "-u" || arg == "--unified" {
+                    options.unified = true;
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for diff.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if positionals.len() != 2 {
+                eprintln!("Error: 'diff' requires exactly two file paths.");
+                valid = false;
+            }
+
+            if valid {
+                ir_cli_utility::diff(&positionals[0], &positionals[1], options);
+            } else {
+                help::print_diff_help();
+            }
+        }
+        "search" => {
+            let mut options = SearchOptions::default();
+            options.line_numbers = true;
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-i" || arg == "--ignore-case" {
+                    options.case_insensitive = true;
+                } else if arg == "-n" || arg == "--line-number" {
+                    options.line_numbers = true;
+                } else if arg == "--no-line-number" {
+                    options.line_numbers = false;
+                } else if arg == "-l" || arg == "--files-with-matches" {
+                    options.files_with_matches = true;
+                } else if arg == "-c" || arg == "--count" {
+                    options.count = true;
+                } else if arg == "-name" {
+                    match args_iter.next() {
+                        Some(pattern) if !pattern.starts_with('-') => options.name = Some(pattern.clone()),
+                        _ => {
+                            eprintln!("Error: -name requires a pattern.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-iname" {
+                    match args_iter.next() {
+                        Some(pattern) if !pattern.starts_with('-') => options.case_insensitive_name = Some(pattern.clone()),
+                        _ => {
+                            eprintln!("Error: -iname requires a pattern.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-maxdepth" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(depth) => options.max_depth = Some(depth),
+                        None => {
+                            eprintln!("Error: -maxdepth requires a non-negative number.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-mindepth" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(depth) => options.min_depth = depth,
+                        None => {
+                            eprintln!("Error: -mindepth requires a non-negative number.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--include" {
+                    match args_iter.next() {
+                        Some(ext) if !ext.starts_with('-') => options.include_extensions.push(normalize_extension(ext)),
+                        _ => {
+                            eprintln!("Error: --include requires a file extension.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--exclude" {
+                    match args_iter.next() {
+                        Some(ext) if !ext.starts_with('-') => options.exclude_extensions.push(normalize_extension(ext)),
+                        _ => {
+                            eprintln!("Error: --exclude requires a file extension.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--all" {
+                    options.include_skipped = true;
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for search.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if options.files_with_matches && options.count {
+                eprintln!("Error: '-l' (--files-with-matches) and '-c' (--count) cannot be used together.");
+                valid = false;
+            }
+
+            if let Some(max_depth) = options.max_depth {
+                if options.min_depth > max_depth {
+                    eprintln!("Error: -mindepth cannot be greater than -maxdepth.");
+                    valid = false;
+                }
+            }
+
+            if positionals.is_empty() {
+                eprintln!("Error: 'search' requires a phrase argument.");
+                valid = false;
+            }
+
+            if valid {
+                let phrase = positionals.remove(0);
+                ir_cli_utility::search(&phrase, positionals, options);
+            } else {
+                help::print_search_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -585,6 +724,8 @@ fn main() {
                     "cat" => help::print_cat_help(),
                     "grep" => help::print_grep_help(),
                     "find" => help::print_find_help(),
+                    "diff" => help::print_diff_help(),
+                    "search" => help::print_search_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
@@ -599,6 +740,10 @@ fn main() {
             help::print_general_help();
         }
     }
+}
+
+fn normalize_extension(ext: &str) -> String {
+    ext.trim_start_matches('.').to_ascii_lowercase()
 }
 
 fn parse_line_range(range: &str) -> Option<(usize, usize)> {

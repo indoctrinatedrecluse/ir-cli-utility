@@ -13,6 +13,8 @@ pub fn print_general_help() {
     println!("    cat       Prints file contents.");
     println!("    grep      Searches for patterns in files or stdin.");
     println!("    find      Finds files and directories by name, type, depth, or emptiness.");
+    println!("    diff      Compares two text files.");
+    println!("    search    Recursively searches file contents under one or more paths.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -197,5 +199,56 @@ pub fn print_find_help() {
     println!("    ir find src -type d                       Find directories under src");
     println!("    ir find . -maxdepth 1 -type f             Find files directly under the current directory");
     println!("    echo src | ir find -name '*.rs'           Search paths supplied through stdin");
+}
+
+pub fn print_diff_help() {
+    println!("ir-diff");
+    println!("\nUSAGE:");
+    println!("    ir diff [SWITCHES] <LEFT_FILE> <RIGHT_FILE>");
+    println!("\nDESCRIPTION:");
+    println!("    Compares two text files and prints their line differences.");
+    println!("\nARGUMENTS:");
+    println!("    <LEFT_FILE>   The first file to compare.");
+    println!("    <RIGHT_FILE>  The second file to compare.");
+    println!("\nSWITCHES:");
+    println!("    -q, --brief        Report only whether the files differ.");
+    println!("    -i, --ignore-case  Ignore ASCII case differences.");
+    println!("    -u, --unified      Print unified-style output.");
+    println!("\nEXAMPLES:");
+    println!("    ir diff old.txt new.txt                  Compare two files");
+    println!("    ir diff -u old.txt new.txt               Show unified-style output");
+    println!("    ir diff -q old.txt new.txt               Only report whether files differ");
+}
+
+pub fn print_search_help() {
+    println!("ir-search");
+    println!("\nUSAGE:");
+    println!("    ir search [SWITCHES] <PHRASE> [PATH...]");
+    println!("\nDESCRIPTION:");
+    println!("    Recursively searches file contents under one or more paths.");
+    println!("    If no paths are specified, searches the current directory.");
+    println!("    If paths are piped through stdin and no paths are specified, searches those paths.");
+    println!("    Common binary, executable, archive, and document extensions are skipped by default.");
+    println!("\nARGUMENTS:");
+    println!("    <PHRASE>   The literal phrase to search for.");
+    println!("    [PATH...]  Optional root paths to search. Defaults to the current directory.");
+    println!("\nSWITCHES:");
+    println!("    -i, --ignore-case          Perform case-insensitive matching.");
+    println!("    -n, --line-number          Prefix matches with line numbers. Enabled by default.");
+    println!("        --no-line-number       Do not print line numbers.");
+    println!("    -l, --files-with-matches   Print file names with matches only.");
+    println!("    -c, --count                Count matching lines per file.");
+    println!("    -name <PATTERN>            Search only file names matching '*' and '?' wildcards.");
+    println!("    -iname <PATTERN>           Like -name, but case-insensitive.");
+    println!("    -maxdepth <N>              Descend at most N levels below each root.");
+    println!("    -mindepth <N>              Do not search files shallower than N levels below each root.");
+    println!("        --include <EXT>        Search only files with this extension. Can be repeated.");
+    println!("        --exclude <EXT>        Skip files with this extension. Can be repeated.");
+    println!("        --all                  Include normally skipped file extensions.");
+    println!("\nEXAMPLES:");
+    println!("    ir search TODO src                     Search src recursively");
+    println!("    ir search -i \"error code\" .           Case-insensitive phrase search");
+    println!("    ir search TODO . --include rs          Search only Rust files");
+    println!("    echo src | ir search TODO              Search paths supplied through stdin");
 }
 
