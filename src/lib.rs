@@ -11,6 +11,7 @@ pub mod grep;
 pub mod find;
 pub mod diff;
 pub mod search;
+pub mod which;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -130,6 +131,11 @@ pub struct SearchOptions {
     pub include_skipped: bool,
 }
 
+#[derive(Default, Clone)]
+pub struct WhichOptions {
+    pub all: bool,
+}
+
 pub fn list(options: ListOptions) {
     list::list(options);
 }
@@ -176,4 +182,8 @@ pub fn diff(left: &str, right: &str, options: DiffOptions) {
 
 pub fn search(phrase: &str, paths: Vec<String>, options: SearchOptions) {
     search::search(phrase, paths, options);
+}
+
+pub fn which(command: &str, options: WhichOptions) {
+    which::which(command, options);
 }

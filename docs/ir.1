@@ -53,6 +53,9 @@ Compares two text files.
 .B search [\fIswitches\fR] <\fIphrase\fR> [<\fIpath...\fR>]
 Recursively searches file contents under one or more paths.
 .TP
+.B which [\fIswitches\fR] <\fIcommand\fR>
+Locates a command in PATH.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -286,6 +289,13 @@ Includes normally skipped file extensions.
 .PP
 Common binary, executable, archive, and document extensions are skipped by default.
 
+.SS which
+.TP
+.B -a, --all
+Prints all matching commands in PATH order.
+.PP
+On Windows, PATHEXT is used to resolve executable extensions.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -341,6 +351,12 @@ Search source files recursively:
 .TP
 Search only Rust files:
 .B ir search TODO . --include rs
+.TP
+Locate rustc:
+.B ir which rustc
+.TP
+Print all python matches:
+.B ir which -a python
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

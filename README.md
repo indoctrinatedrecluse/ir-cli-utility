@@ -27,6 +27,7 @@ ir help grep
 ir help find
 ir help diff
 ir help search
+ir help which
 ```
 
 ### `list`
@@ -257,6 +258,25 @@ ir search TODO src                          # Search src recursively
 ir search -i "error code" .                 # Case-insensitive phrase search
 ir search TODO . --include rs               # Search only Rust files
 echo src | ir search TODO                   # Search paths supplied through stdin
+```
+
+### `which`
+Locates a command in `PATH`.
+
+**Usage:** `ir which [switches] <COMMAND>`
+
+**Arguments:**
+*   `<COMMAND>`: The command name to locate.
+
+**Switches:**
+*   `-a`, `--all`: Print all matching commands in `PATH` order.
+
+On Windows, `PATHEXT` is used to resolve executable extensions.
+
+**Examples:**
+```
+ir which rustc                              # Locate rustc
+ir which -a python                          # Print all python matches
 ```
 
 ## Documentation

@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -711,6 +711,34 @@ fn main() {
                 help::print_search_help();
             }
         }
+        "which" => {
+            let mut options = WhichOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+
+            for arg in &args[2..] {
+                if arg == "-a" || arg == "--all" {
+                    options.all = true;
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for which.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if positionals.len() != 1 {
+                eprintln!("Error: 'which' requires exactly one command name.");
+                valid = false;
+            }
+
+            if valid {
+                ir_cli_utility::which(&positionals[0], options);
+            } else {
+                help::print_which_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -726,6 +754,7 @@ fn main() {
                     "find" => help::print_find_help(),
                     "diff" => help::print_diff_help(),
                     "search" => help::print_search_help(),
+                    "which" => help::print_which_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

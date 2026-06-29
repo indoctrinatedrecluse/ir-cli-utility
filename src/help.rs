@@ -15,6 +15,7 @@ pub fn print_general_help() {
     println!("    find      Finds files and directories by name, type, depth, or emptiness.");
     println!("    diff      Compares two text files.");
     println!("    search    Recursively searches file contents under one or more paths.");
+    println!("    which     Locates a command in PATH.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -250,5 +251,21 @@ pub fn print_search_help() {
     println!("    ir search -i \"error code\" .           Case-insensitive phrase search");
     println!("    ir search TODO . --include rs          Search only Rust files");
     println!("    echo src | ir search TODO              Search paths supplied through stdin");
+}
+
+pub fn print_which_help() {
+    println!("ir-which");
+    println!("\nUSAGE:");
+    println!("    ir which [SWITCHES] <COMMAND>");
+    println!("\nDESCRIPTION:");
+    println!("    Locates a command by searching the directories listed in PATH.");
+    println!("    On Windows, PATHEXT is used to resolve executable extensions.");
+    println!("\nARGUMENTS:");
+    println!("    <COMMAND>  The command name to locate.");
+    println!("\nSWITCHES:");
+    println!("    -a, --all  Print all matching commands in PATH order.");
+    println!("\nEXAMPLES:");
+    println!("    ir which rustc                         Locate rustc");
+    println!("    ir which -a python                     Print all python matches");
 }
 
