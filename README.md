@@ -527,6 +527,21 @@ ir du -ah -d 1                           # Show human-readable usage of all file
 
 ---
 
+### ⚡ `fastfetch`
+Displays system information side-by-side with a stylized ASCII logo.
+
+**Usage:**
+```bash
+ir fastfetch
+```
+
+**Examples:**
+```bash
+ir fastfetch                             # Show system info
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 

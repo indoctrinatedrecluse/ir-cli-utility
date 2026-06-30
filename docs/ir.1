@@ -62,6 +62,9 @@ Displays a directory tree representation of the filesystem.
 .B du [<\fIpath...\fR>] [\fIswitches\fR]
 Estimates file space usage recursively.
 .TP
+.B fastfetch
+Displays system information side-by-side with a stylized ASCII logo.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -436,6 +439,9 @@ Summarize disk usage of all items in human-readable format:
 .TP
 Show human-readable usage of all files up to depth 1:
 .B ir du -ah -d 1
+.TP
+Show system information:
+.B ir fastfetch
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

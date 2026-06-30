@@ -14,6 +14,7 @@ pub mod search;
 pub mod which;
 pub mod tree;
 pub mod du;
+pub mod fastfetch;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -220,4 +221,8 @@ pub fn tree(path: &str, options: TreeOptions) {
 
 pub fn du(paths: Vec<String>, options: DuOptions) {
     du::du(paths, options);
+}
+
+pub fn fastfetch() {
+    fastfetch::fastfetch();
 }

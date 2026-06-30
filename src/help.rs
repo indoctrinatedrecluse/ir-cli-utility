@@ -18,6 +18,7 @@ pub fn print_general_help() {
     println!("    which     Locates a command in PATH.");
     println!("    tree      Displays a directory tree representation of the filesystem.");
     println!("    du        Estimates file space usage.");
+    println!("    fastfetch Displays system information and a fancy logo.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -318,5 +319,15 @@ pub fn print_du_help() {
     println!("    ir du                                    Show disk usage of all directories");
     println!("    ir du -sh *                              Summarize disk usage of all items in human-readable format");
     println!("    ir du -ah -d 1                           Show human-readable usage of all files up to depth 1");
+}
+
+pub fn print_fastfetch_help() {
+    println!("ir-fastfetch");
+    println!("\nUSAGE:");
+    println!("    ir fastfetch");
+    println!("\nDESCRIPTION:");
+    println!("    Displays system information and a fancy logo.");
+    println!("\nEXAMPLES:");
+    println!("    ir fastfetch                             Show system info");
 }
 

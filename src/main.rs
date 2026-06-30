@@ -849,6 +849,9 @@ fn main() {
                 help::print_du_help();
             }
         }
+        "fastfetch" => {
+            ir_cli_utility::fastfetch();
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -867,6 +870,7 @@ fn main() {
                     "which" => help::print_which_help(),
                     "tree" => help::print_tree_help(),
                     "du" => help::print_du_help(),
+                    "fastfetch" => help::print_fastfetch_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
