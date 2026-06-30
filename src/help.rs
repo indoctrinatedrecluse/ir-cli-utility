@@ -19,6 +19,7 @@ pub fn print_general_help() {
     println!("    tree      Displays a directory tree representation of the filesystem.");
     println!("    du        Estimates file space usage.");
     println!("    fastfetch Displays system information and a fancy logo.");
+    println!("    monitor   Invokes the bundled term-sys-monitor utility.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -329,5 +330,15 @@ pub fn print_fastfetch_help() {
     println!("    Displays system information and a fancy logo.");
     println!("\nEXAMPLES:");
     println!("    ir fastfetch                             Show system info");
+}
+
+pub fn print_monitor_help() {
+    println!("ir-monitor");
+    println!("\nUSAGE:");
+    println!("    ir monitor");
+    println!("\nDESCRIPTION:");
+    println!("    Spawns the bundled term-sys-monitor utility in a separate shell window.");
+    println!("\nEXAMPLES:");
+    println!("    ir monitor                               Launch system monitor");
 }
 

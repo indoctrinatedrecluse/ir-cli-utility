@@ -98,6 +98,11 @@ rm "$TEMP_TAR"
 mv "$EXTRACT_DIR/ir" "$INSTALL_DIR/ir"
 chmod +x "$INSTALL_DIR/ir"
 
+if [ -f "$EXTRACT_DIR/term-sys-monitor-linux" ]; then
+    mv "$EXTRACT_DIR/term-sys-monitor-linux" "$INSTALL_DIR/term-sys-monitor-linux"
+    chmod +x "$INSTALL_DIR/term-sys-monitor-linux"
+fi
+
 # Install the man page
 install_man "$EXTRACT_DIR/ir.1"
 

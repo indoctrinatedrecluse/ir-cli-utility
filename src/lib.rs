@@ -15,6 +15,7 @@ pub mod which;
 pub mod tree;
 pub mod du;
 pub mod fastfetch;
+pub mod monitor;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -225,4 +226,8 @@ pub fn du(paths: Vec<String>, options: DuOptions) {
 
 pub fn fastfetch() {
     fastfetch::fastfetch();
+}
+
+pub fn monitor() {
+    monitor::monitor();
 }

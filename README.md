@@ -542,6 +542,21 @@ ir fastfetch                             # Show system info
 
 ---
 
+### 🖥️ `monitor`
+Invokes the bundled `term-sys-monitor` utility in a separate shell window.
+
+**Usage:**
+```bash
+ir monitor
+```
+
+**Examples:**
+```bash
+ir monitor                               # Launch system monitor
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 

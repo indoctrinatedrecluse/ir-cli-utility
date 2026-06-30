@@ -29,15 +29,26 @@ jobs:
       - name: Build release
         run: cargo build --release
 
+      - name: Download term-sys-monitor (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          curl -L -o target/release/term-sys-monitor-windows.exe https://github.com/indoctrinatedrecluse/term-sys-monitor/releases/latest/download/term-sys-monitor-windows.exe
+
       - name: Package executable (Windows)
         if: matrix.os == 'windows-latest'
-        run: Compress-Archive -Path target/release/ir.exe -DestinationPath ${{ matrix.asset_name }} -Force
+        run: Compress-Archive -Path target/release/ir.exe, target/release/term-sys-monitor-windows.exe -DestinationPath ${{ matrix.asset_name }} -Force
+
+      - name: Download term-sys-monitor (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          curl -L -o target/release/term-sys-monitor-linux https://github.com/indoctrinatedrecluse/term-sys-monitor/releases/latest/download/term-sys-monitor-linux
+          chmod +x target/release/term-sys-monitor-linux
 
       - name: Package executable (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           cp docs/ir.1 target/release/
-          tar -czf ${{ matrix.asset_name }} -C target/release ir ir.1
+          tar -czf ${{ matrix.asset_name }} -C target/release ir ir.1 term-sys-monitor-linux
 
       - name: Create or Update Release
         uses: softprops/action-gh-release@v2
