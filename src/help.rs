@@ -17,6 +17,7 @@ pub fn print_general_help() {
     println!("    search    Recursively searches file contents under one or more paths.");
     println!("    which     Locates a command in PATH.");
     println!("    tree      Displays a directory tree representation of the filesystem.");
+    println!("    du        Estimates file space usage.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -292,5 +293,30 @@ pub fn print_tree_help() {
     println!("    ir tree                                  Show the tree structure of the current directory");
     println!("    ir tree -L 2 src                         Show the src directory tree up to depth 2");
     println!("    ir tree -adps -h                         Show all files, permissions, sizes human-readably, including hidden files");
+}
+
+pub fn print_du_help() {
+    println!("ir-du");
+    println!("\nUSAGE:");
+    println!("    ir du [SWITCHES] [PATH...]");
+    println!("\nDESCRIPTION:");
+    println!("    Estimates file space usage recursively.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH...]  One or more paths to estimate. Defaults to the current directory.");
+    println!("\nSWITCHES:");
+    println!("    -a        Write counts for all files, not just directories.");
+    println!("    -c        Produce a grand total.");
+    println!("    -h        Print sizes in human-readable format.");
+    println!("    -s        Display only a total for each argument (equivalent to -d 0).");
+    println!("    -d <depth>, --max-depth <depth>  Print the total for a directory only if it is at or below this depth.");
+    println!("    -k        Print sizes in kilobytes (1024-byte blocks) [Default].");
+    println!("    -m        Print sizes in megabytes (1024*1024-byte blocks).");
+    println!("\nRULES:");
+    println!("    - -h, -k, and -m are mutually exclusive size formatting switches.");
+    println!("    - -s (summarize) and -d (max-depth > 0) cannot be combined.");
+    println!("\nEXAMPLES:");
+    println!("    ir du                                    Show disk usage of all directories");
+    println!("    ir du -sh *                              Summarize disk usage of all items in human-readable format");
+    println!("    ir du -ah -d 1                           Show human-readable usage of all files up to depth 1");
 }
 

@@ -13,6 +13,7 @@ pub mod diff;
 pub mod search;
 pub mod which;
 pub mod tree;
+pub mod du;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -146,6 +147,17 @@ pub struct TreeOptions {
 }
 
 #[derive(Default, Clone)]
+pub struct DuOptions {
+    pub show_all: bool,
+    pub total: bool,
+    pub human_readable: bool,
+    pub summarize: bool,
+    pub max_depth: Option<usize>,
+    pub kilobytes: bool,
+    pub megabytes: bool,
+}
+
+#[derive(Default, Clone)]
 pub struct WhichOptions {
     pub all: bool,
 }
@@ -204,4 +216,8 @@ pub fn which(command: &str, options: WhichOptions) {
 
 pub fn tree(path: &str, options: TreeOptions) {
     tree::tree(path, options);
+}
+
+pub fn du(paths: Vec<String>, options: DuOptions) {
+    du::du(paths, options);
 }

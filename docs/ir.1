@@ -59,6 +59,9 @@ Locates a command in PATH.
 .B tree [<\fIpath\fR>] [\fIswitches\fR]
 Displays a directory tree representation of the filesystem.
 .TP
+.B du [<\fIpath...\fR>] [\fIswitches\fR]
+Estimates file space usage recursively.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -328,6 +331,32 @@ Print file permissions.
 .B --noreport
 Omits printing of the file and directory report at the end.
 
+.SS du
+.TP
+.B -a
+Write counts for all files, not just directories.
+.TP
+.B -c
+Produce a grand total at the end.
+.TP
+.B -h
+Print sizes in human-readable format.
+.TP
+.B -s
+Display only a total for each argument (equivalent to -d 0).
+.TP
+.B -d <depth>, --max-depth <depth>
+Print the total for a directory only if it is at or below this depth.
+.TP
+.B -k
+Print sizes in kilobytes (1024-byte blocks) [Default].
+.TP
+.B -m
+Print sizes in megabytes (1024*1024-byte blocks).
+.PP
+\fB-h\fR, \fB-k\fR, and \fB-m\fR are mutually exclusive size formatting switches.
+\fB-s\fR and \fB-d\fR (max-depth > 0) cannot be combined.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -398,6 +427,15 @@ Show the src directory tree up to depth 2:
 .TP
 Show all files, permissions, human-readable sizes:
 .B ir tree -adps -h
+.TP
+Show disk usage of all directories:
+.B ir du
+.TP
+Summarize disk usage of all items in human-readable format:
+.B ir du -sh *
+.TP
+Show human-readable usage of all files up to depth 1:
+.B ir du -ah -d 1
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

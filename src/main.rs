@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -792,6 +792,63 @@ fn main() {
                 help::print_tree_help();
             }
         }
+        "du" => {
+            let mut options = DuOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-d" || arg == "--max-depth" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(depth) => options.max_depth = Some(depth),
+                        None => {
+                            eprintln!("Error: --max-depth requires a non-negative depth limit.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'a' => options.show_all = true,
+                            'c' => options.total = true,
+                            'h' => options.human_readable = true,
+                            's' => options.summarize = true,
+                            'k' => options.kilobytes = true,
+                            'm' => options.megabytes = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for du.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if options.summarize && options.max_depth.is_some() && options.max_depth.unwrap() > 0 {
+                    eprintln!("Error: Cannot combine -s (summarize) with -d (max-depth > 0).");
+                    valid = false;
+                }
+                
+                let format_count = usize::from(options.human_readable) + usize::from(options.kilobytes) + usize::from(options.megabytes);
+                if format_count > 1 {
+                    eprintln!("Error: -h, -k, and -m are mutually exclusive size formatting switches.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::du(positionals, options);
+            } else {
+                help::print_du_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -809,6 +866,7 @@ fn main() {
                     "search" => help::print_search_help(),
                     "which" => help::print_which_help(),
                     "tree" => help::print_tree_help(),
+                    "du" => help::print_du_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

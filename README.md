@@ -489,6 +489,44 @@ ir tree -adps -h                         # Show all files, permissions, human-re
 
 ---
 
+### 📊 `du`
+Estimates file space usage recursively.
+
+**Usage:**
+```bash
+ir du [switches] [PATH...]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH...]` | One or more paths to estimate. Defaults to the current directory. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-a` | Write counts for all files, not just directories. |
+| `-c` | Produce a grand total at the end. |
+| `-h` | Print sizes in human-readable format. |
+| `-s` | Display only a total for each argument (equivalent to `-d 0`). |
+| `-d <depth>, --max-depth <depth>` | Print the total for a directory only if it is at or below this depth. |
+| `-k` | Print sizes in kilobytes (1024-byte blocks) [Default]. |
+| `-m` | Print sizes in megabytes (1024*1024-byte blocks). |
+
+> [!IMPORTANT]
+> **Rules:**
+> * `-h`, `-k`, and `-m` are mutually exclusive size formatting switches.
+> * `-s` (summarize) and `-d` (max-depth > 0) cannot be combined.
+
+**Examples:**
+```bash
+ir du                                    # Show disk usage of all directories
+ir du -sh *                              # Summarize disk usage of all items in human-readable format
+ir du -ah -d 1                           # Show human-readable usage of all files up to depth 1
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 
