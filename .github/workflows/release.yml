@@ -35,7 +35,9 @@ jobs:
 
       - name: Package executable (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: tar -czf ${{ matrix.asset_name }} -C target/release ir
+        run: |
+          cp docs/ir.1 target/release/
+          tar -czf ${{ matrix.asset_name }} -C target/release ir ir.1
 
       - name: Create or Update Release
         uses: softprops/action-gh-release@v2

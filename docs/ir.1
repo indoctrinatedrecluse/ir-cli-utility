@@ -56,6 +56,9 @@ Recursively searches file contents under one or more paths.
 .B which [\fIswitches\fR] <\fIcommand\fR>
 Locates a command in PATH.
 .TP
+.B tree [<\fIpath\fR>] [\fIswitches\fR]
+Displays a directory tree representation of the filesystem.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -296,6 +299,35 @@ Prints all matching commands in PATH order.
 .PP
 On Windows, PATHEXT is used to resolve executable extensions.
 
+.SS tree
+.TP
+.B -a
+Shows all files, including hidden ones.
+.TP
+.B -d
+List directories only.
+.TP
+.B -L <depth>
+Max display depth of the directory tree.
+.TP
+.B -f
+Print the full path prefix for each file.
+.TP
+.B -i
+Makes tree not print the indentation lines.
+.TP
+.B -s
+Print the size of each file in bytes.
+.TP
+.B -h
+Print the size in a more human-readable format.
+.TP
+.B -p
+Print file permissions.
+.TP
+.B --noreport
+Omits printing of the file and directory report at the end.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -357,6 +389,15 @@ Locate rustc:
 .TP
 Print all python matches:
 .B ir which -a python
+.TP
+Show the tree structure of the current directory:
+.B ir tree
+.TP
+Show the src directory tree up to depth 2:
+.B ir tree -L 2 src
+.TP
+Show all files, permissions, human-readable sizes:
+.B ir tree -adps -h
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

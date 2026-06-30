@@ -450,6 +450,45 @@ echo src | ir search TODO                   # Search paths supplied through stdi
 
 ---
 
+### 🌳 `tree`
+Displays a directory tree representation of the filesystem.
+
+**Usage:**
+```bash
+ir tree [switches] [PATH]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH]` | The root path of the directory tree. Defaults to the current directory. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-a` | Shows all files, including hidden ones. |
+| `-d` | List directories only. |
+| `-L <depth>` | Max display depth of the directory tree. |
+| `-f` | Print the full path prefix for each file. |
+| `-i` | Makes tree not print the indentation lines. |
+| `-s` | Print the size of each file in bytes. |
+| `-h` | Print the size in a more human-readable format. |
+| `-p` | Print file permissions. |
+| `--noreport` | Omits printing of the file and directory report at the end. |
+
+> [!NOTE]
+> * Concatenated switches like `-adps` are fully supported.
+> * If `-h` (human-readable size) is specified, it takes precedence over raw sizes from `-s`.
+
+**Examples:**
+```bash
+ir tree                                  # Show the tree structure of the current directory
+ir tree -L 2 src                         # Show the src directory tree up to depth 2
+ir tree -adps -h                         # Show all files, permissions, human-readable sizes
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 

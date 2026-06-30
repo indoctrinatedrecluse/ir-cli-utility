@@ -16,6 +16,7 @@ pub fn print_general_help() {
     println!("    diff      Compares two text files.");
     println!("    search    Recursively searches file contents under one or more paths.");
     println!("    which     Locates a command in PATH.");
+    println!("    tree      Displays a directory tree representation of the filesystem.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -267,5 +268,29 @@ pub fn print_which_help() {
     println!("\nEXAMPLES:");
     println!("    ir which rustc                         Locate rustc");
     println!("    ir which -a python                     Print all python matches");
+}
+
+pub fn print_tree_help() {
+    println!("ir-tree");
+    println!("\nUSAGE:");
+    println!("    ir tree [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Displays a directory tree representation of the filesystem.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH]    The root path of the directory tree. Defaults to the current directory.");
+    println!("\nSWITCHES:");
+    println!("    -a        Shows all files, including hidden ones.");
+    println!("    -d        List directories only.");
+    println!("    -L <depth> Max display depth of the directory tree.");
+    println!("    -f        Print the full path prefix for each file.");
+    println!("    -i        Makes tree not print the indentation lines.");
+    println!("    -s        Print the size of each file in bytes.");
+    println!("    -h        Print the size in a more human-readable format.");
+    println!("    -p        Print file permissions.");
+    println!("        --noreport Omits printing of the file and directory report at the end.");
+    println!("\nEXAMPLES:");
+    println!("    ir tree                                  Show the tree structure of the current directory");
+    println!("    ir tree -L 2 src                         Show the src directory tree up to depth 2");
+    println!("    ir tree -adps -h                         Show all files, permissions, sizes human-readably, including hidden files");
 }
 

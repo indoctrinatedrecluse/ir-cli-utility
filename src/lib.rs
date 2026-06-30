@@ -12,6 +12,7 @@ pub mod find;
 pub mod diff;
 pub mod search;
 pub mod which;
+pub mod tree;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -132,6 +133,19 @@ pub struct SearchOptions {
 }
 
 #[derive(Default, Clone)]
+pub struct TreeOptions {
+    pub show_all: bool,
+    pub dirs_only: bool,
+    pub max_depth: Option<usize>,
+    pub full_path: bool,
+    pub no_indent: bool,
+    pub show_size: bool,
+    pub human_readable: bool,
+    pub show_perms: bool,
+    pub no_report: bool,
+}
+
+#[derive(Default, Clone)]
 pub struct WhichOptions {
     pub all: bool,
 }
@@ -186,4 +200,8 @@ pub fn search(phrase: &str, paths: Vec<String>, options: SearchOptions) {
 
 pub fn which(command: &str, options: WhichOptions) {
     which::which(command, options);
+}
+
+pub fn tree(path: &str, options: TreeOptions) {
+    tree::tree(path, options);
 }

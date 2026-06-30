@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -739,6 +739,59 @@ fn main() {
                 help::print_which_help();
             }
         }
+        "tree" => {
+            let mut options = TreeOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-L" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(depth) => options.max_depth = Some(depth),
+                        None => {
+                            eprintln!("Error: -L requires a non-negative depth limit.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--noreport" {
+                    options.no_report = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'a' => options.show_all = true,
+                            'd' => options.dirs_only = true,
+                            'f' => options.full_path = true,
+                            'i' => options.no_indent = true,
+                            's' => options.show_size = true,
+                            'h' => options.human_readable = true,
+                            'p' => options.show_perms = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for tree.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if positionals.len() > 1 {
+                eprintln!("Error: 'tree' accepts at most one path argument.");
+                valid = false;
+            }
+
+            if valid {
+                let path = if positionals.is_empty() { "." } else { &positionals[0] };
+                ir_cli_utility::tree(path, options);
+            } else {
+                help::print_tree_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -755,6 +808,7 @@ fn main() {
                     "diff" => help::print_diff_help(),
                     "search" => help::print_search_help(),
                     "which" => help::print_which_help(),
+                    "tree" => help::print_tree_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
