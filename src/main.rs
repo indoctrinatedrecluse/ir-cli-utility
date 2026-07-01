@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -855,6 +855,162 @@ fn main() {
         "monitor" => {
             ir_cli_utility::monitor();
         }
+        "hash" => {
+            let mut options = HashOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-a" || arg == "--algorithm" {
+                    match args_iter.next() {
+                        Some(algo) => options.algorithm = algo.clone(),
+                        None => {
+                            eprintln!("Error: --algorithm requires an algorithm name (e.g. md5, sha256).");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-v" || arg == "--verify" {
+                    match args_iter.next() {
+                        Some(expected) => options.verify = Some(expected.clone()),
+                        None => {
+                            eprintln!("Error: --verify requires the expected hash string.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'c' => options.checksum_file = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for hash.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if options.verify.is_some() && options.checksum_file {
+                    eprintln!("Error: Cannot combine -v (verify) and -c (checksum-file).");
+                    valid = false;
+                }
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'hash' action requires exactly one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::hash(&positionals[0], options);
+            } else {
+                help::print_hash_help();
+            }
+        }
+        "ps" => {
+            let mut options = PsOptions::default();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-s" || arg == "--sort" {
+                    match args_iter.next() {
+                        Some(field) => {
+                            let field_lower = field.to_lowercase();
+                            if field_lower == "pid" || field_lower == "name" || field_lower == "cpu" || field_lower == "mem" {
+                                options.sort_by = field_lower;
+                            } else {
+                                eprintln!("Error: Sort field must be one of 'pid', 'name', 'cpu', or 'mem'.");
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --sort requires a field name ('pid', 'name', 'cpu', 'mem').");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-f" || arg == "--filter" {
+                    match args_iter.next() {
+                        Some(filter) => options.filter = Some(filter.clone()),
+                        None => {
+                            eprintln!("Error: --filter requires a filter string.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-n" || arg == "--limit" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(limit) => options.limit = Some(limit),
+                        None => {
+                            eprintln!("Error: --limit requires a positive number.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for ps.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    eprintln!("Error: 'ps' action does not accept positional arguments.");
+                    valid = false;
+                    break;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::ps(options);
+            } else {
+                help::print_ps_help();
+            }
+        }
+        "kill" => {
+            let mut options = KillOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'f' => options.force = true,
+                            'a' => options.all = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for kill.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'kill' action requires exactly one process ID (PID) or process name argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::kill(&positionals[0], options);
+            } else {
+                help::print_kill_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -875,6 +1031,9 @@ fn main() {
                     "du" => help::print_du_help(),
                     "fastfetch" => help::print_fastfetch_help(),
                     "monitor" => help::print_monitor_help(),
+                    "hash" => help::print_hash_help(),
+                    "ps" => help::print_ps_help(),
+                    "kill" => help::print_kill_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

@@ -20,6 +20,9 @@ pub fn print_general_help() {
     println!("    du        Estimates file space usage.");
     println!("    fastfetch Displays system information and a fancy logo.");
     println!("    monitor   Invokes the bundled term-sys-monitor utility.");
+    println!("    hash      Generates or verifies file checksums.");
+    println!("    ps        Displays information about active processes.");
+    println!("    kill      Terminates one or more processes.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -340,5 +343,59 @@ pub fn print_monitor_help() {
     println!("    Spawns the bundled term-sys-monitor utility in a separate shell window.");
     println!("\nEXAMPLES:");
     println!("    ir monitor                               Launch system monitor");
+}
+
+pub fn print_hash_help() {
+    println!("ir-hash");
+    println!("\nUSAGE:");
+    println!("    ir hash [SWITCHES] <PATH>");
+    println!("\nDESCRIPTION:");
+    println!("    Generates or verifies cryptographic file checksums.");
+    println!("\nARGUMENTS:");
+    println!("    <PATH>    The file to hash, or the checksum file to verify.");
+    println!("\nSWITCHES:");
+    println!("    -a <algorithm>, --algorithm <algorithm>  Hash algorithm: md5, sha1, sha256, sha512 [Default: sha256]");
+    println!("    -v <hash>, --verify <hash>               Compare computed hash against this expected hash string");
+    println!("    -c        Read checksums and paths from the checksum file and verify them");
+    println!("\nRULES:");
+    println!("    - -v (verify) and -c (checksum file) are mutually exclusive switches.");
+    println!("\nEXAMPLES:");
+    println!("    ir hash file.txt                         Compute SHA-256 hash of file.txt");
+    println!("    ir hash -a md5 file.txt                  Compute MD5 hash of file.txt");
+    println!("    ir hash -a sha256 -v <HASH> file.txt     Verify file.txt matches expected SHA-256 hash");
+    println!("    ir hash -c checksums.txt                 Verify all files listed in checksums.txt");
+}
+
+pub fn print_ps_help() {
+    println!("ir-ps");
+    println!("\nUSAGE:");
+    println!("    ir ps [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Displays information about active processes.");
+    println!("\nSWITCHES:");
+    println!("    -s <field>, --sort <field>  Sort by 'pid', 'name', 'cpu', or 'mem' [Default: pid]");
+    println!("    -f <filter>, --filter <filter> Filter processes by name (case-insensitive)");
+    println!("    -n <limit>, --limit <limit>   Limit output to the first N processes");
+    println!("\nEXAMPLES:");
+    println!("    ir ps                                    List all processes sorted by PID");
+    println!("    ir ps -s cpu                             List all processes sorted by CPU time");
+    println!("    ir ps -f chrome -s mem                   List all chrome processes sorted by memory usage");
+}
+
+pub fn print_kill_help() {
+    println!("ir-kill");
+    println!("\nUSAGE:");
+    println!("    ir kill [SWITCHES] <TARGET>");
+    println!("\nDESCRIPTION:");
+    println!("    Terminates one or more processes.");
+    println!("\nARGUMENTS:");
+    println!("    <TARGET>  The process ID (PID) or process name to terminate.");
+    println!("\nSWITCHES:");
+    println!("    -f        Force termination (send SIGKILL on Unix, or forcefully terminate on Windows)");
+    println!("    -a        Kill all processes matching the process name (required if name matches multiple processes)");
+    println!("\nEXAMPLES:");
+    println!("    ir kill 1234                             Terminate process with PID 1234");
+    println!("    ir kill chrome -a                        Terminate all processes named 'chrome'");
+    println!("    ir kill -f 5678                          Forcefully terminate process with PID 5678");
 }
 

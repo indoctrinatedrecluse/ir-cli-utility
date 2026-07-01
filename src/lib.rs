@@ -16,6 +16,9 @@ pub mod tree;
 pub mod du;
 pub mod fastfetch;
 pub mod monitor;
+pub mod hash;
+pub mod ps;
+pub mod kill;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -160,6 +163,26 @@ pub struct DuOptions {
 }
 
 #[derive(Default, Clone)]
+pub struct HashOptions {
+    pub algorithm: String,
+    pub verify: Option<String>,
+    pub checksum_file: bool,
+}
+
+#[derive(Default, Clone)]
+pub struct PsOptions {
+    pub sort_by: String,
+    pub filter: Option<String>,
+    pub limit: Option<usize>,
+}
+
+#[derive(Default, Clone)]
+pub struct KillOptions {
+    pub force: bool,
+    pub all: bool,
+}
+
+#[derive(Default, Clone)]
 pub struct WhichOptions {
     pub all: bool,
 }
@@ -230,4 +253,16 @@ pub fn fastfetch() {
 
 pub fn monitor() {
     monitor::monitor();
+}
+
+pub fn hash(file_path: &str, options: HashOptions) {
+    hash::hash(file_path, options);
+}
+
+pub fn ps(options: PsOptions) {
+    ps::ps(options);
+}
+
+pub fn kill(target: &str, options: KillOptions) {
+    kill::kill(target, options);
 }

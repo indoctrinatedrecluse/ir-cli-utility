@@ -68,6 +68,15 @@ Displays system information side-by-side with a stylized ASCII logo.
 .B monitor
 Invokes the bundled term-sys-monitor utility in a separate shell window.
 .TP
+.B hash [<\fIpath\fR>] [\fIswitches\fR]
+Generates or verifies cryptographic file checksums.
+.TP
+.B ps [\fIswitches\fR]
+Displays information about active processes.
+.TP
+.B kill [<\fItarget\fR>] [\fIswitches\fR]
+Terminates one or more processes.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -448,6 +457,27 @@ Show system information:
 .TP
 Launch system monitor:
 .B ir monitor
+.TP
+Compute SHA-256 hash of a file:
+.B ir hash file.txt
+.TP
+Verify a file matches expected SHA-256 hash:
+.B ir hash -a sha256 -v <hash> file.txt
+.TP
+Verify all files listed in a checksum file:
+.B ir hash -c checksums.txt
+.TP
+List active processes sorted by CPU usage:
+.B ir ps -s cpu
+.TP
+List active processes with name filter:
+.B ir ps -f chrome
+.TP
+Terminate a process by PID:
+.B ir kill 1234
+.TP
+Terminate all matching processes by name:
+.B ir kill chrome -a
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

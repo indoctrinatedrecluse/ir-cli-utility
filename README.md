@@ -557,6 +557,88 @@ ir monitor                               # Launch system monitor
 
 ---
 
+### 🔑 `hash`
+Generates or verifies cryptographic file checksums (MD5, SHA-1, SHA-256, SHA-512).
+
+**Usage:**
+```bash
+ir hash [switches] <PATH>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<PATH>` | The file to hash, or the checksum file to verify. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-a <algorithm>` | Hash algorithm: `md5`, `sha1`, `sha256`, `sha512` (Default: `sha256`). |
+| `-v <hash>` | Compare computed hash against this expected hash string. |
+| `-c` | Read checksums and paths from the checksum file and verify them. |
+
+**Examples:**
+```bash
+ir hash file.txt                         # Compute SHA-256 hash of file.txt
+ir hash -a md5 file.txt                  # Compute MD5 hash of file.txt
+ir hash -a sha256 -v <HASH> file.txt     # Verify file.txt matches expected SHA-256 hash
+ir hash -c checksums.txt                 # Verify all files listed in checksums.txt
+```
+
+---
+
+### 📊 `ps`
+Displays information about active processes (PID, CPU time, Memory working set, and command/name).
+
+**Usage:**
+```bash
+ir ps [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-s <field>` | Sort by `pid`, `name`, `cpu`, or `mem` (Default: `pid`). |
+| `-f <filter>` | Filter processes by name (case-insensitive). |
+| `-n <limit>` | Limit output to the first N processes. |
+
+**Examples:**
+```bash
+ir ps                                    # List all processes sorted by PID
+ir ps -s cpu                             # List all processes sorted by CPU time
+ir ps -f chrome -s mem                   # List all chrome processes sorted by memory usage
+```
+
+---
+
+### 🛑 `kill`
+Terminates one or more processes by PID or process name.
+
+**Usage:**
+```bash
+ir kill [switches] <TARGET>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<TARGET>` | The process ID (PID) or process name to terminate. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-f` | Force termination (send SIGKILL on Unix, or forcefully terminate on Windows). |
+| `-a` | Kill all processes matching the process name (required if name matches multiple processes). |
+
+**Examples:**
+```bash
+ir kill 1234                             # Terminate process with PID 1234
+ir kill chrome -a                        # Terminate all processes named 'chrome'
+ir kill -f 5678                          # Forcefully terminate process with PID 5678
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 
