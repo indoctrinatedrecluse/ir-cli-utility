@@ -752,6 +752,84 @@ ir ping -c 10 127.0.0.1                  # Ping localhost 10 times
 
 ---
 
+### 🔑 `base64`
+Encodes or decodes text or files using Base64 format.
+
+**Usage:**
+```bash
+ir base64 [switches] [PATH]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH]` | Optionally read from a file. If omitted, reads from standard input. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-d` | Decode instead of encode. |
+| `-u` | Use URL-safe alphabet (replaces `+` and `/` with `-` and `_`). |
+| `-n` | Do not append padding characters (`=`) (when encoding). |
+| `-o <file>` | Write output directly to a file instead of standard output. |
+
+**Examples:**
+```bash
+echo "hello" | ir base64                 # Encode 'hello' to Base64
+ir base64 -d encoded.txt                 # Decode a base64 encoded file
+ir base64 -u -n -o out.b64 input.bin     # URL-safe unpadded encoding to a file
+```
+
+---
+
+### 🆔 `uuid`
+Generates RFC-compliant UUIDv4 (random) and UUIDv7 (time-ordered) identifiers.
+
+**Usage:**
+```bash
+ir uuid [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-v <version>` | UUID version to generate: `4` or `7` (Default: `4`). |
+| `-c <count>` | Number of UUIDs to generate (Default: `1`). |
+| `-u` | Output in uppercase letters. |
+| `-n` | Remove hyphen separators (compact form). |
+
+**Examples:**
+```bash
+ir uuid                                  # Generate one UUIDv4
+ir uuid -v 7 -c 5                        # Generate five time-ordered UUIDv7s
+ir uuid -n -u                            # Generate uppercase compact UUIDv4
+```
+
+---
+
+### 🌐 `ip`
+Displays local network adapter configuration and queries public IP details.
+
+**Usage:**
+```bash
+ir ip [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-p` | Query public IP, location, and ISP details using public geolocator APIs. |
+| `-a` | Display all local network interfaces (including inactive/disconnected ones). |
+
+**Examples:**
+```bash
+ir ip                                    # List all active local network adapters
+ir ip -a                                 # List all local network adapters
+ir ip -p                                 # Query public IP and location details
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 

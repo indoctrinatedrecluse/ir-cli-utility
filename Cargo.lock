@@ -518,8 +518,10 @@ dependencies = [
 name = "ir-cli-utility"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "chrono",
  "flate2",
+ "getrandom 0.2.17",
  "iso9660",
  "libc",
  "md5",

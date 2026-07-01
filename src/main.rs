@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -1244,6 +1244,170 @@ fn main() {
                 help::print_ping_help();
             }
         }
+        "base64" => {
+            let mut options = Base64Options::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-o" || arg == "--output" {
+                    match args_iter.next() {
+                        Some(out) => options.output = Some(out.clone()),
+                        None => {
+                            eprintln!("Error: --output requires a file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'd' => options.decode = true,
+                            'u' => options.url = true,
+                            'n' => options.no_padding = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for base64.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'base64' action accepts at most one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let input_path = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::base64(input_path, options);
+            } else {
+                help::print_base64_help();
+                std::process::exit(1);
+            }
+        }
+        "uuid" => {
+            let mut options = UuidOptions::default();
+            options.version = 4; // default
+            options.count = 1; // default
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-v" || arg == "--version" {
+                    match args_iter.next().and_then(|v| v.parse::<usize>().ok()) {
+                        Some(v) => {
+                            if v == 4 || v == 7 {
+                                options.version = v;
+                            } else {
+                                eprintln!("Error: UUID version must be 4 or 7.");
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --version requires a version number (4 or 7).");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-c" || arg == "--count" {
+                    match args_iter.next().and_then(|v| v.parse::<usize>().ok()) {
+                        Some(count) => {
+                            if count > 0 {
+                                options.count = count;
+                            } else {
+                                eprintln!("Error: --count must be greater than zero.");
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --count requires a positive number.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'u' => options.uppercase = true,
+                            'n' => options.no_hyphens = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for uuid.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if !positionals.is_empty() {
+                    eprintln!("Error: 'uuid' action does not accept positional arguments.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::uuid(options);
+            } else {
+                help::print_uuid_help();
+                std::process::exit(1);
+            }
+        }
+        "ip" => {
+            let mut options = IpOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'p' => options.public = true,
+                            'a' => options.all = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for ip.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if !positionals.is_empty() {
+                    eprintln!("Error: 'ip' action does not accept positional arguments.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::ip(options);
+            } else {
+                help::print_ip_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -1271,6 +1435,9 @@ fn main() {
                     "env" => help::print_env_help(),
                     "hex" => help::print_hex_help(),
                     "ping" => help::print_ping_help(),
+                    "base64" => help::print_base64_help(),
+                    "uuid" => help::print_uuid_help(),
+                    "ip" => help::print_ip_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

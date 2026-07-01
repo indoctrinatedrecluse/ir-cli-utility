@@ -23,6 +23,9 @@ pub mod fetch;
 pub mod env_action;
 pub mod hex;
 pub mod ping;
+pub mod base64;
+pub mod uuid;
+pub mod ip;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -213,6 +216,28 @@ pub struct PingOptions {
 }
 
 #[derive(Default, Clone)]
+pub struct Base64Options {
+    pub decode: bool,
+    pub url: bool,
+    pub no_padding: bool,
+    pub output: Option<String>,
+}
+
+#[derive(Default, Clone)]
+pub struct UuidOptions {
+    pub version: usize,
+    pub count: usize,
+    pub uppercase: bool,
+    pub no_hyphens: bool,
+}
+
+#[derive(Default, Clone)]
+pub struct IpOptions {
+    pub public: bool,
+    pub all: bool,
+}
+
+#[derive(Default, Clone)]
 pub struct WhichOptions {
     pub all: bool,
 }
@@ -311,4 +336,16 @@ pub fn hex(file_path: &str, options: HexOptions) {
 
 pub fn ping(host: &str, options: PingOptions) {
     ping::ping(host, options);
+}
+
+pub fn base64(input_path: Option<&str>, options: Base64Options) {
+    base64::run_base64(input_path, options);
+}
+
+pub fn uuid(options: UuidOptions) {
+    uuid::run_uuid(options);
+}
+
+pub fn ip(options: IpOptions) {
+    ip::run_ip(options);
 }

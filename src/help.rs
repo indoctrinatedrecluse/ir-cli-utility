@@ -27,6 +27,9 @@ pub fn print_general_help() {
     println!("    env       Views, searches, or formats environment variables.");
     println!("    hex       Displays a hexadecimal dump of a file.");
     println!("    ping      Sends ICMP Echo requests to a network host.");
+    println!("    base64    Encodes or decodes data using Base64.");
+    println!("    uuid      Generates UUIDv4 and UUIDv7 identifiers.");
+    println!("    ip        Displays local network adapter and public IP information.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -471,5 +474,56 @@ pub fn print_ping_help() {
     println!("    ir ping google.com                       Ping google.com with 4 requests");
     println!("    ir ping -c 10 127.0.0.1                  Ping localhost 10 times");
     println!("    ir ping -t 500 google.com                Ping google.com with a 500ms timeout limit");
+}
+
+pub fn print_base64_help() {
+    println!("ir-base64");
+    println!("\nUSAGE:");
+    println!("    ir base64 [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Encodes or decodes text or files using Base64.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH]    Optionally read from a file. If omitted, reads from standard input.");
+    println!("\nSWITCHES:");
+    println!("    -d        Decode instead of encode");
+    println!("    -u        Use URL-safe alphabet (replace + and / with - and _)");
+    println!("    -n        Do not append padding characters (=) (when encoding)");
+    println!("    -o <file> Write output to a file instead of standard output");
+    println!("\nEXAMPLES:");
+    println!("    echo 'hello' | ir base64                 Encode text 'hello'");
+    println!("    ir base64 -d encoded.txt                 Decode base64 file");
+    println!("    ir base64 -u -n -o out.b64 input.bin     URL-safe unpadded encoding to a file");
+}
+
+pub fn print_uuid_help() {
+    println!("ir-uuid");
+    println!("\nUSAGE:");
+    println!("    ir uuid [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Generates UUIDv4 (random) and UUIDv7 (time-ordered) identifiers.");
+    println!("\nSWITCHES:");
+    println!("    -v <version>  UUID version to generate: 4 or 7 [Default: 4]");
+    println!("    -c <count>    Number of UUIDs to generate [Default: 1]");
+    println!("    -u            Output in uppercase letters");
+    println!("    -n            Remove hyphen separators (compact form)");
+    println!("\nEXAMPLES:");
+    println!("    ir uuid                                  Generate one UUIDv4");
+    println!("    ir uuid -v 7 -c 5                        Generate five time-ordered UUIDv7s");
+    println!("    ir uuid -n -u                            Generate uppercase UUIDv4 without hyphens");
+}
+
+pub fn print_ip_help() {
+    println!("ir-ip");
+    println!("\nUSAGE:");
+    println!("    ir ip [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Displays local network adapter and public IP information.");
+    println!("\nSWITCHES:");
+    println!("    -p            Query public IP, location, and ISP details");
+    println!("    -a            Display all network adapters, including inactive/down ones");
+    println!("\nEXAMPLES:");
+    println!("    ir ip                                    List all active local network adapters");
+    println!("    ir ip -a                                 List all network adapters (even disconnected)");
+    println!("    ir ip -p                                 Query public IP and location information");
 }
 

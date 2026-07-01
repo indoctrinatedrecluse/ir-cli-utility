@@ -89,6 +89,15 @@ Displays a hexadecimal dump of a file.
 .B ping [<\fIhost\fR>] [\fIswitches\fR]
 Sends ICMP Echo requests to a network host.
 .TP
+.B base64 [<\fIpath\fR>] [\fIswitches\fR]
+Encodes or decodes text or files using Base64.
+.TP
+.B uuid [\fIswitches\fR]
+Generates UUIDv4 and UUIDv7 identifiers.
+.TP
+.B ip [\fIswitches\fR]
+Displays local network adapter and public IP information.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -511,6 +520,21 @@ Hex dump of the first 128 bytes of a file:
 .TP
 Ping a network host:
 .B ir ping google.com
+.TP
+Encode stdin to Base64:
+.B echo hello | ir base64
+.TP
+Decode Base64 file:
+.B ir base64 -d encoded.txt
+.TP
+Generate time-ordered UUIDv7:
+.B ir uuid -v 7
+.TP
+List active local network adapters:
+.B ir ip
+.TP
+Query public IP and location details:
+.B ir ip -p
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

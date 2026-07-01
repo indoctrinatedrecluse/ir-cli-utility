@@ -23,6 +23,8 @@ md5 = "0.7"
 sha1 = "0.10"
 sha2 = "0.10"
 ureq = "2.9"
+base64 = "0.22"
+getrandom = "0.2"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.52.0", features = [
@@ -38,6 +40,8 @@ windows-sys = { version = "0.52.0", features = [
     "Win32_System_Diagnostics_ToolHelp",
     "Win32_System_ProcessStatus",
     "Win32_NetworkManagement_IpHelper",
+    "Win32_NetworkManagement_Ndis",
+    "Win32_Networking_WinSock",
 ] }
 
 [target.'cfg(unix)'.dependencies]
