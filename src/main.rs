@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -1673,6 +1673,124 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "sleep" => {
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for sleep.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'sleep' action requires exactly one duration string argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::sleep(&positionals[0]);
+            } else {
+                help::print_sleep_help();
+                std::process::exit(1);
+            }
+        }
+        "time" => {
+            let cmd_args = args[2..].to_vec();
+            if cmd_args.is_empty() {
+                help::print_time_help();
+                std::process::exit(1);
+            }
+            ir_cli_utility::time(cmd_args);
+        }
+        "dns" => {
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for dns.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'dns' action requires exactly one host string argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::dns(&positionals[0]);
+            } else {
+                help::print_dns_help();
+                std::process::exit(1);
+            }
+        }
+        "path" => {
+            let mut options = PathOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-a" || arg == "--add" {
+                    match args_iter.next() {
+                        Some(dir) => options.add = Some(dir.clone()),
+                        None => {
+                            eprintln!("Error: --add requires a directory path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-r" || arg == "--remove" {
+                    match args_iter.next() {
+                        Some(dir) => options.remove = Some(dir.clone()),
+                        None => {
+                            eprintln!("Error: --remove requires a directory path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for path.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if !positionals.is_empty() {
+                    eprintln!("Error: 'path' action does not accept positional arguments.");
+                    valid = false;
+                }
+                if options.add.is_some() && options.remove.is_some() {
+                    eprintln!("Error: --add and --remove cannot be specified together.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::path(options);
+            } else {
+                help::print_path_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -1706,6 +1824,10 @@ fn main() {
                     "echo" => help::print_echo_help(),
                     "clip" => help::print_clip_help(),
                     "math" => help::print_math_help(),
+                    "sleep" => help::print_sleep_help(),
+                    "time" => help::print_time_help(),
+                    "dns" => help::print_dns_help(),
+                    "path" => help::print_path_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

@@ -29,6 +29,10 @@ pub mod ip;
 pub mod echo;
 pub mod clip;
 pub mod math;
+pub mod sleep;
+pub mod time;
+pub mod dns;
+pub mod path;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -252,6 +256,12 @@ pub struct ClipOptions {
 }
 
 #[derive(Default, Clone)]
+pub struct PathOptions {
+    pub add: Option<String>,
+    pub remove: Option<String>,
+}
+
+#[derive(Default, Clone)]
 pub struct WhichOptions {
     pub all: bool,
 }
@@ -378,6 +388,22 @@ pub fn clip(options: ClipOptions) {
 
 pub fn math(expr: &str) {
     math::evaluate(expr);
+}
+
+pub fn sleep(duration_str: &str) {
+    sleep::run_sleep(duration_str);
+}
+
+pub fn time(cmd_args: Vec<String>) {
+    time::run_time(cmd_args);
+}
+
+pub fn dns(host: &str) {
+    dns::run_dns(host);
+}
+
+pub fn path(options: PathOptions) {
+    path::run_path(options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

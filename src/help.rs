@@ -33,6 +33,10 @@ pub fn print_general_help() {
     println!("    echo      Prints text, parses escapes, and redirects to files.");
     println!("    clip      Copies standard input to clipboard or prints clipboard contents.");
     println!("    math      Evaluates a mathematical expression.");
+    println!("    sleep     Suspends execution for a specified duration.");
+    println!("    time      Measures and displays command execution duration.");
+    println!("    dns       Queries DNS records for a given host.");
+    println!("    path      Views, adds, or removes directories from system PATH.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -584,5 +588,62 @@ pub fn print_math_help() {
     println!("    ir math '2 * (3.5 + 4)'                  Evaluate and print 15");
     println!("    ir math '10 % 3'                         Evaluate modulo (prints 1)");
     println!("    ir math '2^3^2'                          Right-associative power (prints 512)");
+}
+
+pub fn print_sleep_help() {
+    println!("ir-sleep");
+    println!("\nUSAGE:");
+    println!("    ir sleep <DURATION>");
+    println!("\nDESCRIPTION:");
+    println!("    Suspends execution for a specified duration.");
+    println!("    Supported suffixes: ms (milliseconds), s (seconds), m (minutes), h (hours).");
+    println!("    If no suffix is provided, the value defaults to seconds.");
+    println!("\nARGUMENTS:");
+    println!("    <DURATION>    The delay time, e.g. 5, 2.5s, 500ms, 1m");
+    println!("\nEXAMPLES:");
+    println!("    ir sleep 5                               Sleep for 5 seconds");
+    println!("    ir sleep 500ms                           Sleep for 500 milliseconds");
+    println!("    ir sleep 1.5m                            Sleep for 1.5 minutes");
+}
+
+pub fn print_time_help() {
+    println!("ir-time");
+    println!("\nUSAGE:");
+    println!("    ir time <COMMAND> [ARGS...]");
+    println!("\nDESCRIPTION:");
+    println!("    Measures and displays the execution time of a command.");
+    println!("\nARGUMENTS:");
+    println!("    <COMMAND>     The command to execute and measure");
+    println!("    [ARGS...]     Arguments passed to the command");
+    println!("\nEXAMPLES:");
+    println!("    ir time cargo build                      Measure execution of 'cargo build'");
+    println!("    ir time ir ping -c 5 google.com          Measure execution of 'ir ping'");
+}
+
+pub fn print_dns_help() {
+    println!("ir-dns");
+    println!("\nUSAGE:");
+    println!("    ir dns <HOST>");
+    println!("\nDESCRIPTION:");
+    println!("    Queries DNS records (A, AAAA, CNAME, MX, TXT) for a host.");
+    println!("\nARGUMENTS:");
+    println!("    <HOST>        The hostname to resolve, e.g. google.com");
+    println!("\nEXAMPLES:");
+    println!("    ir dns google.com                        Resolve records for google.com");
+}
+
+pub fn print_path_help() {
+    println!("ir-path");
+    println!("\nUSAGE:");
+    println!("    ir path [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Views, adds, or removes directories from user environment PATH.");
+    println!("\nSWITCHES:");
+    println!("    -a, --add <dir>      Add a directory permanently to user PATH");
+    println!("    -r, --remove <dir>   Remove a directory permanently from user PATH");
+    println!("\nEXAMPLES:");
+    println!("    ir path                                  List directories in PATH");
+    println!("    ir path -a C:\\bin                        Add C:\\bin to user PATH");
+    println!("    ir path -r C:\\bin                        Remove C:\\bin from user PATH");
 }
 

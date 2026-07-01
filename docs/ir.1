@@ -108,6 +108,18 @@ Copies standard input to clipboard or prints clipboard contents.
 .B math <\fIexpression\fR>
 Evaluates a mathematical expression and prints the result.
 .TP
+.B sleep <\fIseconds/duration\fR>
+Suspends execution for a specified duration (e.g. 5, 2.5s, 500ms, 1m).
+.TP
+.B time <\fIcommand\fR> [\fIargs...\fR]
+Measures and displays the execution time of a command.
+.TP
+.B dns <\fIhost\fR>
+Queries standard DNS records (A, AAAA, MX, TXT, CNAME) for a host.
+.TP
+.B path [\fIswitches\fR]
+Views, adds, or removes directories from system PATH environment.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -578,6 +590,24 @@ Clear system clipboard:
 .TP
 Evaluate math expression:
 .B ir math "2 * (3.5 + 4)"
+.TP
+Sleep for 2.5 seconds:
+.B ir sleep 2.5s
+.TP
+Measure command execution:
+.B ir time cargo build
+.TP
+Query DNS records for a host:
+.B ir dns google.com
+.TP
+List system PATH directories:
+.B ir path
+.TP
+Add directory permanently to system PATH:
+.B ir path -a C:\\bin
+.TP
+Remove directory permanently from system PATH:
+.B ir path -r C:\\bin
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

@@ -920,6 +920,93 @@ ir math "2^3^2"                          # Right-associative power (prints 512)
 
 ---
 
+### 💤 `sleep`
+Suspends execution for a specified duration. Supports suffixes: `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours). If no suffix is provided, defaults to seconds.
+
+**Usage:**
+```bash
+ir sleep <DURATION>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<DURATION>` | The delay duration string (e.g. `5`, `2.5s`, `500ms`, `1m`). |
+
+**Examples:**
+```bash
+ir sleep 5                               # Sleep for 5 seconds
+ir sleep 500ms                           # Sleep for 500 milliseconds
+ir sleep 1.5m                            # Sleep for 1.5 minutes
+```
+
+---
+
+### ⏱️ `time`
+Measures and displays the exact wall-clock execution duration of a specified command. Passes inputs and outputs directly through to/from the process, and returns the process exit status code.
+
+**Usage:**
+```bash
+ir time <COMMAND> [ARGS...]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<COMMAND>` | The command to run and measure. |
+| `[ARGS...]` | Arguments to pass to the command. |
+
+**Examples:**
+```bash
+ir time cargo build                      # Measure cargo build execution
+ir time ir ping -c 5 google.com          # Measure ping command execution
+```
+
+---
+
+### 🌐 `dns`
+A self-contained native DNS query tool resolving IP addresses (A/AAAA), mail exchange (MX), text records (TXT), and canonical names (CNAME) of a host. Queries system active adapters DNS addresses, falling back to public servers.
+
+**Usage:**
+```bash
+ir dns <HOST>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<HOST>` | The hostname to query records for (e.g. `google.com`). |
+
+**Examples:**
+```bash
+ir dns google.com                        # Query and display DNS records
+```
+
+---
+
+### 🛣️ `path`
+Views, adds, or removes directories from user system PATH environment variables permanently. On Windows, modifies HKCU Registry and broadcasts environment changes. On Linux, modifies standard shell profiles (`.bashrc` / `.zshrc` / `.profile`).
+
+**Usage:**
+```bash
+ir path [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-a`, `--add <dir>` | Add a directory permanently to user PATH environment. |
+| `-r`, `--remove <dir>` | Remove a directory permanently from user PATH environment. |
+
+**Examples:**
+```bash
+ir path                                  # List PATH directories
+ir path -a C:\bin                        # Add directory to PATH
+ir path -r C:\bin                        # Remove directory from PATH
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 
