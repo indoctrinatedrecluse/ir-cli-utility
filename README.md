@@ -278,11 +278,11 @@ ir archive [switches] <PATH>
 ---
 
 ### 🐱 `cat`
-Prints file contents to standard output.
+Prints file contents to standard output, or redirects/appends to a file or system clipboard.
 
 **Usage:**
 ```bash
-ir cat [switches] <PATH>
+ir cat [switches] <PATH> [> / >> REDIRECTION_TARGET]
 ```
 
 **Arguments:**
@@ -299,6 +299,20 @@ ir cat [switches] <PATH>
 | `--range <START:END>` | Prints a 1-based inclusive line range. |
 | `--binary` | Prints a hexadecimal preview of the file bytes. |
 | `--encoding <ENC>` | Decodes text as `utf-8`, `utf-16`, or `ascii`. |
+
+**Redirections:**
+| Operator | Description |
+| :--- | :--- |
+| `>` | Write output to specified file or `"clip"` clipboard keyword (overwrites existing content). |
+| `>>` | Append output to specified file or `"clip"` clipboard keyword. |
+
+**Examples:**
+```bash
+ir cat file.txt                          # Print file.txt
+ir cat file.txt > out.txt                # Copy file.txt contents to out.txt
+ir cat file.txt > clip                   # Copy file.txt contents to system clipboard
+ir cat file.txt >> clip                  # Append file.txt contents to system clipboard
+```
 
 > [!IMPORTANT]
 > * `--head`, `--tail`, and `--range` cannot be used together.
@@ -856,6 +870,50 @@ ir echo hello world                      # Print 'hello world'
 ir echo -e "line1\nline2\x41"            # Print multiline text with parsed escapes
 ir echo "some text" '>' out.txt          # Write 'some text' to out.txt
 ir echo "more text" '>>' out.txt         # Append 'more text' to out.txt
+```
+
+---
+
+### 📋 `clip`
+Clipboard manager to copy standard input to the clipboard or print clipboard text. Also supports clearing.
+
+**Usage:**
+```bash
+ir clip [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-c`, `--clear` | Empty the system clipboard. |
+
+**Examples:**
+```bash
+echo "hello clipboard" | ir clip          # Copy text to clipboard
+ir clip                                  # Print current clipboard content
+ir clip -c                               # Clear the clipboard
+```
+
+---
+
+### 🧮 `math`
+Evaluates a mathematical expression and prints the float or integer result.
+
+**Usage:**
+```bash
+ir math <EXPRESSION>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<EXPRESSION>` | The mathematical expression string to evaluate (e.g. `'2 * (3 + 4)'`). |
+
+**Examples:**
+```bash
+ir math "2 * (3.5 + 4)"                  # Evaluate basic math (prints 15)
+ir math "10 % 3"                         # Modulo operator (prints 1)
+ir math "2^3^2"                          # Right-associative power (prints 512)
 ```
 
 ---

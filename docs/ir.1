@@ -101,6 +101,12 @@ Displays local network adapter and public IP information.
 .B echo [<\fItext\fR>] [\fIswitches\fR]
 Prints text and supports backslash escapes and file redirections.
 .TP
+.B clip [\fIswitches\fR]
+Copies standard input to clipboard or prints clipboard contents.
+.TP
+.B math <\fIexpression\fR>
+Evaluates a mathematical expression and prints the result.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -547,6 +553,18 @@ Write output to a file:
 .TP
 Append output to a file:
 .B ir echo "more text" >> out.txt
+.TP
+Copy text to clipboard:
+.B echo hello | ir clip
+.TP
+Print clipboard content:
+.B ir clip
+.TP
+Clear system clipboard:
+.B ir clip -c
+.TP
+Evaluate math expression:
+.B ir math "2 * (3.5 + 4)"
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

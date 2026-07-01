@@ -106,6 +106,31 @@ pub fn run_echo(args: Vec<String>, options: EchoOptions) {
     };
 
     if let Some(ref path) = output_file {
+        if path.to_lowercase() == "clip" {
+            let mut text_to_copy = if append_mode {
+                match crate::read_from_clipboard() {
+                    Ok(current) => {
+                        let mut temp = current;
+                        temp.push_str(&final_message);
+                        temp
+                    }
+                    Err(_) => final_message.clone(),
+                }
+            } else {
+                final_message.clone()
+            };
+
+            if !options.no_newline {
+                text_to_copy.push_str(if cfg!(windows) { "\r\n" } else { "\n" });
+            }
+
+            if let Err(e) = crate::copy_to_clipboard(&text_to_copy) {
+                eprintln!("Error: Failed to copy to clipboard: {}", e);
+                std::process::exit(1);
+            }
+            return;
+        }
+
         let mut file = match OpenOptions::new()
             .write(true)
             .create(true)

@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -351,7 +351,7 @@ fn main() {
                 help::print_archive_help();
             }
         }
-        "cat" => {
+        "cat_old_dup" => {
             let mut options = CatOptions::default();
             let mut positionals: Vec<String> = Vec::new();
             let mut valid = true;
@@ -737,6 +737,170 @@ fn main() {
                 ir_cli_utility::which(&positionals[0], options);
             } else {
                 help::print_which_help();
+            }
+        }
+        "cat" => {
+            let mut options = CatOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut output_file: Option<String> = None;
+            let mut append_mode = false;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-n" || arg == "--line-numbers" {
+                    options.line_numbers = true;
+                } else if arg == "--head" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(count) => options.head = Some(count),
+                        None => {
+                            eprintln!("Error: --head requires a non-negative line count.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--tail" {
+                    match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
+                        Some(count) => options.tail = Some(count),
+                        None => {
+                            eprintln!("Error: --tail requires a non-negative line count.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--range" {
+                    if let Some(range) = args_iter.next() {
+                        match parse_line_range(range) {
+                            Some(parsed) => options.range = Some(parsed),
+                            None => {
+                                eprintln!("Error: --range requires a START:END line range.");
+                                valid = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        eprintln!("Error: --range requires a START:END line range.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "--binary" {
+                    options.binary = true;
+                } else if arg == "--encoding" {
+                    if let Some(encoding) = args_iter.next() {
+                        if encoding.starts_with('-') {
+                            eprintln!("Error: --encoding requires an encoding name.");
+                            valid = false;
+                            break;
+                        }
+                        options.encoding = Some(encoding.clone());
+                    } else {
+                        eprintln!("Error: --encoding requires an encoding name.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == ">" {
+                    match args_iter.next() {
+                        Some(file) => {
+                            output_file = Some(file.clone());
+                            append_mode = false;
+                            break;
+                        }
+                        None => {
+                            eprintln!("Error: Redirection '>' requires a destination file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == ">>" {
+                    match args_iter.next() {
+                        Some(file) => {
+                            output_file = Some(file.clone());
+                            append_mode = true;
+                            break;
+                        }
+                        None => {
+                            eprintln!("Error: Redirection '>>' requires a destination file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for cat.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            let selector_count = usize::from(options.head.is_some())
+                + usize::from(options.tail.is_some())
+                + usize::from(options.range.is_some());
+            if selector_count > 1 {
+                eprintln!("Error: --head, --tail, and --range cannot be used together.");
+                valid = false;
+            }
+
+            if options.binary && (options.line_numbers || selector_count > 0 || options.encoding.is_some()) {
+                eprintln!("Error: --binary cannot be used with text formatting switches.");
+                valid = false;
+            }
+
+            if positionals.len() != 1 {
+                eprintln!("Error: 'cat' requires exactly one path argument.");
+                valid = false;
+            }
+
+            if valid {
+                if let Some(ref path) = output_file {
+                    if path.to_lowercase() == "clip" {
+                        let mut buf = Vec::new();
+                        if let Err(err) = ir_cli_utility::cat_to_writer(&positionals[0], options, &mut buf) {
+                            eprintln!("{}", err);
+                            std::process::exit(1);
+                        }
+                        let text = String::from_utf8_lossy(&buf).into_owned();
+                        let text_to_copy = if append_mode {
+                            match ir_cli_utility::read_from_clipboard() {
+                                Ok(current) => {
+                                    let mut temp = current;
+                                    temp.push_str(&text);
+                                    temp
+                                }
+                                Err(_) => text,
+                            }
+                        } else {
+                            text
+                        };
+                        if let Err(e) = ir_cli_utility::copy_to_clipboard(&text_to_copy) {
+                            eprintln!("Error: Failed to copy to clipboard: {}", e);
+                            std::process::exit(1);
+                        }
+                    } else {
+                        let mut file = match std::fs::OpenOptions::new()
+                            .write(true)
+                            .create(true)
+                            .truncate(!append_mode)
+                            .append(append_mode)
+                            .open(path)
+                        {
+                            Ok(f) => f,
+                            Err(e) => {
+                                eprintln!("Error: Failed to open or create file '{}': {}", path, e);
+                                std::process::exit(1);
+                            }
+                        };
+                        if let Err(err) = ir_cli_utility::cat_to_writer(&positionals[0], options, &mut file) {
+                            eprintln!("{}", err);
+                            std::process::exit(1);
+                        }
+                    }
+                } else {
+                    ir_cli_utility::cat(&positionals[0], options);
+                }
+            } else {
+                help::print_cat_help();
+                std::process::exit(1);
             }
         }
         "tree" => {
@@ -1440,6 +1604,75 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "clip" => {
+            let mut options = ClipOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-c" || arg == "--clear" {
+                    options.clear = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'c' => options.clear = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for clip.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if !positionals.is_empty() {
+                    eprintln!("Error: 'clip' action does not accept positional arguments.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::clip(options);
+            } else {
+                help::print_clip_help();
+                std::process::exit(1);
+            }
+        }
+        "math" => {
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for math.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'math' action requires exactly one mathematical expression string argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::math(&positionals[0]);
+            } else {
+                help::print_math_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -1471,6 +1704,8 @@ fn main() {
                     "uuid" => help::print_uuid_help(),
                     "ip" => help::print_ip_help(),
                     "echo" => help::print_echo_help(),
+                    "clip" => help::print_clip_help(),
+                    "math" => help::print_math_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

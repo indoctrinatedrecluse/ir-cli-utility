@@ -31,6 +31,8 @@ pub fn print_general_help() {
     println!("    uuid      Generates UUIDv4 and UUIDv7 identifiers.");
     println!("    ip        Displays local network adapter and public IP information.");
     println!("    echo      Prints text, parses escapes, and redirects to files.");
+    println!("    clip      Copies standard input to clipboard or prints clipboard contents.");
+    println!("    math      Evaluates a mathematical expression.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -550,5 +552,37 @@ pub fn print_echo_help() {
     println!("    ir echo -e 'line1\\nline2'                Print text with newline escape interpreted");
     println!("    ir echo 'some text' > out.txt            Write 'some text' to out.txt");
     println!("    ir echo 'more text' >> out.txt           Append 'more text' to out.txt");
+}
+
+pub fn print_clip_help() {
+    println!("ir-clip");
+    println!("\nUSAGE:");
+    println!("    ir clip [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Copies standard input to clipboard or prints clipboard contents.");
+    println!("    If stdin is redirected (piped), copies stdin contents to the clipboard.");
+    println!("    Otherwise, prints the current clipboard text contents to standard output.");
+    println!("\nSWITCHES:");
+    println!("    -c, --clear   Clear the clipboard contents");
+    println!("\nEXAMPLES:");
+    println!("    echo 'hello' | ir clip                   Copy 'hello' to the clipboard");
+    println!("    ir clip                                  Print current clipboard contents");
+    println!("    ir clip -c                               Clear the clipboard");
+}
+
+pub fn print_math_help() {
+    println!("ir-math");
+    println!("\nUSAGE:");
+    println!("    ir math <EXPRESSION>");
+    println!("\nDESCRIPTION:");
+    println!("    Evaluates a mathematical expression and prints the result.");
+    println!("    Supports operators: +, -, *, /, % (modulo), ^ (power).");
+    println!("    Supports parentheses () and negative numbers.");
+    println!("\nARGUMENTS:");
+    println!("    <EXPRESSION>  The mathematical expression to evaluate (should be quoted)");
+    println!("\nEXAMPLES:");
+    println!("    ir math '2 * (3.5 + 4)'                  Evaluate and print 15");
+    println!("    ir math '10 % 3'                         Evaluate modulo (prints 1)");
+    println!("    ir math '2^3^2'                          Right-associative power (prints 512)");
 }
 

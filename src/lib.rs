@@ -27,6 +27,8 @@ pub mod base64;
 pub mod uuid;
 pub mod ip;
 pub mod echo;
+pub mod clip;
+pub mod math;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -245,6 +247,11 @@ pub struct EchoOptions {
 }
 
 #[derive(Default, Clone)]
+pub struct ClipOptions {
+    pub clear: bool,
+}
+
+#[derive(Default, Clone)]
 pub struct WhichOptions {
     pub all: bool,
 }
@@ -279,6 +286,10 @@ pub fn archive(path: &str, options: ArchiveOptions) {
 
 pub fn cat(path: &str, options: CatOptions) {
     cat::cat(path, options);
+}
+
+pub fn cat_to_writer(path: &str, options: CatOptions, writer: &mut dyn std::io::Write) -> Result<(), String> {
+    cat::cat_to_writer(path, options, writer)
 }
 
 pub fn grep(pattern: &str, paths: Vec<String>, options: GrepOptions) {
@@ -360,3 +371,20 @@ pub fn ip(options: IpOptions) {
 pub fn echo(args: Vec<String>, options: EchoOptions) {
     echo::run_echo(args, options);
 }
+
+pub fn clip(options: ClipOptions) {
+    clip::run_clip(options);
+}
+
+pub fn math(expr: &str) {
+    math::evaluate(expr);
+}
+
+pub fn copy_to_clipboard(text: &str) -> Result<(), String> {
+    clip::set_clipboard(text)
+}
+
+pub fn read_from_clipboard() -> Result<String, String> {
+    clip::get_clipboard()
+}
+

@@ -1,4 +1,5 @@
 use crate::CatOptions;
+use std::io::Write;
 
 #[cfg(target_os = "linux")]
 mod linux;
@@ -15,29 +16,35 @@ fn read_file(path: &str) -> Result<Vec<u8>, String> {
     windows::read_file(path)
 }
 
-pub fn cat(path: &str, options: CatOptions) {
+pub fn cat_to_writer(path: &str, options: CatOptions, writer: &mut dyn Write) -> Result<(), String> {
     let bytes = match read_file(path) {
         Ok(bytes) => bytes,
         Err(message) => {
-            eprintln!("Error reading '{}': {}", path, message);
-            return;
+            return Err(format!("Error reading '{}': {}", path, message));
         }
     };
 
     if options.binary {
-        print_binary(&bytes);
-        return;
+        print_binary(writer, &bytes).map_err(|e| e.to_string())?;
+        return Ok(());
     }
 
     let text = match decode_text(&bytes, options.encoding.as_deref()) {
         Ok(text) => text,
         Err(message) => {
-            eprintln!("Error decoding '{}': {}", path, message);
-            return;
+            return Err(format!("Error decoding '{}': {}", path, message));
         }
     };
 
-    print_text(&text, &options);
+    print_text(writer, &text, &options).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+pub fn cat(path: &str, options: CatOptions) {
+    let mut stdout = std::io::stdout();
+    if let Err(message) = cat_to_writer(path, options, &mut stdout) {
+        eprintln!("{}", message);
+    }
 }
 
 fn decode_text(bytes: &[u8], encoding: Option<&str>) -> Result<String, String> {
@@ -84,14 +91,14 @@ fn decode_utf16(bytes: &[u8]) -> Result<String, String> {
         .map_err(|_| "file is not valid UTF-16".to_string())
 }
 
-fn print_text(text: &str, options: &CatOptions) {
+fn print_text(writer: &mut dyn Write, text: &str, options: &CatOptions) -> std::io::Result<()> {
     if !options.line_numbers
         && options.head.is_none()
         && options.tail.is_none()
         && options.range.is_none()
     {
-        print!("{}", text);
-        return;
+        writer.write_all(text.as_bytes())?;
+        return Ok(());
     }
 
     let lines: Vec<&str> = text.lines().collect();
@@ -113,43 +120,45 @@ fn print_text(text: &str, options: &CatOptions) {
     }
 
     if start > end {
-        return;
+        return Ok(());
     }
 
     for (index, line) in lines.iter().enumerate().take(end).skip(start) {
         if options.line_numbers {
-            println!("{:>6}\t{}", index + 1, line);
+            writeln!(writer, "{:>6}\t{}", index + 1, line)?;
         } else {
-            println!("{}", line);
+            writeln!(writer, "{}", line)?;
         }
     }
+    Ok(())
 }
 
-fn print_binary(bytes: &[u8]) {
+fn print_binary(writer: &mut dyn Write, bytes: &[u8]) -> std::io::Result<()> {
     for (offset, chunk) in bytes.chunks(16).enumerate() {
-        print!("{:08x}  ", offset * 16);
+        write!(writer, "{:08x}  ", offset * 16)?;
 
         for index in 0..16 {
             if let Some(byte) = chunk.get(index) {
-                print!("{:02x} ", byte);
+                write!(writer, "{:02x} ", byte)?;
             } else {
-                print!("   ");
+                write!(writer, "   ")?;
             }
 
             if index == 7 {
-                print!(" ");
+                write!(writer, " ")?;
             }
         }
 
-        print!(" |");
+        write!(writer, " |")?;
         for byte in chunk {
             let character = if byte.is_ascii_graphic() || *byte == b' ' {
                 *byte as char
             } else {
                 '.'
             };
-            print!("{}", character);
+            write!(writer, "{}", character)?;
         }
-        println!("|");
+        writeln!(writer, "|")?;
     }
+    Ok(())
 }
