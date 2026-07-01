@@ -26,6 +26,7 @@ pub mod ping;
 pub mod base64;
 pub mod uuid;
 pub mod ip;
+pub mod echo;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -238,6 +239,12 @@ pub struct IpOptions {
 }
 
 #[derive(Default, Clone)]
+pub struct EchoOptions {
+    pub no_newline: bool,
+    pub escapes: bool,
+}
+
+#[derive(Default, Clone)]
 pub struct WhichOptions {
     pub all: bool,
 }
@@ -348,4 +355,8 @@ pub fn uuid(options: UuidOptions) {
 
 pub fn ip(options: IpOptions) {
     ip::run_ip(options);
+}
+
+pub fn echo(args: Vec<String>, options: EchoOptions) {
+    echo::run_echo(args, options);
 }

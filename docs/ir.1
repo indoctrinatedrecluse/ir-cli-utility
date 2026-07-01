@@ -98,6 +98,9 @@ Generates UUIDv4 and UUIDv7 identifiers.
 .B ip [\fIswitches\fR]
 Displays local network adapter and public IP information.
 .TP
+.B echo [<\fItext\fR>] [\fIswitches\fR]
+Prints text and supports backslash escapes and file redirections.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -535,6 +538,15 @@ List active local network adapters:
 .TP
 Query public IP and location details:
 .B ir ip -p
+.TP
+Print text:
+.B ir echo hello world
+.TP
+Write output to a file:
+.B ir echo "some text" > out.txt
+.TP
+Append output to a file:
+.B ir echo "more text" >> out.txt
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

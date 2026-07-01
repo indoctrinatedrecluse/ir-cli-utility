@@ -830,6 +830,36 @@ ir ip -p                                 # Query public IP and location details
 
 ---
 
+### 🗣️ `echo`
+Prints text to standard output or redirects/appends to a file.
+
+**Usage:**
+```bash
+ir echo [switches] [TEXT] [> / >> FILE]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-n` | Do not print the trailing newline. |
+| `-e` | Enable interpretation of backslash escapes (e.g. `\n`, `\t`, `\r`, `\\`, `\xHH`). |
+
+**Redirections:**
+| Operator | Description |
+| :--- | :--- |
+| `>` | Write output to the specified file (overwrites existing content). Creates the file if it does not exist. |
+| `>>` | Append output to the specified file. Creates the file if it does not exist. |
+
+**Examples:**
+```bash
+ir echo hello world                      # Print 'hello world'
+ir echo -e "line1\nline2\x41"            # Print multiline text with parsed escapes
+ir echo "some text" '>' out.txt          # Write 'some text' to out.txt
+ir echo "more text" '>>' out.txt         # Append 'more text' to out.txt
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 

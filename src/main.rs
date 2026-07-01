@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -1408,6 +1408,38 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "echo" => {
+            let mut options = EchoOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 && !arg.starts_with("--") {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'n' => options.no_newline = true,
+                            'e' => options.escapes = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for echo.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                ir_cli_utility::echo(positionals, options);
+            } else {
+                help::print_echo_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -1438,6 +1470,7 @@ fn main() {
                     "base64" => help::print_base64_help(),
                     "uuid" => help::print_uuid_help(),
                     "ip" => help::print_ip_help(),
+                    "echo" => help::print_echo_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

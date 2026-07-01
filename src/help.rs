@@ -30,6 +30,7 @@ pub fn print_general_help() {
     println!("    base64    Encodes or decodes data using Base64.");
     println!("    uuid      Generates UUIDv4 and UUIDv7 identifiers.");
     println!("    ip        Displays local network adapter and public IP information.");
+    println!("    echo      Prints text, parses escapes, and redirects to files.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -525,5 +526,29 @@ pub fn print_ip_help() {
     println!("    ir ip                                    List all active local network adapters");
     println!("    ir ip -a                                 List all network adapters (even disconnected)");
     println!("    ir ip -p                                 Query public IP and location information");
+}
+
+pub fn print_echo_help() {
+    println!("ir-echo");
+    println!("\nUSAGE:");
+    println!("    ir echo [SWITCHES] [TEXT] [> / >> FILE]");
+    println!("\nDESCRIPTION:");
+    println!("    Prints text to standard output or redirects to a file.");
+    println!("\nSWITCHES:");
+    println!("    -n            Do not print the trailing newline");
+    println!("    -e            Enable interpretation of backslash escapes:");
+    println!("                  \\n  Newline");
+    println!("                  \\t  Horizontal tab");
+    println!("                  \\r  Carriage return");
+    println!("                  \\\\  Backslash");
+    println!("                  \\xHH Hexadecimal byte value (HH)");
+    println!("\nREDIRECTIONS:");
+    println!("    >  FILE       Write output to FILE (overwrites existing content)");
+    println!("    >> FILE       Append output to FILE");
+    println!("\nEXAMPLES:");
+    println!("    ir echo hello world                      Print 'hello world'");
+    println!("    ir echo -e 'line1\\nline2'                Print text with newline escape interpreted");
+    println!("    ir echo 'some text' > out.txt            Write 'some text' to out.txt");
+    println!("    ir echo 'more text' >> out.txt           Append 'more text' to out.txt");
 }
 
