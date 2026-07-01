@@ -32,14 +32,15 @@ Removes files and folders.
 .B create [\fIswitches\fR] <\fIpath...\fR>
 Creates files and folders.
 .TP
+
 .B move [\fIswitches\fR] <\fIsource\fR> <\fIdestination\fR>
 Moves files and folders.
 .TP
 .B archive [\fIswitches\fR] <\fIpath\fR>
 Creates, extracts, or tests archives.
 .TP
-.B cat [\fIswitches\fR] <\fIpath\fR>
-Prints file contents to standard output.
+.B cat [\fIswitches\fR] <\fIpath\fR> [> / >> \fItarget\fR]
+Prints file contents to standard output, or redirects/appends to a file or system clipboard using the "clip" keyword.
 .TP
 .B grep [\fIswitches\fR] <\fIpattern\fR> [<\fIfile...\fR>]
 Searches for patterns in files or stdin (for piping).
@@ -98,8 +99,8 @@ Generates UUIDv4 and UUIDv7 identifiers.
 .B ip [\fIswitches\fR]
 Displays local network adapter and public IP information.
 .TP
-.B echo [<\fItext\fR>] [\fIswitches\fR]
-Prints text and supports backslash escapes and file redirections.
+.B echo [<\fItext\fR>] [\fIswitches\fR] [> / >> \fItarget\fR]
+Prints text and supports backslash escapes and file/clipboard ("clip") redirections.
 .TP
 .B clip [\fIswitches\fR]
 Copies standard input to clipboard or prints clipboard contents.
@@ -553,6 +554,18 @@ Write output to a file:
 .TP
 Append output to a file:
 .B ir echo "more text" >> out.txt
+.TP
+Copy echo output to clipboard:
+.B ir echo "some text" > clip
+.TP
+Append echo output to clipboard:
+.B ir echo "more text" >> clip
+.TP
+Copy file content to clipboard:
+.B ir cat file.txt > clip
+.TP
+Append file content to clipboard:
+.B ir cat file.txt >> clip
 .TP
 Copy text to clipboard:
 .B echo hello | ir clip

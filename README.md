@@ -861,8 +861,8 @@ ir echo [switches] [TEXT] [> / >> FILE]
 **Redirections:**
 | Operator | Description |
 | :--- | :--- |
-| `>` | Write output to the specified file (overwrites existing content). Creates the file if it does not exist. |
-| `>>` | Append output to the specified file. Creates the file if it does not exist. |
+| `>` | Write output to specified file or `"clip"` clipboard keyword (overwrites existing content). |
+| `>>` | Append output to specified file or `"clip"` clipboard keyword. |
 
 **Examples:**
 ```bash
@@ -870,6 +870,8 @@ ir echo hello world                      # Print 'hello world'
 ir echo -e "line1\nline2\x41"            # Print multiline text with parsed escapes
 ir echo "some text" '>' out.txt          # Write 'some text' to out.txt
 ir echo "more text" '>>' out.txt         # Append 'more text' to out.txt
+ir echo "copy to clipboard" '>' clip     # Copy text to system clipboard
+ir echo "append to clipboard" '>>' clip  # Append text to system clipboard
 ```
 
 ---
