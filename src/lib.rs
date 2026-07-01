@@ -19,6 +19,10 @@ pub mod monitor;
 pub mod hash;
 pub mod ps;
 pub mod kill;
+pub mod fetch;
+pub mod env_action;
+pub mod hex;
+pub mod ping;
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -183,6 +187,32 @@ pub struct KillOptions {
 }
 
 #[derive(Default, Clone)]
+pub struct FetchOptions {
+    pub headers: Vec<String>,
+    pub method: String,
+    pub data: Option<String>,
+    pub output: Option<String>,
+    pub include_headers: bool,
+}
+
+#[derive(Default, Clone)]
+pub struct EnvOptions {
+    pub search: Option<String>,
+}
+
+#[derive(Default, Clone)]
+pub struct HexOptions {
+    pub limit: Option<usize>,
+    pub cols: usize,
+}
+
+#[derive(Default, Clone)]
+pub struct PingOptions {
+    pub count: usize,
+    pub timeout_ms: u64,
+}
+
+#[derive(Default, Clone)]
 pub struct WhichOptions {
     pub all: bool,
 }
@@ -265,4 +295,20 @@ pub fn ps(options: PsOptions) {
 
 pub fn kill(target: &str, options: KillOptions) {
     kill::kill(target, options);
+}
+
+pub fn fetch(url: &str, options: FetchOptions) {
+    fetch::fetch(url, options);
+}
+
+pub fn env_action(var_name: Option<&str>, options: EnvOptions) {
+    env_action::env_action(var_name, options);
+}
+
+pub fn hex(file_path: &str, options: HexOptions) {
+    hex::hex(file_path, options);
+}
+
+pub fn ping(host: &str, options: PingOptions) {
+    ping::ping(host, options);
 }

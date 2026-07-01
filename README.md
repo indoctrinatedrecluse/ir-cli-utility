@@ -639,6 +639,119 @@ ir kill -f 5678                          # Forcefully terminate process with PID
 
 ---
 
+### 🌐 `fetch`
+Downloads content from a URL or queries an HTTP/HTTPS endpoint.
+
+**Usage:**
+```bash
+ir fetch [switches] <URL>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<URL>` | The target HTTP or HTTPS URL. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-X <method>` | HTTP request method: `GET`, `POST`, `PUT`, `DELETE` etc. (Default: `GET`). |
+| `-H <header>` | Custom request header in `'Name: Value'` format (can be specified multiple times). |
+| `-d <data>` | Request body / POST data string. |
+| `-o <file>` | Write response body to a file instead of standard output. |
+| `-i` | Include response HTTP status line and headers in the output. |
+
+**Examples:**
+```bash
+ir fetch https://api.ipify.org           # Fetch public IP address
+ir fetch -i https://httpbin.org/get      # Fetch URL and print headers and body
+ir fetch -X POST -d '{"id":1}' URL       # Send a POST request with JSON payload
+```
+
+---
+
+### 🔍 `env`
+Lists, searches, or formats environment variables.
+
+**Usage:**
+```bash
+ir env [switches] [VARIABLE_NAME]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[VARIABLE_NAME]` | Optionally retrieve a single variable. PATH variables are auto-formatted line-by-line. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-s <query>` | Filter results to variables containing the search query. |
+
+**Examples:**
+```bash
+ir env                                   # List all variables sorted alphabetically
+ir env -s path                           # Search for variables containing 'path'
+ir env PATH                              # Format and print PATH directories line-by-line
+```
+
+---
+
+### 💾 `hex`
+Displays a hexadecimal dump of a file alongside its ASCII translation.
+
+**Usage:**
+```bash
+ir hex [switches] <PATH>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<PATH>` | The file to display. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-n <bytes>` | Limit display to the first N bytes of the file. |
+| `-c <cols>` | Number of columns of bytes to display (Default: 16). |
+
+**Examples:**
+```bash
+ir hex file.bin                          # Hex dump of file.bin
+ir hex -n 128 file.bin                   # Dump only the first 128 bytes
+ir hex -c 8 file.bin                     # Display dump in 8 columns
+```
+
+---
+
+### 📡 `ping`
+Sends ICMP Echo requests to verify connectivity to a network host.
+
+**Usage:**
+```bash
+ir ping [switches] <HOST>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<HOST>` | The hostname or IP address to ping. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-c <count>` | Number of requests to send (Default: 4). |
+| `-t <ms>` | Timeout in milliseconds to wait for each reply (Default: 1000). |
+
+**Examples:**
+```bash
+ir ping google.com                       # Ping google.com 4 times
+ir ping -c 10 127.0.0.1                  # Ping localhost 10 times
+```
+
+---
+
 ### 📍 `which`
 Locates a command in `PATH`.
 

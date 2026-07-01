@@ -77,6 +77,18 @@ Displays information about active processes.
 .B kill [<\fItarget\fR>] [\fIswitches\fR]
 Terminates one or more processes.
 .TP
+.B fetch [<\fIurl\fR>] [\fIswitches\fR]
+Downloads a URL or queries an HTTP endpoint.
+.TP
+.B env [<\fIvariable_name\fR>] [\fIswitches\fR]
+Lists, searches, or formats environment variables.
+.TP
+.B hex [<\fIpath\fR>] [\fIswitches\fR]
+Displays a hexadecimal dump of a file.
+.TP
+.B ping [<\fIhost\fR>] [\fIswitches\fR]
+Sends ICMP Echo requests to a network host.
+.TP
 .B help [\fIaction\fR]
 Displays general help, or help for a specific \fIaction\fR.
 
@@ -478,6 +490,27 @@ Terminate a process by PID:
 .TP
 Terminate all matching processes by name:
 .B ir kill chrome -a
+.TP
+Fetch URL content:
+.B ir fetch https://api.ipify.org
+.TP
+Fetch URL and print status and headers:
+.B ir fetch -i https://httpbin.org/get
+.TP
+List environment variables sorted alphabetically:
+.B ir env
+.TP
+Format PATH directories line-by-line:
+.B ir env PATH
+.TP
+Hex dump of a file:
+.B ir hex file.bin
+.TP
+Hex dump of the first 128 bytes of a file:
+.B ir hex -n 128 file.bin
+.TP
+Ping a network host:
+.B ir ping google.com
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

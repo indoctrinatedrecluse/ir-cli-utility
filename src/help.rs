@@ -23,6 +23,10 @@ pub fn print_general_help() {
     println!("    hash      Generates or verifies file checksums.");
     println!("    ps        Displays information about active processes.");
     println!("    kill      Terminates one or more processes.");
+    println!("    fetch     Downloads a URL or queries an HTTP endpoint.");
+    println!("    env       Views, searches, or formats environment variables.");
+    println!("    hex       Displays a hexadecimal dump of a file.");
+    println!("    ping      Sends ICMP Echo requests to a network host.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -397,5 +401,75 @@ pub fn print_kill_help() {
     println!("    ir kill 1234                             Terminate process with PID 1234");
     println!("    ir kill chrome -a                        Terminate all processes named 'chrome'");
     println!("    ir kill -f 5678                          Forcefully terminate process with PID 5678");
+}
+
+pub fn print_fetch_help() {
+    println!("ir-fetch");
+    println!("\nUSAGE:");
+    println!("    ir fetch [SWITCHES] <URL>");
+    println!("\nDESCRIPTION:");
+    println!("    Downloads content from a URL or queries an HTTP endpoint.");
+    println!("\nARGUMENTS:");
+    println!("    <URL>     The target HTTP/HTTPS URL.");
+    println!("\nSWITCHES:");
+    println!("    -X <method>, --method <method>  HTTP request method (GET, POST, etc.) [Default: GET]");
+    println!("    -H <header>, --header <header>  Custom header in 'Name: Value' format (can be specified multiple times)");
+    println!("    -d <data>, --data <data>        Request body string (useful for POST/PUT)");
+    println!("    -o <file>, --output <file>      Write response body to file instead of stdout");
+    println!("    -i                              Include HTTP status line and response headers in output");
+    println!("\nEXAMPLES:");
+    println!("    ir fetch https://httpbin.org/get          Fetch URL content");
+    println!("    ir fetch -i https://httpbin.org/get       Fetch URL and print status and headers");
+    println!("    ir fetch -X POST -d 'name=value' URL      Send a POST request with data");
+}
+
+pub fn print_env_help() {
+    println!("ir-env");
+    println!("\nUSAGE:");
+    println!("    ir env [SWITCHES] [VARIABLE_NAME]");
+    println!("\nDESCRIPTION:");
+    println!("    Lists, searches, or formats environment variables.");
+    println!("\nARGUMENTS:");
+    println!("    [VARIABLE_NAME]  Optionally retrieve a single variable. PATH variables are auto-formatted line-by-line.");
+    println!("\nSWITCHES:");
+    println!("    -s <query>, --search <query>  Search for variables whose name or value contains the query");
+    println!("\nEXAMPLES:");
+    println!("    ir env                                   List all environment variables sorted alphabetically");
+    println!("    ir env -s path                           Search for environment variables containing 'path'");
+    println!("    ir env PATH                              Retrieve PATH variable, formatted cleanly line-by-line");
+}
+
+pub fn print_hex_help() {
+    println!("ir-hex");
+    println!("\nUSAGE:");
+    println!("    ir hex [SWITCHES] <PATH>");
+    println!("\nDESCRIPTION:");
+    println!("    Displays a hexadecimal dump of the target file alongside ASCII representation.");
+    println!("\nARGUMENTS:");
+    println!("    <PATH>    The file to dump.");
+    println!("\nSWITCHES:");
+    println!("    -n <bytes>, --limit <bytes>  Limit display to first N bytes");
+    println!("    -c <cols>, --cols <cols>    Number of columns of bytes to display [Default: 16]");
+    println!("\nEXAMPLES:");
+    println!("    ir hex file.bin                          Hex dump of file.bin");
+    println!("    ir hex -n 128 file.bin                   Hex dump of the first 128 bytes of file.bin");
+    println!("    ir hex -c 8 file.bin                     Hex dump displaying 8 columns of bytes per row");
+}
+
+pub fn print_ping_help() {
+    println!("ir-ping");
+    println!("\nUSAGE:");
+    println!("    ir ping [SWITCHES] <HOST>");
+    println!("\nDESCRIPTION:");
+    println!("    Sends ICMP Echo requests to verify connection to a network host.");
+    println!("\nARGUMENTS:");
+    println!("    <HOST>    The hostname or IP address to ping.");
+    println!("\nSWITCHES:");
+    println!("    -c <count>, --count <count>     Number of requests to send [Default: 4]");
+    println!("    -t <timeout>, --timeout <ms>    Timeout in milliseconds to wait for each reply [Default: 1000]");
+    println!("\nEXAMPLES:");
+    println!("    ir ping google.com                       Ping google.com with 4 requests");
+    println!("    ir ping -c 10 127.0.0.1                  Ping localhost 10 times");
+    println!("    ir ping -t 500 google.com                Ping google.com with a 500ms timeout limit");
 }
 

@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -1011,6 +1011,239 @@ fn main() {
                 help::print_kill_help();
             }
         }
+        "fetch" => {
+            let mut options = FetchOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-H" || arg == "--header" {
+                    match args_iter.next() {
+                        Some(hdr) => options.headers.push(hdr.clone()),
+                        None => {
+                            eprintln!("Error: --header requires a header string (e.g. 'Content-Type: application/json').");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-X" || arg == "--method" {
+                    match args_iter.next() {
+                        Some(m) => options.method = m.to_uppercase(),
+                        None => {
+                            eprintln!("Error: --method requires a method name (e.g. GET, POST).");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-d" || arg == "--data" {
+                    match args_iter.next() {
+                        Some(d) => options.data = Some(d.clone()),
+                        None => {
+                            eprintln!("Error: --data requires a request body string.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-o" || arg == "--output" {
+                    match args_iter.next() {
+                        Some(out) => options.output = Some(out.clone()),
+                        None => {
+                            eprintln!("Error: --output requires a file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'i' => options.include_headers = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for fetch.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'fetch' action requires exactly one URL argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::fetch(&positionals[0], options);
+            } else {
+                help::print_fetch_help();
+            }
+        }
+        "env" => {
+            let mut options = EnvOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-s" || arg == "--search" {
+                    match args_iter.next() {
+                        Some(q) => options.search = Some(q.clone()),
+                        None => {
+                            eprintln!("Error: --search requires a search term.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for env.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'env' action accepts at most one environment variable name.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let var_name = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::env_action(var_name, options);
+            } else {
+                help::print_env_help();
+            }
+        }
+        "hex" => {
+            let mut options = HexOptions::default();
+            options.cols = 16; // default
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-n" || arg == "--limit" {
+                    match args_iter.next().and_then(|v| v.parse::<usize>().ok()) {
+                        Some(limit) => options.limit = Some(limit),
+                        None => {
+                            eprintln!("Error: --limit requires a positive number of bytes.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-c" || arg == "--cols" {
+                    match args_iter.next().and_then(|v| v.parse::<usize>().ok()) {
+                        Some(cols) => {
+                            if cols > 0 {
+                                options.cols = cols;
+                            } else {
+                                eprintln!("Error: --cols requires a column count greater than zero.");
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --cols requires a positive column count.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for hex.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'hex' action requires exactly one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::hex(&positionals[0], options);
+            } else {
+                help::print_hex_help();
+            }
+        }
+        "ping" => {
+            let mut options = PingOptions::default();
+            options.count = 4; // default
+            options.timeout_ms = 1000; // default
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-c" || arg == "--count" {
+                    match args_iter.next().and_then(|v| v.parse::<usize>().ok()) {
+                        Some(count) => {
+                            if count > 0 {
+                                options.count = count;
+                            } else {
+                                eprintln!("Error: --count must be greater than zero.");
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --count requires a positive count.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-t" || arg == "--timeout" {
+                    match args_iter.next().and_then(|v| v.parse::<u64>().ok()) {
+                        Some(t) => {
+                            if t > 0 {
+                                options.timeout_ms = t;
+                            } else {
+                                eprintln!("Error: --timeout must be greater than zero.");
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --timeout requires a positive timeout (ms).");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for ping.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'ping' action requires exactly one host/IP argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::ping(&positionals[0], options);
+            } else {
+                help::print_ping_help();
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -1034,6 +1267,10 @@ fn main() {
                     "hash" => help::print_hash_help(),
                     "ps" => help::print_ps_help(),
                     "kill" => help::print_kill_help(),
+                    "fetch" => help::print_fetch_help(),
+                    "env" => help::print_env_help(),
+                    "hex" => help::print_hex_help(),
+                    "ping" => help::print_ping_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
