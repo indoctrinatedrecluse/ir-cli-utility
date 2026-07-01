@@ -42,8 +42,13 @@ fn create_ping_socket() -> Result<(libc::c_int, bool), String> {
 pub fn ping(host: &str, options: PingOptions) {
     let addr = match (host, 0).to_socket_addrs() {
         Ok(mut addrs) => {
-            if let Some(std::net::IpAddr::V4(ipv4)) = addrs.find(|a| a.is_ipv4()) {
-                ipv4
+            if let Some(sock_addr) = addrs.find(|a| a.is_ipv4()) {
+                if let std::net::IpAddr::V4(ipv4) = sock_addr.ip() {
+                    ipv4
+                } else {
+                    eprintln!("Error: Resolved IP is not IPv4.");
+                    std::process::exit(1);
+                }
             } else {
                 eprintln!("Error: Could not resolve '{}' to an IPv4 address.", host);
                 std::process::exit(1);
