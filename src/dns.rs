@@ -314,6 +314,18 @@ fn get_system_dns_servers() -> Vec<String> {
 }
 
 pub fn run_dns(host: &str) {
+    // Validate host first
+    for label in host.split('.') {
+        if label.is_empty() {
+            eprintln!("Error: Invalid host name (contains empty labels)");
+            std::process::exit(1);
+        }
+        if label.len() > 63 {
+            eprintln!("Error: Label too long (maximum 63 characters)");
+            std::process::exit(1);
+        }
+    }
+
     let servers = get_system_dns_servers();
     let mut resolved_any = false;
 
