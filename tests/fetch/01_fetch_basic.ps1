@@ -29,5 +29,37 @@ if ($HeaderOutput -like "*HTTP/1.1 200*") {
     exit 1
 }
 
+# --- Test 3: Fetch output to a file ---
+Write-Host "Testing ir fetch -o file.txt..."
+$OutputFile = "temp_fetch_out.txt"
+if (Test-Path $OutputFile) { Remove-Item -Force $OutputFile }
+
+& $Executable fetch -o $OutputFile https://api.ipify.org | Out-String
+if ($LASTEXITCODE -eq 0 -and (Test-Path $OutputFile)) {
+    $Content = Get-Content $OutputFile
+    if ($Content -match "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}") {
+        Write-Host "PASS: fetch -o successfully wrote download to file."
+    } else {
+        Write-Host "FAIL: Output file content mismatch. Content: $Content"
+        Remove-Item -Force $OutputFile
+        exit 1
+    }
+} else {
+    Write-Host "FAIL: fetch -o failed or output file not created."
+    if (Test-Path $OutputFile) { Remove-Item -Force $OutputFile }
+    exit 1
+}
+Remove-Item -Force $OutputFile
+
+# --- Test 4: Fetch invalid domain should fail ---
+Write-Host "Testing ir fetch invalid domain..."
+& $Executable fetch https://thisdomaindoesnotexistatall.invalid 2>&1 | Out-String
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "PASS: fetch failed correctly for non-existent domain."
+} else {
+    Write-Host "FAIL: fetch succeeded or exited 0 for invalid domain."
+    exit 1
+}
+
 Write-Host "ALL FETCH TESTS PASSED"
 exit 0

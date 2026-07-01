@@ -31,5 +31,15 @@ if ($Output -like "*Packets: Sent = 2, Received = 2*") {
     exit 1
 }
 
+# --- Test 2: Ping non-existent domain should fail ---
+Write-Host "Testing ir ping invalid domain..."
+& $Executable ping thisdomaindoesnotexistatall.invalid 2>&1 | Out-String
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "PASS: ping correctly failed to resolve non-existent domain."
+} else {
+    Write-Host "FAIL: ping succeeded or exited 0 for invalid domain."
+    exit 1
+}
+
 Write-Host "ALL PING TESTS PASSED"
 exit 0

@@ -54,5 +54,27 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "PASS: Querying non-existent variable correctly returned error."
 }
 
+# --- Test 5: Case-insensitive lookup ---
+Write-Host "Testing case-insensitive env path..."
+$PathLowerOutput = & $Executable env path | Out-String
+if ($LASTEXITCODE -eq 0 -and $PathLowerOutput.Trim().Length -gt 0 -and !$PathLowerOutput.Contains(";")) {
+    Write-Host "PASS: env path lookup is case-insensitive."
+} else {
+    Write-Host "FAIL: env path lookup failed. Output:"
+    Write-Host $PathLowerOutput
+    exit 1
+}
+
+# --- Test 6: Search with no matches ---
+Write-Host "Testing search query with no results..."
+$NoMatchOutput = & $Executable env -s ABSOLUTELY_NO_MATCH_EXISTS_1234 | Out-String
+if ($LASTEXITCODE -eq 0 -and $NoMatchOutput.Trim().Length -eq 0) {
+    Write-Host "PASS: env search with no matches correctly returned empty output."
+} else {
+    Write-Host "FAIL: env search with no matches output was not empty. Output:"
+    Write-Host $NoMatchOutput
+    exit 1
+}
+
 Write-Host "ALL ENV TESTS PASSED"
 exit 0
