@@ -1,4 +1,3 @@
-#![allow(non_snake_case)]
 use crate::SocketsOptions;
 use super::SocketInfo;
 use std::collections::HashMap;
@@ -14,62 +13,62 @@ const AF_INET6: u32 = 23;
 
 #[repr(C)]
 struct MIB_TCPROW_OWNER_PID {
-    dwState: u32,
-    dwLocalAddr: u32,
-    dwLocalPort: u32,
-    dwRemoteAddr: u32,
-    dwRemotePort: u32,
-    dwOwningPid: u32,
+    dw_state: u32,
+    dw_local_addr: u32,
+    dw_local_port: u32,
+    dw_remote_addr: u32,
+    dw_remote_port: u32,
+    dw_owning_pid: u32,
 }
 
 #[repr(C)]
 struct MIB_TCPTABLE_OWNER_PID {
-    dwNumEntries: u32,
+    dw_num_entries: u32,
     table: [MIB_TCPROW_OWNER_PID; 1],
 }
 
 #[repr(C)]
 struct MIB_TCP6ROW_OWNER_PID {
-    ucLocalAddr: [u8; 16],
-    dwLocalScopeId: u32,
-    dwLocalPort: u32,
-    ucRemoteAddr: [u8; 16],
-    dwRemoteScopeId: u32,
-    dwRemotePort: u32,
-    dwState: u32,
-    dwOwningPid: u32,
+    uc_local_addr: [u8; 16],
+    dw_local_scope_id: u32,
+    dw_local_port: u32,
+    uc_remote_addr: [u8; 16],
+    dw_remote_scope_id: u32,
+    dw_remote_port: u32,
+    dw_state: u32,
+    dw_owning_pid: u32,
 }
 
 #[repr(C)]
 struct MIB_TCP6TABLE_OWNER_PID {
-    dwNumEntries: u32,
+    dw_num_entries: u32,
     table: [MIB_TCP6ROW_OWNER_PID; 1],
 }
 
 #[repr(C)]
 struct MIB_UDPROW_OWNER_PID {
-    dwLocalAddr: u32,
-    dwLocalPort: u32,
-    dwOwningPid: u32,
+    dw_local_addr: u32,
+    dw_local_port: u32,
+    dw_owning_pid: u32,
 }
 
 #[repr(C)]
 struct MIB_UDPTABLE_OWNER_PID {
-    dwNumEntries: u32,
+    dw_num_entries: u32,
     table: [MIB_UDPROW_OWNER_PID; 1],
 }
 
 #[repr(C)]
 struct MIB_UDP6ROW_OWNER_PID {
-    ucLocalAddr: [u8; 16],
-    dwLocalScopeId: u32,
-    dwLocalPort: u32,
-    dwOwningPid: u32,
+    uc_local_addr: [u8; 16],
+    dw_local_scope_id: u32,
+    dw_local_port: u32,
+    dw_owning_pid: u32,
 }
 
 #[repr(C)]
 struct MIB_UDP6TABLE_OWNER_PID {
-    dwNumEntries: u32,
+    dw_num_entries: u32,
     table: [MIB_UDP6ROW_OWNER_PID; 1],
 }
 
@@ -149,36 +148,36 @@ fn get_tcp_ipv4(sockets: &mut Vec<SocketInfo>, pm: &HashMap<u32, String>) {
             let table = &*(buf.as_ptr() as *const MIB_TCPTABLE_OWNER_PID);
             let entries = std::slice::from_raw_parts(
                 table.table.as_ptr(),
-                table.dwNumEntries as usize,
+                table.dw_num_entries as usize,
             );
 
             for entry in entries {
-                let local_ip_bytes = entry.dwLocalAddr.to_ne_bytes();
+                let local_ip_bytes = entry.dw_local_addr.to_ne_bytes();
                 let local_ip = format!(
                     "{}.{}.{}.{}",
                     local_ip_bytes[0], local_ip_bytes[1], local_ip_bytes[2], local_ip_bytes[3]
                 );
-                let local_port = u16::from_be(entry.dwLocalPort as u16);
+                let local_port = u16::from_be(entry.dw_local_port as u16);
 
-                let remote_ip_bytes = entry.dwRemoteAddr.to_ne_bytes();
+                let remote_ip_bytes = entry.dw_remote_addr.to_ne_bytes();
                 let remote_ip = format!(
                     "{}.{}.{}.{}",
                     remote_ip_bytes[0], remote_ip_bytes[1], remote_ip_bytes[2], remote_ip_bytes[3]
                 );
-                let remote_port = u16::from_be(entry.dwRemotePort as u16);
+                let remote_port = u16::from_be(entry.dw_remote_port as u16);
 
-                let pid = entry.dwOwningPid;
+                let pid = entry.dw_owning_pid;
                 let prog = pm.get(&pid).cloned();
 
                 sockets.push(SocketInfo {
                     protocol: "tcp".to_string(),
                     local_addr: format!("{}:{}", local_ip, local_port),
-                    remote_addr: if entry.dwRemoteAddr == 0 {
+                    remote_addr: if entry.dw_remote_addr == 0 {
                         "*:*".to_string()
                     } else {
                         format!("{}:{}", remote_ip, remote_port)
                     },
-                    state: map_state(entry.dwState).to_string(),
+                    state: map_state(entry.dw_state).to_string(),
                     pid: Some(pid),
                     program: prog,
                 });
@@ -217,17 +216,17 @@ fn get_tcp_ipv6(sockets: &mut Vec<SocketInfo>, pm: &HashMap<u32, String>) {
             let table = &*(buf.as_ptr() as *const MIB_TCP6TABLE_OWNER_PID);
             let entries = std::slice::from_raw_parts(
                 table.table.as_ptr(),
-                table.dwNumEntries as usize,
+                table.dw_num_entries as usize,
             );
 
             for entry in entries {
-                let local_ipv6 = std::net::Ipv6Addr::from(entry.ucLocalAddr);
-                let local_port = u16::from_be(entry.dwLocalPort as u16);
+                let local_ipv6 = std::net::Ipv6Addr::from(entry.uc_local_addr);
+                let local_port = u16::from_be(entry.dw_local_port as u16);
 
-                let remote_ipv6 = std::net::Ipv6Addr::from(entry.ucRemoteAddr);
-                let remote_port = u16::from_be(entry.dwRemotePort as u16);
+                let remote_ipv6 = std::net::Ipv6Addr::from(entry.uc_remote_addr);
+                let remote_port = u16::from_be(entry.dw_remote_port as u16);
 
-                let pid = entry.dwOwningPid;
+                let pid = entry.dw_owning_pid;
                 let prog = pm.get(&pid).cloned();
 
                 let is_unspecified = remote_ipv6.is_unspecified();
@@ -240,7 +239,7 @@ fn get_tcp_ipv6(sockets: &mut Vec<SocketInfo>, pm: &HashMap<u32, String>) {
                     } else {
                         format!("[{}]:{}", remote_ipv6, remote_port)
                     },
-                    state: map_state(entry.dwState).to_string(),
+                    state: map_state(entry.dw_state).to_string(),
                     pid: Some(pid),
                     program: prog,
                 });
@@ -279,18 +278,18 @@ fn get_udp_ipv4(sockets: &mut Vec<SocketInfo>, pm: &HashMap<u32, String>) {
             let table = &*(buf.as_ptr() as *const MIB_UDPTABLE_OWNER_PID);
             let entries = std::slice::from_raw_parts(
                 table.table.as_ptr(),
-                table.dwNumEntries as usize,
+                table.dw_num_entries as usize,
             );
 
             for entry in entries {
-                let local_ip_bytes = entry.dwLocalAddr.to_ne_bytes();
+                let local_ip_bytes = entry.dw_local_addr.to_ne_bytes();
                 let local_ip = format!(
                     "{}.{}.{}.{}",
                     local_ip_bytes[0], local_ip_bytes[1], local_ip_bytes[2], local_ip_bytes[3]
                 );
-                let local_port = u16::from_be(entry.dwLocalPort as u16);
+                let local_port = u16::from_be(entry.dw_local_port as u16);
 
-                let pid = entry.dwOwningPid;
+                let pid = entry.dw_owning_pid;
                 let prog = pm.get(&pid).cloned();
 
                 sockets.push(SocketInfo {
@@ -336,14 +335,14 @@ fn get_udp_ipv6(sockets: &mut Vec<SocketInfo>, pm: &HashMap<u32, String>) {
             let table = &*(buf.as_ptr() as *const MIB_UDP6TABLE_OWNER_PID);
             let entries = std::slice::from_raw_parts(
                 table.table.as_ptr(),
-                table.dwNumEntries as usize,
+                table.dw_num_entries as usize,
             );
 
             for entry in entries {
-                let local_ipv6 = std::net::Ipv6Addr::from(entry.ucLocalAddr);
-                let local_port = u16::from_be(entry.dwLocalPort as u16);
+                let local_ipv6 = std::net::Ipv6Addr::from(entry.uc_local_addr);
+                let local_port = u16::from_be(entry.dw_local_port as u16);
 
-                let pid = entry.dwOwningPid;
+                let pid = entry.dw_owning_pid;
                 let prog = pm.get(&pid).cloned();
 
                 sockets.push(SocketInfo {
