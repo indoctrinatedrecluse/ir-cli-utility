@@ -541,6 +541,29 @@ ir du -ah -d 1                           # Show human-readable usage of all file
 
 ---
 
+### 📊 `df`
+Estimates and prints disk space usage of all mounted file systems or drives.
+
+**Usage:**
+```bash
+ir df [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-a`, `--all` | Include pseudo, duplicate, and virtual filesystems. |
+| `-h`, `--human-readable` | Print sizes in human-readable format. |
+
+**Examples:**
+```bash
+ir df                                    # Show disk usage for all physical volumes
+ir df -h                                 # Show human-readable disk usage
+ir df -ah                                # Show all mounted drives human-readable
+```
+
+---
+
 ### ⚡ `fastfetch`
 Displays system information side-by-side with a stylized ASCII logo.
 
@@ -942,6 +965,32 @@ ir sleep 1.5m                            # Sleep for 1.5 minutes
 
 ---
 
+### 🔌 `sockets`
+Lists active TCP and UDP sockets along with their owning processes (PID and name).
+
+**Usage:**
+```bash
+ir sockets [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-a`, `--all` | Show both listening and connected/active sockets (default shows only active/established connections). |
+| `-t`, `--tcp` | Show TCP sockets only. |
+| `-u`, `--udp` | Show UDP sockets only. |
+| `-l`, `--listening` | Show listening sockets only (implies TCP LISTEN and UDP). |
+
+**Examples:**
+```bash
+ir sockets                               # Show only active/connected TCP connections
+ir sockets -a                            # Show all connections (listening & active)
+ir sockets -at                           # Show all TCP connections
+ir sockets -l                            # Show listening sockets only
+```
+
+---
+
 ### ⏱️ `time`
 Measures and displays the exact wall-clock execution duration of a specified command. Passes inputs and outputs directly through to/from the process, and returns the process exit status code.
 
@@ -1032,6 +1081,21 @@ ir which [switches] <COMMAND>
 ```bash
 ir which rustc                              # Locate rustc
 ir which -a python                          # Print all python matches
+```
+
+---
+
+### 👤 `whoami`
+Displays the current user name and domain.
+
+**Usage:**
+```bash
+ir whoami
+```
+
+**Examples:**
+```bash
+ir whoami                                # Show current user and domain
 ```
 
 ---

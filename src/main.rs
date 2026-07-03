@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -1791,6 +1791,101 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "df" => {
+            let mut options = DfOptions::default();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-a" || arg == "--all" {
+                    options.all = true;
+                } else if arg == "-h" || arg == "--human-readable" {
+                    options.human_readable = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'a' => options.all = true,
+                            'h' => options.human_readable = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for df.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    eprintln!("Error: 'df' action does not accept positional arguments.");
+                    valid = false;
+                    break;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::df(options);
+            } else {
+                help::print_df_help();
+                std::process::exit(1);
+            }
+        }
+        "whoami" => {
+            let mut valid = true;
+            for arg in &args[2..] {
+                eprintln!("Error: Unknown argument '{}' for whoami.", arg);
+                valid = false;
+                break;
+            }
+
+            if valid {
+                ir_cli_utility::whoami(WhoamiOptions::default());
+            } else {
+                help::print_whoami_help();
+                std::process::exit(1);
+            }
+        }
+        "sockets" => {
+            let mut options = SocketsOptions::default();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-a" || arg == "--all" {
+                    options.show_all = true;
+                } else if arg == "-t" || arg == "--tcp" {
+                    options.tcp_only = true;
+                } else if arg == "-u" || arg == "--udp" {
+                    options.udp_only = true;
+                } else if arg == "-l" || arg == "--listening" {
+                    options.listening_only = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'a' => options.show_all = true,
+                            't' => options.tcp_only = true,
+                            'u' => options.udp_only = true,
+                            'l' => options.listening_only = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for sockets.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    eprintln!("Error: 'sockets' action does not accept positional arguments.");
+                    valid = false;
+                    break;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::sockets(options);
+            } else {
+                help::print_sockets_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -1828,6 +1923,9 @@ fn main() {
                     "time" => help::print_time_help(),
                     "dns" => help::print_dns_help(),
                     "path" => help::print_path_help(),
+                    "df" => help::print_df_help(),
+                    "whoami" => help::print_whoami_help(),
+                    "sockets" => help::print_sockets_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

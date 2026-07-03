@@ -37,6 +37,9 @@ pub fn print_general_help() {
     println!("    time      Measures and displays command execution duration.");
     println!("    dns       Queries DNS records for a given host.");
     println!("    path      Views, adds, or removes directories from system PATH.");
+    println!("    df        Estimates file space usage of all mounted file systems or drives.");
+    println!("    whoami    Displays the current user name and domain.");
+    println!("    sockets   Lists active TCP and UDP sockets with owning process.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -647,3 +650,45 @@ pub fn print_path_help() {
     println!("    ir path -r C:\\bin                        Remove C:\\bin from user PATH");
 }
 
+pub fn print_df_help() {
+    println!("ir-df");
+    println!("\nUSAGE:");
+    println!("    ir df [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Estimates and prints disk space usage of all mounted file systems or drives.");
+    println!("\nSWITCHES:");
+    println!("    -a, --all            Include pseudo, duplicate, and virtual filesystems.");
+    println!("    -h, --human-readable Print sizes in human-readable format.");
+    println!("\nEXAMPLES:");
+    println!("    ir df                                    Show disk usage for all physical volumes");
+    println!("    ir df -h                                 Show human-readable disk usage");
+    println!("    ir df -ah                                Show all mounted drives human-readable");
+}
+
+pub fn print_whoami_help() {
+    println!("ir-whoami");
+    println!("\nUSAGE:");
+    println!("    ir whoami");
+    println!("\nDESCRIPTION:");
+    println!("    Displays the current user name and domain.");
+    println!("\nEXAMPLES:");
+    println!("    ir whoami                                Show current user and domain");
+}
+
+pub fn print_sockets_help() {
+    println!("ir-sockets");
+    println!("\nUSAGE:");
+    println!("    ir sockets [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Lists active TCP and UDP sockets along with their owning processes (PID and name).");
+    println!("\nSWITCHES:");
+    println!("    -a, --all            Show both listening and connected/active sockets.");
+    println!("    -t, --tcp            Show TCP sockets only.");
+    println!("    -u, --udp            Show UDP sockets only.");
+    println!("    -l, --listening      Show listening sockets only (implies TCP LISTEN and UDP).");
+    println!("\nEXAMPLES:");
+    println!("    ir sockets                               Show only active/connected TCP connections");
+    println!("    ir sockets -a                            Show all connections (listening & active)");
+    println!("    ir sockets -at                           Show all TCP connections");
+    println!("    ir sockets -l                            Show listening sockets only");
+}

@@ -33,6 +33,10 @@ pub mod sleep;
 pub mod time;
 pub mod dns;
 pub mod path;
+pub mod df;
+pub mod whoami;
+pub mod sockets;
+
 
 #[derive(Default)]
 pub struct ListOptions {
@@ -266,6 +270,24 @@ pub struct WhichOptions {
     pub all: bool,
 }
 
+#[derive(Default, Clone)]
+pub struct DfOptions {
+    pub all: bool,
+    pub human_readable: bool,
+}
+
+#[derive(Default, Clone)]
+pub struct WhoamiOptions {}
+
+#[derive(Default, Clone)]
+pub struct SocketsOptions {
+    pub show_all: bool,
+    pub tcp_only: bool,
+    pub udp_only: bool,
+    pub listening_only: bool,
+}
+
+
 pub fn list(options: ListOptions) {
     list::list(options);
 }
@@ -321,6 +343,19 @@ pub fn search(phrase: &str, paths: Vec<String>, options: SearchOptions) {
 pub fn which(command: &str, options: WhichOptions) {
     which::which(command, options);
 }
+
+pub fn df(options: DfOptions) {
+    df::df(options);
+}
+
+pub fn whoami(options: WhoamiOptions) {
+    whoami::whoami(options);
+}
+
+pub fn sockets(options: SocketsOptions) {
+    sockets::sockets(options);
+}
+
 
 pub fn tree(path: &str, options: TreeOptions) {
     tree::tree(path, options);
