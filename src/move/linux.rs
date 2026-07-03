@@ -1,7 +1,7 @@
 use crate::MoveOptions;
 use std::ffi::CString;
 use std::io::Error;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use libc;
 
 pub fn move_item(source: &str, destination: &str, options: MoveOptions) {

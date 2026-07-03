@@ -1,5 +1,5 @@
 use std::fs::{OpenOptions, File};
-use std::io::{Read, Write, BufReader, BufRead};
+use std::io::{Write, BufReader, BufRead};
 use std::path::{Path, PathBuf};
 
 fn get_shell_profile_paths() -> Vec<PathBuf> {

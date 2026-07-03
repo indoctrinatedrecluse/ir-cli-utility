@@ -160,7 +160,7 @@ pub fn ping(host: &str, options: PingOptions) {
                 let bytes_rec = bytes_received as usize;
                 
                 // Parse ICMP header offset
-                let mut icmp_offset = 0;
+                let icmp_offset;
                 let mut ttl = 64; // Default fallback
 
                 if is_raw && bytes_rec >= 28 {

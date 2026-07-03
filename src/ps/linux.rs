@@ -1,6 +1,5 @@
 use crate::PsOptions;
 use std::fs;
-use std::path::Path;
 
 struct ProcessInfo {
     pid: u32,

@@ -3,7 +3,7 @@ use std::env;
 use std::ffi::CString;
 use std::fs;
 use std::io::{self, Write, Error};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use libc::{lstat, S_IFDIR, unlink, rmdir, opendir, readdir, closedir};
 use std::mem::MaybeUninit;
 use chrono::Local;

@@ -1,6 +1,5 @@
 use crate::ListOptions;
 use std::ffi::{CStr, CString};
-use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 use libc::{opendir, readdir, closedir, stat, lstat, S_IFMT, S_IFDIR, S_IFLNK, S_IRUSR, S_IWUSR, S_IXUSR, S_IRGRP, S_IWGRP, S_IXGRP, S_IROTH, S_IWOTH, S_IXOTH, getpwuid, getgrgid};
 use std::mem::MaybeUninit;

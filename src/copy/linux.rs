@@ -1,8 +1,8 @@
 use crate::CopyOptions;
 use std::ffi::CString;
 use std::io::Error;
-use std::path::{Path, PathBuf};
-use libc::{lstat, S_IFDIR, S_IFLNK, open, read, write, close, O_RDONLY, O_WRONLY, O_CREAT, S_IRUSR, S_IWUSR, S_IRGRP, S_IROTH, mkdir, opendir, readdir, closedir};
+use std::path::Path;
+use libc::{lstat, S_IFDIR, open, read, write, close, O_RDONLY, O_WRONLY, O_CREAT, mkdir, opendir, readdir, closedir};
 use std::mem::MaybeUninit;
 
 fn copy_item(source: &Path, dest: &Path, options: &CopyOptions) -> Result<(), String> {
