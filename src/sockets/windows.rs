@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 use crate::SocketsOptions;
 use super::SocketInfo;
 use std::collections::HashMap;
