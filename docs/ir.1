@@ -141,6 +141,9 @@ Displays a live graphical network traffic monitor in the terminal.
 .B dua [<\fIpath\fR>]
 Launches an interactive disk usage analyzer (TUI).
 .TP
+.B browse [<\fIpath\fR>]
+Launches an interactive dual-pane terminal file browser (TUI).
+.TP
 .B time <\fIcommand\fR> [\fIargs...\fR]
 Measures and displays the execution time of a command.
 .TP
@@ -517,6 +520,10 @@ Set the update delay interval (e.g. 1.5s, 500ms, default: 1s).
 .SS dua
 No command-line switches are supported. Specify a directory path as a positional argument to analyze it.
 
+.SS browse
+No command-line switches are supported. Specify a directory path as a positional argument to browse it.
+Interactive controls: \fBq\fR quit; \fB↑/↓\fR or \fBj/k\fR navigate; \fBEnter/l\fR enter directory; \fBBackspace/h\fR go up; \fBc\fR copy; \fBm\fR move; \fBr\fR rename; \fBd\fR delete.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -755,6 +762,12 @@ Scan and analyze current directory:
 .TP
 Scan and analyze /var/log directory:
 .B ir dua /var/log
+.TP
+Browse the current directory interactively:
+.B ir browse
+.TP
+Browse a specific directory:
+.B ir browse /home/user/projects
 
 .SH ALIASES
 The following command aliases are supported in-binary for convenience:
@@ -780,6 +793,8 @@ Alias for \fBmonitor\fR.
 Alias for \fBnettop\fR.
 .IP "ncdu" 12
 Alias for \fBdua\fR.
+.IP "fm" 12
+Alias for \fBbrowse\fR.
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

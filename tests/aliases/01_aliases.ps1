@@ -82,6 +82,24 @@ if ($ff_str -match "OS" -or $ff_str -match "Host") {
     $Result = 1
 }
 
+Write-Host "Testing alias 'ncdu' -> maps to 'dua' (via help)..."
+$ncdu_out = & $Executable help ncdu 2>&1 | Out-String
+if ($ncdu_out -match "ir-dua") {
+    Write-Host "✅ PASS: 'ir ncdu' alias correctly routes to dua."
+} else {
+    Write-Host "❌ FAIL: 'ir ncdu' did not route to dua: $ncdu_out"
+    $Result = 1
+}
+
+Write-Host "Testing alias 'fm' -> maps to 'browse' (via help)..."
+$fm_out = & $Executable help fm 2>&1 | Out-String
+if ($fm_out -match "ir-browse") {
+    Write-Host "✅ PASS: 'ir fm' alias correctly routes to browse."
+} else {
+    Write-Host "❌ FAIL: 'ir fm' did not route to browse: $fm_out"
+    $Result = 1
+}
+
 # Clean up
 foreach ($file in @($TestFile, $MovedFile)) {
     if (Test-Path $file) { Remove-Item $file -Force }
@@ -89,3 +107,4 @@ foreach ($file in @($TestFile, $MovedFile)) {
 if (Test-Path $TempDir) { Remove-Item $TempDir -Recurse -Force }
 
 exit $Result
+

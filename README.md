@@ -109,6 +109,10 @@ ir help find
 ir help diff
 ir help search
 ir help which
+ir help watch
+ir help nettop
+ir help dua
+ir help browse
 ```
 
 ---
@@ -1304,6 +1308,32 @@ ir dua /var/log                          # Scan and analyze /var/log directory
 
 ---
 
+### 🗂️ `browse`
+Launches an interactive dual-pane terminal file browser (TUI) for the specified path.
+
+**Usage:**
+```bash
+ir browse [PATH]
+```
+
+**Interactive Controls:**
+* `q`: Quit.
+* `↑` / `↓` (or `j` / `k`): Navigate files and folders.
+* `Enter` (or `l`): Enter the selected directory.
+* `Backspace` (or `h`): Go up to the parent directory.
+* `c`: Copy the selected file or directory (prompts for destination path).
+* `m`: Move the selected file or directory (prompts for destination path).
+* `r`: Rename the selected file or directory (prompts for new name).
+* `d`: Delete the selected file or directory (prompts for confirmation).
+
+**Examples:**
+```bash
+ir browse                                # Browse the current directory
+ir browse /home/user/projects            # Browse a specific directory
+```
+
+---
+
 ### 🔄 Command Aliases
 For convenience and familiar muscle memory, several common commands are aliased in-binary to map directly to their counterparts:
 
@@ -1320,6 +1350,7 @@ For convenience and familiar muscle memory, several common commands are aliased 
 | `smon` | `monitor` | Launches the default system monitor. |
 | `ntop` | `nettop` | Displays a live graphical network traffic monitor. |
 | `ncdu` | `dua` | Launches an interactive disk usage analyzer. |
+| `fm` | `browse` | Launches an interactive terminal file browser. |
 
 You can use these interchangeable pairings interchangeably (e.g. `ir ls` works exactly like `ir list`, and `ir help ls` shows the list help screen).
 
