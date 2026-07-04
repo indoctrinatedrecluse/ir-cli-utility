@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -13,9 +13,19 @@ fn main() {
         return;
     }
 
-    let action = &args[1];
+    let action_raw = &args[1];
+    let action = match action_raw.as_str() {
+        "ls" => "list",
+        "touch" => "create",
+        "tar" => "archive",
+        "mv" => "move",
+        "cp" => "copy",
+        "rm" => "remove",
+        "ff" => "fastfetch",
+        other => other,
+    };
 
-    match action.as_str() {
+    match action {
         "list" => {
             let mut options = ListOptions::default();
             let mut list_args = args[2..].iter().peekable();
@@ -1978,6 +1988,48 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "chmod" => {
+            let mut options = ChmodOptions::default();
+            let mut positionals = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-R" || arg == "--recursive" {
+                    options.recursive = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'R' => options.recursive = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for chmod.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() < 2 {
+                    eprintln!("Error: 'chmod' action requires a mode and at least one path: ir chmod [SWITCHES] <MODE> <PATH...>");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let mode = &positionals[0];
+                let paths = positionals[1..].to_vec();
+                ir_cli_utility::chmod(mode, paths, options);
+            } else {
+                help::print_chmod_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -2020,6 +2072,14 @@ fn main() {
                     "sockets" => help::print_sockets_help(),
                     "wc" => help::print_wc_help(),
                     "ln" => help::print_ln_help(),
+                    "chmod" => help::print_chmod_help(),
+                    "ls" => help::print_list_help(),
+                    "touch" => help::print_create_help(),
+                    "tar" => help::print_archive_help(),
+                    "mv" => help::print_move_help(),
+                    "cp" => help::print_copy_help(),
+                    "rm" => help::print_remove_help(),
+                    "ff" => help::print_fastfetch_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

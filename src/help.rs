@@ -42,7 +42,16 @@ pub fn print_general_help() {
     println!("    sockets   Lists active TCP and UDP sockets with owning process.");
     println!("    wc        Counts lines, words, characters, and bytes.");
     println!("    ln        Creates hard links or symbolic links.");
+    println!("    chmod     Changes file permissions.");
     println!("    help      Prints general help or help for a specific action.");
+    println!("\nALIASES:");
+    println!("    ls        Alias for 'list'");
+    println!("    touch     Alias for 'create'");
+    println!("    tar       Alias for 'archive'");
+    println!("    mv        Alias for 'move'");
+    println!("    cp        Alias for 'copy'");
+    println!("    rm        Alias for 'remove'");
+    println!("    ff        Alias for 'fastfetch'");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
 
@@ -733,4 +742,24 @@ pub fn print_ln_help() {
     println!("    ir ln target.txt hardlink.txt            Create a hard link");
     println!("    ir ln -s target.txt symlink.txt          Create a symbolic link");
     println!("    ir ln -sf target.txt existing.txt        Forcefully overwrite existing link with new symlink");
+}
+
+pub fn print_chmod_help() {
+    println!("ir-chmod");
+    println!("\nUSAGE:");
+    println!("    ir chmod [SWITCHES] <MODE> <PATH...>");
+    println!("\nDESCRIPTION:");
+    println!("    Changes file mode bits (permissions) of files or directories.");
+    println!("\nARGUMENTS:");
+    println!("    <MODE>    Octal mode (e.g. 755, 644, 444).");
+    println!("    <PATH...> One or more paths to modify.");
+    println!("\nSWITCHES:");
+    println!("    -R, --recursive  Recursively apply mode changes to directories and their contents.");
+    println!("\nWINDOWS SUPPORT:");
+    println!("    - Octal modes containing owner write bit (e.g. 200, 600, 755) remove the read-only attribute.");
+    println!("    - Octal modes without owner write bit (e.g. 400, 444, 555) set the read-only attribute.");
+    println!("\nEXAMPLES:");
+    println!("    ir chmod 755 script.sh                   Make file executable/writeable");
+    println!("    ir chmod 444 document.txt                Make file read-only");
+    println!("    ir chmod -R 755 src                      Recursively make src/ writeable");
 }

@@ -126,6 +126,9 @@ Counts lines, words, characters, and bytes for files or standard input.
 .B ln [\fIswitches\fR] <\fItarget\fR> <\fIlink_name\fR>
 Creates a hard link or symbolic/soft link pointing to a target file or directory.
 .TP
+.B chmod [\fIswitches\fR] <\fImode\fR> <\fIpath...\fR>
+Changes file mode bits (permissions) of files or directories.
+.TP
 .B time <\fIcommand\fR> [\fIargs...\fR]
 Measures and displays the execution time of a command.
 .TP
@@ -476,6 +479,11 @@ Create a symbolic (soft) link instead of a hard link.
 .B -f, --force
 Forcefully remove/overwrite an existing destination file/link.
 
+.SS chmod
+.TP
+.B -R, --recursive
+Recursively apply mode changes to directories and their contents.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -690,6 +698,29 @@ Create a symbolic link:
 .TP
 Forcefully recreate a link:
 .B ir ln -sf target.txt existing.txt
+.TP
+Make a shell script executable/writeable:
+.B ir chmod 755 script.sh
+.TP
+Recursively make a directory read-only:
+.B ir chmod -R 444 src
+
+.SH ALIASES
+The following command aliases are supported in-binary for convenience:
+.IP "ls" 12
+Alias for \fBlist\fR.
+.IP "touch" 12
+Alias for \fBcreate\fR.
+.IP "tar" 12
+Alias for \fBarchive\fR.
+.IP "mv" 12
+Alias for \fBmove\fR.
+.IP "cp" 12
+Alias for \fBcopy\fR.
+.IP "rm" 12
+Alias for \fBremove\fR.
+.IP "ff" 12
+Alias for \fBfastfetch\fR.
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

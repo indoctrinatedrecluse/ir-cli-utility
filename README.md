@@ -1169,6 +1169,56 @@ ir ln -sf target.txt existing.txt        # Force overwrite with a new symlink
 
 ---
 
+### 🔒 `chmod`
+Changes file mode bits (permissions) of files or directories.
+
+**Usage:**
+```bash
+ir chmod [switches] <MODE> <PATH...>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<MODE>` | Octal mode string (e.g. `755`, `644`, `444`). |
+| `<PATH...>` | One or more file or directory paths to modify. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-R`, `--recursive` | Recursively apply mode changes to directories and their contents. |
+
+> [!NOTE]
+> **Windows Support:**
+> - Octal modes containing the owner write bit (e.g. `200`, `600`, `755`) remove the read-only attribute.
+> - Octal modes without the owner write bit (e.g. `400`, `444`, `555`) set the read-only attribute.
+
+**Examples:**
+```bash
+ir chmod 755 script.sh                   # Make script executable/writeable
+ir chmod 444 document.txt                # Make document read-only
+ir chmod -R 755 src                      # Recursively make directory writeable
+```
+
+---
+
+### 🔄 Command Aliases
+For convenience and familiar muscle memory, several common commands are aliased in-binary to map directly to their counterparts:
+
+| Alias | Target Action | Description |
+| :--- | :--- | :--- |
+| `ls` | `list` | Lists files and directories with detailed information. |
+| `touch` | `create` | Creates empty files (and folders). |
+| `tar` | `archive` | Creates or extracts archives. |
+| `mv` | `move` | Moves files and folders. |
+| `cp` | `copy` | Copies files and folders. |
+| `rm` | `remove` | Removes files and folders. |
+| `ff` | `fastfetch` | Displays system information and a fancy logo. |
+
+You can use these interchangeable pairings interchangeably (e.g. `ir ls` works exactly like `ir list`, and `ir help ls` shows the list help screen).
+
+---
+
 ## 📖 Documentation
 
 On Linux, a `man` page is available in the `docs/` directory. To install it:

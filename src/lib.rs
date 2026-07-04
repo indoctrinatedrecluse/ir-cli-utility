@@ -38,6 +38,8 @@ pub mod whoami;
 pub mod sockets;
 pub mod wc;
 pub mod ln;
+pub mod chmod;
+
 
 
 
@@ -304,6 +306,11 @@ pub struct LnOptions {
     pub force: bool,
 }
 
+#[derive(Default, Clone)]
+pub struct ChmodOptions {
+    pub recursive: bool,
+}
+
 
 pub fn list(options: ListOptions) {
     list::list(options);
@@ -379,6 +386,10 @@ pub fn wc(paths: Vec<String>, options: WcOptions) {
 
 pub fn ln(target: &str, link_name: &str, options: LnOptions) {
     ln::ln(target, link_name, options);
+}
+
+pub fn chmod(mode: &str, paths: Vec<String>, options: ChmodOptions) {
+    chmod::chmod(mode, paths, options);
 }
 
 
