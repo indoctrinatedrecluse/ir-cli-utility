@@ -151,19 +151,55 @@ fn parse_meminfo_line(line: &str) -> Option<u64> {
     }
 }
 
-fn get_disk() -> Option<(u64, u64)> {
-    unsafe {
-        let mut stats = std::mem::zeroed::<libc::statvfs>();
-        let path = std::ffi::CString::new("/").ok()?;
-        if libc::statvfs(path.as_ptr(), &mut stats) == 0 {
-            let total = stats.f_blocks * stats.f_frsize;
-            let free = stats.f_bfree * stats.f_frsize;
-            let used = total - free;
-            Some((used, total))
-        } else {
-            None
+fn get_disks() -> Vec<(String, u64, u64)> {
+    let mut disks = Vec::new();
+    let file = match std::fs::File::open("/proc/self/mounts") {
+        Ok(f) => f,
+        Err(_) => return disks,
+    };
+    use std::io::{BufRead, BufReader};
+    let reader = BufReader::new(file);
+    let mut seen_devices = std::collections::HashSet::new();
+
+    for line_res in reader.lines() {
+        let line = match line_res {
+            Ok(l) => l,
+            Err(_) => continue,
+        };
+        let parts: Vec<&str> = line.split_whitespace().collect();
+        if parts.len() < 3 {
+            continue;
+        }
+        let device = parts[0];
+        let mount_point = parts[1];
+        
+        if !device.starts_with("/dev/") {
+            continue;
+        }
+
+        if seen_devices.contains(device) {
+            continue;
+        }
+        seen_devices.insert(device.to_string());
+
+        unsafe {
+            let mut stat = std::mem::zeroed::<libc::statvfs>();
+            if let Ok(c_path) = std::ffi::CString::new(mount_point) {
+                if libc::statvfs(c_path.as_ptr(), &mut stat) == 0 {
+                    let block_size = if stat.f_frsize > 0 {
+                        stat.f_frsize as u64
+                    } else {
+                        stat.f_bsize as u64
+                    };
+                    let total = stat.f_blocks as u64 * block_size;
+                    let free = stat.f_bfree as u64 * block_size;
+                    let used = total.saturating_sub(free);
+                    disks.push((mount_point.to_string(), used, total));
+                }
+            }
         }
     }
+    disks
 }
 
 fn format_bytes(bytes: u64) -> String {
@@ -197,13 +233,6 @@ pub fn fastfetch() {
         "Unknown".to_string()
     };
 
-    let disk_str = if let Some((used, total)) = get_disk() {
-        let pct = (used as f64 / total as f64) * 100.0;
-        format!("{} / {} ({:.0}%)", format_bytes(used), format_bytes(total), pct)
-    } else {
-        "Unknown".to_string()
-    };
-
     let mut info = Vec::new();
     info.push(format!("\x1b[36mOS\x1b[0m:       {}", os));
     info.push(format!("\x1b[36mHost\x1b[0m:     {}", host));
@@ -213,7 +242,17 @@ pub fn fastfetch() {
     info.push(format!("\x1b[36mCPU\x1b[0m:      {}", cpu));
     info.push(format!("\x1b[36mGPU\x1b[0m:      {}", gpu));
     info.push(format!("\x1b[36mMemory\x1b[0m:   {}", mem_str));
-    info.push(format!("\x1b[36mDisk\x1b[0m:     {}", disk_str));
+
+    let disks = get_disks();
+    if !disks.is_empty() {
+        info.push(format!("\x1b[36mDisks\x1b[0m:"));
+        for (name, used, total) in disks {
+            let pct = (used as f64 / total as f64) * 100.0;
+            info.push(format!("  {}  {} / {} ({:.0}%)", name, format_bytes(used), format_bytes(total), pct));
+        }
+    } else {
+        info.push(format!("\x1b[36mDisk\x1b[0m:     Unknown"));
+    }
 
     print_side_by_side(&logo, &info);
 }

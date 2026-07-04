@@ -124,20 +124,47 @@ fn get_mem() -> Option<(u64, u64)> {
     }
 }
 
-fn get_disk() -> Option<(u64, u64)> {
-    use windows_sys::Win32::Storage::FileSystem::GetDiskFreeSpaceExW;
-    let mut free_bytes = 0u64;
-    let mut total_bytes = 0u64;
-    let mut total_free = 0u64;
-    let path = [b'C' as u16, b':' as u16, b'\\' as u16, 0u16];
+fn get_disks() -> Vec<(String, u64, u64)> {
+    use windows_sys::Win32::Storage::FileSystem::{
+        GetDiskFreeSpaceExW, GetLogicalDriveStringsW, GetDriveTypeW,
+    };
+    const DRIVE_REMOVABLE: u32 = 2;
+    const DRIVE_FIXED: u32 = 3;
+    let mut disks = Vec::new();
     unsafe {
-        if GetDiskFreeSpaceExW(path.as_ptr(), &mut free_bytes, &mut total_bytes, &mut total_free) != 0 {
-            let used = total_bytes - total_free;
-            Some((used, total_bytes))
-        } else {
-            None
+        let mut buffer = [0u16; 256];
+        let len = GetLogicalDriveStringsW(256, buffer.as_mut_ptr());
+        if len > 0 && len < 256 {
+            let mut start = 0;
+            while start < len as usize {
+                let drive_slice = &buffer[start..];
+                let drive_len = drive_slice.iter().position(|&c| c == 0).unwrap_or(0);
+                if drive_len == 0 {
+                    break;
+                }
+                let drive_path = &drive_slice[..drive_len];
+                let drive_type = GetDriveTypeW(drive_path.as_ptr());
+                if drive_type == DRIVE_FIXED || drive_type == DRIVE_REMOVABLE {
+                    let mut free_bytes = 0u64;
+                    let mut total_bytes = 0u64;
+                    let mut total_free = 0u64;
+                    if GetDiskFreeSpaceExW(
+                        drive_path.as_ptr(),
+                        &mut free_bytes,
+                        &mut total_bytes,
+                        &mut total_free,
+                    ) != 0 {
+                        let used = total_bytes.saturating_sub(total_free);
+                        let drive_str = String::from_utf16_lossy(drive_path);
+                        let name = drive_str.trim_end_matches('\\').to_string();
+                        disks.push((name, used, total_bytes));
+                    }
+                }
+                start += drive_len + 1;
+            }
         }
     }
+    disks
 }
 
 fn format_bytes(bytes: u64) -> String {
@@ -175,13 +202,6 @@ pub fn fastfetch() {
         "Unknown".to_string()
     };
 
-    let disk_str = if let Some((used, total)) = get_disk() {
-        let pct = (used as f64 / total as f64) * 100.0;
-        format!("{} / {} ({:.0}%)", format_bytes(used), format_bytes(total), pct)
-    } else {
-        "Unknown".to_string()
-    };
-
     let mut info = Vec::new();
     info.push(format!("\x1b[36mOS\x1b[0m:       {}", os));
     info.push(format!("\x1b[36mHost\x1b[0m:     {}", host));
@@ -191,7 +211,17 @@ pub fn fastfetch() {
     info.push(format!("\x1b[36mCPU\x1b[0m:      {}", cpu));
     info.push(format!("\x1b[36mGPU\x1b[0m:      {}", gpu));
     info.push(format!("\x1b[36mMemory\x1b[0m:   {}", mem_str));
-    info.push(format!("\x1b[36mDisk\x1b[0m:     {}", disk_str));
+
+    let disks = get_disks();
+    if !disks.is_empty() {
+        info.push(format!("\x1b[36mDisks\x1b[0m:"));
+        for (name, used, total) in disks {
+            let pct = (used as f64 / total as f64) * 100.0;
+            info.push(format!("  {}  {} / {} ({:.0}%)", name, format_bytes(used), format_bytes(total), pct));
+        }
+    } else {
+        info.push(format!("\x1b[36mDisk\x1b[0m:     Unknown"));
+    }
 
     print_side_by_side(&logo, &info);
 }
