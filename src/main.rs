@@ -24,6 +24,9 @@ fn main() {
         "ff" => "fastfetch",
         "ptop" => "pmon",
         "smon" => "monitor",
+        "ntop" => "nettop",
+        "ncdu" => "dua",
+        "fm" => "browse",
         other => other,
     };
 
@@ -2094,6 +2097,187 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "watch" => {
+            let mut options = ir_cli_utility::WatchOptions::default();
+            let mut command = String::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-n" || arg == "--interval" {
+                    match args_iter.next() {
+                        Some(val) => {
+                            let mut raw_val = val.as_str();
+                            let mut is_ms = false;
+                            if raw_val.ends_with("ms") {
+                                raw_val = &raw_val[..raw_val.len() - 2];
+                                is_ms = true;
+                            } else if raw_val.ends_with('s') {
+                                raw_val = &raw_val[..raw_val.len() - 1];
+                            }
+
+                            match raw_val.parse::<f64>() {
+                                Ok(num) => {
+                                    if num <= 0.0 {
+                                        eprintln!("Error: Interval must be greater than zero.");
+                                        valid = false;
+                                        break;
+                                    }
+                                    options.interval_ms = if is_ms {
+                                        num.round() as u64
+                                    } else {
+                                        (num * 1000.0).round() as u64
+                                    };
+                                }
+                                Err(_) => {
+                                    eprintln!("Error: Invalid interval value '{}'.", val);
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --interval requires a value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--diff" {
+                    options.diff = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for watch.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    if !command.is_empty() {
+                        eprintln!("Error: Multiple commands provided. Only one command can be watched.");
+                        valid = false;
+                        break;
+                    }
+                    command = arg.clone();
+                }
+            }
+
+            if command.is_empty() && valid {
+                eprintln!("Error: Command argument is missing.");
+                valid = false;
+            }
+
+            if valid {
+                ir_cli_utility::watch(&command, options);
+            } else {
+                help::print_watch_help();
+                std::process::exit(1);
+            }
+        }
+        "nettop" => {
+            let mut options = ir_cli_utility::NettopOptions::default();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-d" || arg == "--delay" {
+                    match args_iter.next() {
+                        Some(val) => {
+                            let mut raw_val = val.as_str();
+                            let mut is_ms = false;
+                            if raw_val.ends_with("ms") {
+                                raw_val = &raw_val[..raw_val.len() - 2];
+                                is_ms = true;
+                            } else if raw_val.ends_with('s') {
+                                raw_val = &raw_val[..raw_val.len() - 1];
+                            }
+
+                            match raw_val.parse::<f64>() {
+                                Ok(num) => {
+                                    if num <= 0.0 {
+                                        eprintln!("Error: Delay must be greater than zero.");
+                                        valid = false;
+                                        break;
+                                    }
+                                    options.delay_ms = if is_ms {
+                                        num.round() as u64
+                                    } else {
+                                        (num * 1000.0).round() as u64
+                                    };
+                                }
+                                Err(_) => {
+                                    eprintln!("Error: Invalid delay value '{}'.", val);
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --delay requires a value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for nettop.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    eprintln!("Error: 'nettop' action does not accept positional arguments.");
+                    valid = false;
+                    break;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::nettop(options);
+            } else {
+                help::print_nettop_help();
+                std::process::exit(1);
+            }
+        }
+        "dua" => {
+            let options = ir_cli_utility::DuaOptions::default();
+            let mut path = ".".to_string();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for dua.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    path = arg.clone();
+                }
+            }
+
+            if valid {
+                ir_cli_utility::dua(&path, options);
+            } else {
+                help::print_dua_help();
+                std::process::exit(1);
+            }
+        }
+        "browse" => {
+            let options = ir_cli_utility::BrowseOptions::default();
+            let mut path = ".".to_string();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for browse.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    path = arg.clone();
+                }
+            }
+
+            if valid {
+                ir_cli_utility::browse(&path, options);
+            } else {
+                help::print_browse_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -2147,6 +2331,13 @@ fn main() {
                     "pmon" => help::print_pmon_help(),
                     "ptop" => help::print_pmon_help(),
                     "smon" => help::print_monitor_help(),
+                    "watch" => help::print_watch_help(),
+                    "nettop" => help::print_nettop_help(),
+                    "ntop" => help::print_nettop_help(),
+                    "dua" => help::print_dua_help(),
+                    "ncdu" => help::print_dua_help(),
+                    "browse" => help::print_browse_help(),
+                    "fm" => help::print_browse_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

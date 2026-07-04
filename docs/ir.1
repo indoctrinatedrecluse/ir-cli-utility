@@ -132,6 +132,15 @@ Changes file mode bits (permissions) of files or directories.
 .B pmon [\fIswitches\fR]
 Displays a live graphical process monitor in the terminal.
 .TP
+.B watch [\fIswitches\fR] <\fIcommand\fR>
+Runs a command periodically, displaying its output fullscreen and optional diff-highlighting.
+.TP
+.B nettop [\fIswitches\fR]
+Displays a live graphical network traffic monitor in the terminal.
+.TP
+.B dua [<\fIpath\fR>]
+Launches an interactive disk usage analyzer (TUI).
+.TP
 .B time <\fIcommand\fR> [\fIargs...\fR]
 Measures and displays the execution time of a command.
 .TP
@@ -492,6 +501,22 @@ Recursively apply mode changes to directories and their contents.
 .B -d, --delay <\fIduration\fR>
 Set the refresh delay interval (e.g. 1.5s, 500ms, default: 1s).
 
+.SS watch
+.TP
+.B -n, --interval <\fIduration\fR>
+Set the update interval (e.g. 1.5s, 500ms, default: 2s).
+.TP
+.B --diff
+Highlight changes between consecutive runs in reverse video.
+
+.SS nettop
+.TP
+.B -d, --delay <\fIduration\fR>
+Set the update delay interval (e.g. 1.5s, 500ms, default: 1s).
+
+.SS dua
+No command-line switches are supported. Specify a directory path as a positional argument to analyze it.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -715,6 +740,21 @@ Recursively make a directory read-only:
 .TP
 Launch live process monitor with 500ms refresh delay:
 .B ir pmon -d 500ms
+.TP
+Watch system info update every 2s:
+.B ir watch "ir ff"
+.TP
+Watch sockets every 500ms highlighting changes:
+.B ir watch -n 500ms --diff "ir sockets"
+.TP
+Launch network traffic monitor with 500ms update delay:
+.B ir nettop -d 500ms
+.TP
+Scan and analyze current directory:
+.B ir dua
+.TP
+Scan and analyze /var/log directory:
+.B ir dua /var/log
 
 .SH ALIASES
 The following command aliases are supported in-binary for convenience:
@@ -736,6 +776,10 @@ Alias for \fBfastfetch\fR.
 Alias for \fBpmon\fR.
 .IP "smon" 12
 Alias for \fBmonitor\fR.
+.IP "ntop" 12
+Alias for \fBnettop\fR.
+.IP "ncdu" 12
+Alias for \fBdua\fR.
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

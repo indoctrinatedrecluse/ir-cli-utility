@@ -44,6 +44,10 @@ pub fn print_general_help() {
     println!("    ln        Creates hard links or symbolic links.");
     println!("    chmod     Changes file permissions.");
     println!("    pmon      Displays a live graphical process monitor.");
+    println!("    watch     Runs a command periodically, showing its output fullscreen.");
+    println!("    nettop    Displays a live graphical network traffic monitor.");
+    println!("    dua       Launches an interactive disk usage analyzer.");
+    println!("    browse    Launches an interactive terminal file browser.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -55,6 +59,9 @@ pub fn print_general_help() {
     println!("    ff        Alias for 'fastfetch'");
     println!("    ptop      Alias for 'pmon'");
     println!("    smon      Alias for 'monitor'");
+    println!("    ntop      Alias for 'nettop'");
+    println!("    ncdu      Alias for 'dua'");
+    println!("    fm        Alias for 'browse'");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
 
@@ -782,4 +789,61 @@ pub fn print_pmon_help() {
     println!("    n                  Sort by Process Name");
     println!("    p                  Sort by PID");
     println!("    k                  Kill a process by prompting for its PID");
+}
+
+pub fn print_watch_help() {
+    println!("ir-watch");
+    println!("\nUSAGE:");
+    println!("    ir watch [SWITCHES] <COMMAND>");
+    println!("\nDESCRIPTION:");
+    println!("    Runs a command periodically, displaying its output fullscreen and optional diff-highlighting.");
+    println!("\nSWITCHES:");
+    println!("    -n, --interval <VAL>  Update interval (e.g. 1.5s, 500ms, default: 2s).");
+    println!("    --diff                Highlight changes between consecutive runs in reverse video.");
+    println!("\nCONTROLS (interactive):");
+    println!("    q, Esc, Ctrl+C        Quit");
+}
+
+pub fn print_nettop_help() {
+    println!("ir-nettop");
+    println!("\nUSAGE:");
+    println!("    ir nettop [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Displays a live graphical network traffic monitor in the terminal.");
+    println!("\nSWITCHES:");
+    println!("    -d, --delay <VAL>  Update delay (e.g. 1.5s, 500ms, default: 1s).");
+    println!("\nCONTROLS (interactive):");
+    println!("    q, Esc                Quit");
+    println!("    i                     Cycle to next network interface");
+}
+
+pub fn print_dua_help() {
+    println!("ir-dua");
+    println!("\nUSAGE:");
+    println!("    ir dua [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches an interactive disk usage analyzer (TUI) for the specified path.");
+    println!("\nCONTROLS (interactive):");
+    println!("    q                     Quit");
+    println!("    ↑/↓ (or j/k)          Navigate directory contents");
+    println!("    Enter (or l)          Enter the selected directory");
+    println!("    Backspace (or h)      Go up to the parent directory");
+    println!("    d                     Delete the selected file or directory");
+}
+
+pub fn print_browse_help() {
+    println!("ir-browse");
+    println!("\nUSAGE:");
+    println!("    ir browse [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches an interactive terminal file browser (TUI) for the specified path.");
+    println!("\nCONTROLS (interactive):");
+    println!("    q                     Quit");
+    println!("    ↑/↓ (or j/k)          Navigate files and folders");
+    println!("    Enter (or l)          Enter the selected directory");
+    println!("    Backspace (or h)      Go up to the parent directory");
+    println!("    c                     Copy the selected file or directory");
+    println!("    m                     Move the selected file or directory");
+    println!("    r                     Rename the selected file or directory");
+    println!("    d                     Delete the selected file or directory");
 }

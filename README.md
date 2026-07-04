@@ -1231,6 +1231,79 @@ ir pmon -d 500ms                         # Launch process monitor with 500ms ref
 
 ---
 
+### ⏱️ `watch`
+Runs a command periodically, displaying its output fullscreen and optional diff-highlighting.
+
+**Usage:**
+```bash
+ir watch [switches] <COMMAND>
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-n`, `--interval <VAL>` | Update interval (e.g. `1.5s`, `500ms`, default: `2s`). |
+| `--diff` | Highlight changes between consecutive runs in reverse video. |
+
+**Interactive Controls:**
+* `q` / `Esc` / `Ctrl+C`: Quit the watch mode.
+
+**Examples:**
+```bash
+ir watch "ir ff"                         # Watch system info update every 2s
+ir watch -n 500ms --diff "ir sockets"    # Watch sockets every 500ms highlighting changes
+```
+
+---
+
+### 🌐 `nettop`
+Displays a live graphical network traffic monitor in the terminal with ASCII speed graphs.
+
+**Usage:**
+```bash
+ir nettop [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-d`, `--delay <VAL>` | Update delay (e.g. `1.5s`, `500ms`, default: `1s`). |
+
+**Interactive Controls:**
+* `q` / `Esc`: Quit the network monitor.
+* `i`: Cycle to next active network interface.
+
+**Examples:**
+```bash
+ir nettop                                # Launch network monitor with 1s update delay
+ir nettop -d 500ms                       # Launch network monitor with 500ms update delay
+```
+
+---
+
+### 📊 `dua`
+Launches an interactive disk usage analyzer (TUI) for the specified path, listing folders and files sorted by size with proportional ASCII bars.
+
+**Usage:**
+```bash
+ir dua [PATH]
+```
+
+**Interactive Controls:**
+* `q`: Quit.
+* `↑` / `↓` (or `j` / `k`): Navigate directory contents.
+* `Enter` (or `l`): Enter the selected directory.
+* `Backspace` (or `h`): Go up to the parent directory.
+* `d`: Delete the selected file or directory (prompts for confirmation).
+
+**Examples:**
+```bash
+ir dua                                   # Scan and analyze current directory
+ir dua /var/log                          # Scan and analyze /var/log directory
+```
+
+---
+
 ### 🔄 Command Aliases
 For convenience and familiar muscle memory, several common commands are aliased in-binary to map directly to their counterparts:
 
@@ -1245,6 +1318,8 @@ For convenience and familiar muscle memory, several common commands are aliased 
 | `ff` | `fastfetch` | Displays system information and a fancy logo. |
 | `ptop` | `pmon` | Displays a live graphical process monitor. |
 | `smon` | `monitor` | Launches the default system monitor. |
+| `ntop` | `nettop` | Displays a live graphical network traffic monitor. |
+| `ncdu` | `dua` | Launches an interactive disk usage analyzer. |
 
 You can use these interchangeable pairings interchangeably (e.g. `ir ls` works exactly like `ir list`, and `ir help ls` shows the list help screen).
 

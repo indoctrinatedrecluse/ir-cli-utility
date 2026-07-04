@@ -1,7 +1,7 @@
 use crate::ArchiveOptions;
 use std::path::{Path, PathBuf};
 use std::fs::{self, File};
-use std::io::{self, Write, Read};
+use std::io::{self, Write, Read, IsTerminal};
 use zip::{ZipWriter, CompressionMethod};
 use zip::write::FileOptions;
 use walkdir::WalkDir;
@@ -10,7 +10,79 @@ use flate2::write::GzEncoder;
 use flate2::read::GzDecoder;
 use flate2::Compression;
 
-fn zip_dir(dir: &Path, writer: &mut ZipWriter<File>, options: &ArchiveOptions) -> zip::result::ZipResult<()> {
+fn draw_progress(processed: u64, total: u64, label: &str) {
+    if !io::stdout().is_terminal() {
+        return;
+    }
+    let total = if total == 0 { 1 } else { total };
+    let pct = (processed as f64 / total as f64 * 100.0).clamp(0.0, 100.0);
+    let width: usize = 30;
+    let filled = ((pct / 100.0) * width as f64).round() as usize;
+    let empty = width.saturating_sub(filled);
+    
+    let bar = format!(
+        "\x1b[32m{}\x1b[0m{}",
+        "█".repeat(filled),
+        "░".repeat(empty)
+    );
+    
+    let size_str = format!("{:.1} / {:.1} MB", processed as f64 / 1024.0 / 1024.0, total as f64 / 1024.0 / 1024.0);
+    print!("\r[{}] {:.1}% ({}) [{}]      ", bar, pct, size_str, label);
+    let _ = io::stdout().flush();
+}
+
+fn get_total_size(path: &Path) -> u64 {
+    if path.is_file() {
+        path.metadata().map(|m| m.len()).unwrap_or(0)
+    } else {
+        WalkDir::new(path)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.file_type().is_file())
+            .map(|e| e.metadata().map(|m| m.len()).unwrap_or(0))
+            .sum()
+    }
+}
+
+struct ProgressReader<R> {
+    inner: R,
+    processed: u64,
+    total: u64,
+    label: &'static str,
+}
+
+impl<R: Read> Read for ProgressReader<R> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        let n = self.inner.read(buf)?;
+        self.processed += n as u64;
+        draw_progress(self.processed, self.total, self.label);
+        Ok(n)
+    }
+}
+
+struct TarProgressReader<'a, R> {
+    inner: R,
+    processed_ref: &'a mut u64,
+    total: u64,
+    label: &'static str,
+}
+
+impl<'a, R: Read> Read for TarProgressReader<'a, R> {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        let n = self.inner.read(buf)?;
+        *self.processed_ref += n as u64;
+        draw_progress(*self.processed_ref, self.total, self.label);
+        Ok(n)
+    }
+}
+
+fn zip_dir(
+    dir: &Path,
+    writer: &mut ZipWriter<File>,
+    options: &ArchiveOptions,
+    total_bytes: u64,
+    processed_bytes: &mut u64,
+) -> zip::result::ZipResult<()> {
     for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
         let path = entry.path();
         let name = path.strip_prefix(dir).unwrap();
@@ -18,14 +90,22 @@ fn zip_dir(dir: &Path, writer: &mut ZipWriter<File>, options: &ArchiveOptions) -
             println!("Adding: {}", name.display());
         }
         if path.is_file() {
-            // FIX: Use start_file instead of deprecated start_file_from_path
-            writer.start_file(name.to_str().unwrap(), FileOptions::default().compression_method(CompressionMethod::Stored))?;
+            writer.start_file(
+                name.to_str().unwrap(),
+                FileOptions::default().compression_method(CompressionMethod::Stored),
+            )?;
             let mut f = File::open(path)?;
-            let mut buffer = Vec::new();
-            f.read_to_end(&mut buffer)?;
-            writer.write_all(&buffer)?;
+            let mut buffer = [0u8; 65536];
+            loop {
+                let n = f.read(&mut buffer)?;
+                if n == 0 {
+                    break;
+                }
+                writer.write_all(&buffer[..n])?;
+                *processed_bytes += n as u64;
+                draw_progress(*processed_bytes, total_bytes, "Archiving");
+            }
         } else if name.as_os_str().len() != 0 {
-            // FIX: Use add_directory instead of deprecated add_directory_from_path
             writer.add_directory(name.to_str().unwrap(), FileOptions::default())?;
         }
     }
@@ -39,17 +119,33 @@ fn create_zip_archive(source_path: &Path, dest_path: &Path, options: &ArchiveOpt
     let file = File::create(&dest_path).map_err(|e| e.to_string())?;
     let mut zip = ZipWriter::new(file);
 
+    let total_bytes = get_total_size(source_path);
+    let mut processed_bytes = 0u64;
+
     if source_path.is_file() {
         let file_name = source_path.file_name().unwrap().to_str().unwrap();
-        zip.start_file(file_name, FileOptions::default().compression_method(CompressionMethod::Stored)).map_err(|e| e.to_string())?;
+        zip.start_file(
+            file_name,
+            FileOptions::default().compression_method(CompressionMethod::Stored),
+        ).map_err(|e| e.to_string())?;
         let mut f = File::open(source_path).map_err(|e| e.to_string())?;
-        let mut buffer = Vec::new();
-        f.read_to_end(&mut buffer).map_err(|e| e.to_string())?;
-        zip.write_all(&buffer).map_err(|e| e.to_string())?;
+        let mut buffer = [0u8; 65536];
+        loop {
+            let n = f.read(&mut buffer).map_err(|e| e.to_string())?;
+            if n == 0 {
+                break;
+            }
+            zip.write_all(&buffer[..n]).map_err(|e| e.to_string())?;
+            processed_bytes += n as u64;
+            draw_progress(processed_bytes, total_bytes, "Archiving");
+        }
     } else {
-        zip_dir(source_path, &mut zip, options).map_err(|e| e.to_string())?;
+        zip_dir(source_path, &mut zip, options, total_bytes, &mut processed_bytes).map_err(|e| e.to_string())?;
     }
     zip.finish().map_err(|e| e.to_string())?;
+    if io::stdout().is_terminal() {
+        println!();
+    }
     Ok(())
 }
 
@@ -61,24 +157,67 @@ fn create_tar_gz_archive(source_path: &Path, dest_path: &Path, options: &Archive
     let enc = GzEncoder::new(file, Compression::default());
     let mut tar = Builder::new(enc);
 
+    let total_bytes = get_total_size(source_path);
+    let mut processed_bytes = 0u64;
+
     if source_path.is_dir() {
-        // tar.append_dir_all expects a relative path for the entry name
-        // and the full path to the directory on the filesystem.
-        // We need to ensure the entry name is just the directory name.
         let dir_name = source_path.file_name().unwrap().to_str().unwrap();
-        tar.append_dir_all(dir_name, source_path).map_err(|e| e.to_string())?;
+        for entry in WalkDir::new(source_path).into_iter().filter_map(|e| e.ok()) {
+            let path = entry.path();
+            let rel_path = path.strip_prefix(source_path).unwrap();
+            let mut tar_path = PathBuf::from(dir_name);
+            tar_path.push(rel_path);
+
+            if path.is_file() {
+                let f = File::open(path).map_err(|e| e.to_string())?;
+                let mut header = tar::Header::new_gnu();
+                let metadata = path.metadata().map_err(|e| e.to_string())?;
+                header.set_metadata(&metadata);
+
+                let mut wrap_reader = TarProgressReader {
+                    inner: f,
+                    processed_ref: &mut processed_bytes,
+                    total: total_bytes,
+                    label: "Archiving",
+                };
+                tar.append_data(&mut header, &tar_path, &mut wrap_reader).map_err(|e| e.to_string())?;
+            } else if path.is_dir() {
+                tar.append_dir(&tar_path, path).map_err(|e| e.to_string())?;
+            }
+        }
     } else {
-        // For a single file, append_path expects the path to the file on the filesystem
-        // and uses its file_name as the entry name in the archive.
-        tar.append_path(source_path).map_err(|e| e.to_string())?;
+        let f = File::open(source_path).map_err(|e| e.to_string())?;
+        let mut header = tar::Header::new_gnu();
+        let metadata = source_path.metadata().map_err(|e| e.to_string())?;
+        header.set_metadata(&metadata);
+
+        let mut wrap_reader = TarProgressReader {
+            inner: f,
+            processed_ref: &mut processed_bytes,
+            total: total_bytes,
+            label: "Archiving",
+        };
+        let file_name = source_path.file_name().unwrap();
+        tar.append_data(&mut header, file_name, &mut wrap_reader).map_err(|e| e.to_string())?;
     }
     tar.finish().map_err(|e| e.to_string())?;
+    if io::stdout().is_terminal() {
+        println!();
+    }
     Ok(())
 }
 
 fn unarc_zip(source_path: &Path, dest_path: &Path, options: &ArchiveOptions) -> Result<(), String> {
     let file = File::open(source_path).map_err(|e| e.to_string())?;
     let mut archive = zip::ZipArchive::new(file).map_err(|e| e.to_string())?;
+
+    let mut total_bytes = 0u64;
+    for i in 0..archive.len() {
+        if let Ok(file) = archive.by_index(i) {
+            total_bytes += file.size();
+        }
+    }
+    let mut processed_bytes = 0u64;
 
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
@@ -97,17 +236,39 @@ fn unarc_zip(source_path: &Path, dest_path: &Path, options: &ArchiveOptions) -> 
                 }
             }
             let mut outfile = fs::File::create(&outpath).map_err(|e| e.to_string())?;
-            io::copy(&mut file, &mut outfile).map_err(|e| e.to_string())?;
+            let mut buffer = [0u8; 65536];
+            loop {
+                let n = file.read(&mut buffer).map_err(|e| e.to_string())?;
+                if n == 0 {
+                    break;
+                }
+                outfile.write_all(&buffer[..n]).map_err(|e| e.to_string())?;
+                processed_bytes += n as u64;
+                draw_progress(processed_bytes, total_bytes, "Extracting");
+            }
         }
+    }
+    if io::stdout().is_terminal() {
+        println!();
     }
     Ok(())
 }
 
 fn unarc_tar_gz(source_path: &Path, dest_path: &Path, _options: &ArchiveOptions) -> Result<(), String> {
     let file = File::open(source_path).map_err(|e| e.to_string())?;
-    let tar = GzDecoder::new(file);
+    let total = file.metadata().map(|m| m.len()).unwrap_or(0);
+    let progress_reader = ProgressReader {
+        inner: file,
+        processed: 0,
+        total,
+        label: "Extracting",
+    };
+    let tar = GzDecoder::new(progress_reader);
     let mut archive = tar::Archive::new(tar);
     archive.unpack(dest_path).map_err(|e| e.to_string())?;
+    if io::stdout().is_terminal() {
+        println!();
+    }
     Ok(())
 }
 
@@ -128,7 +289,7 @@ fn test_archive(source_path: &Path, options: &ArchiveOptions) -> Result<(), Stri
                 }
             }
             Ok(())
-        },
+        }
         "tar.gz" => {
             let file = File::open(source_path).map_err(|e| e.to_string())?;
             let tar = GzDecoder::new(file);
@@ -140,20 +301,19 @@ fn test_archive(source_path: &Path, options: &ArchiveOptions) -> Result<(), Stri
                 }
             }
             Ok(())
-        },
+        }
         "iso" => {
             let file = File::open(source_path).map_err(|e| e.to_string())?;
             let fs = iso9660::ISO9660::new(file).map_err(|e| e.to_string())?;
             for entry in fs.root.contents() {
-                // FIX: Correctly handle the Result and access the identifier method
                 if let Ok(entry) = entry {
-                     if options.verbose {
+                    if options.verbose {
                         println!("Found: {}", entry.identifier());
                     }
                 }
             }
             Ok(())
-        },
+        }
         _ => Err(format!("Testing for format '{}' is not supported.", format)),
     }
 }

@@ -40,6 +40,10 @@ pub mod wc;
 pub mod ln;
 pub mod chmod;
 pub mod pmon;
+pub mod watch;
+pub mod nettop;
+pub mod dua;
+pub mod browse;
 
 
 
@@ -324,6 +328,35 @@ impl Default for PmonOptions {
     }
 }
 
+#[derive(Clone)]
+pub struct WatchOptions {
+    pub interval_ms: u64,
+    pub diff: bool,
+}
+
+impl Default for WatchOptions {
+    fn default() -> Self {
+        WatchOptions { interval_ms: 2000, diff: false }
+    }
+}
+
+#[derive(Clone)]
+pub struct NettopOptions {
+    pub delay_ms: u64,
+}
+
+impl Default for NettopOptions {
+    fn default() -> Self {
+        NettopOptions { delay_ms: 1000 }
+    }
+}
+
+#[derive(Clone, Default)]
+pub struct DuaOptions {}
+
+#[derive(Clone, Default)]
+pub struct BrowseOptions {}
+
 
 
 pub fn list(options: ListOptions) {
@@ -408,6 +441,22 @@ pub fn chmod(mode: &str, paths: Vec<String>, options: ChmodOptions) {
 
 pub fn pmon(options: PmonOptions) {
     pmon::pmon(options);
+}
+
+pub fn watch(command: &str, options: WatchOptions) {
+    watch::watch(command, options);
+}
+
+pub fn nettop(options: NettopOptions) {
+    nettop::nettop(options);
+}
+
+pub fn dua(path: &str, options: DuaOptions) {
+    dua::dua(path, options);
+}
+
+pub fn browse(path: &str, options: BrowseOptions) {
+    browse::browse(path, options);
 }
 
 
