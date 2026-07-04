@@ -100,6 +100,15 @@ if ($fm_out -match "ir-browse") {
     $Result = 1
 }
 
+Write-Host "Testing alias 'ed' -> maps to 'edit' (via help)..."
+$ed_out = & $Executable help ed 2>&1 | Out-String
+if ($ed_out -match "ir-edit") {
+    Write-Host "✅ PASS: 'ir ed' alias correctly routes to edit."
+} else {
+    Write-Host "❌ FAIL: 'ir ed' did not route to edit: $ed_out"
+    $Result = 1
+}
+
 # Clean up
 foreach ($file in @($TestFile, $MovedFile)) {
     if (Test-Path $file) { Remove-Item $file -Force }

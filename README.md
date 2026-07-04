@@ -113,6 +113,7 @@ ir help watch
 ir help nettop
 ir help dua
 ir help browse
+ir help edit
 ```
 
 ---
@@ -1334,6 +1335,42 @@ ir browse /home/user/projects            # Browse a specific directory
 
 ---
 
+### ✏️ `edit`
+Opens a file in a minimalist inline terminal text editor. If the file does not exist it will be created on the first save. Detects binary files and warns before editing.
+
+**Usage:**
+```bash
+ir edit <FILE>
+```
+
+**Interactive Controls:**
+| Key | Action |
+| :--- | :--- |
+| `↑` / `↓` / `←` / `→` | Move cursor |
+| `Home` / `End` | Jump to start/end of line |
+| `Page Up` / `Page Down` | Scroll one screenful |
+| `Ctrl+Home` / `Ctrl+End` | Jump to start/end of file |
+| `Enter` | Insert new line |
+| `Backspace` | Delete character before cursor |
+| `Delete` | Delete character at cursor |
+| `Ctrl+S` | Save the file |
+| `Ctrl+Q` / `Esc` | Quit (prompts if unsaved changes exist) |
+
+**Error handling:**
+* Passing a **directory** as the filename exits immediately with an error.
+* Opening an **unreadable file** shows the OS error in the editor status bar.
+* Saving to a **read-only or locked file** (or a non-existent parent directory) shows the error in the status bar without crashing.
+* Opening a **binary file** shows a prominent warning in the status bar.
+
+**Examples:**
+```bash
+ir edit notes.txt                        # Open (or create) notes.txt
+ir edit src/main.rs                      # Edit a source file
+ir ed README.md                          # Alias form
+```
+
+---
+
 ### 🔄 Command Aliases
 For convenience and familiar muscle memory, several common commands are aliased in-binary to map directly to their counterparts:
 
@@ -1351,6 +1388,7 @@ For convenience and familiar muscle memory, several common commands are aliased 
 | `ntop` | `nettop` | Displays a live graphical network traffic monitor. |
 | `ncdu` | `dua` | Launches an interactive disk usage analyzer. |
 | `fm` | `browse` | Launches an interactive terminal file browser. |
+| `ed` | `edit` | Opens a file in the inline terminal text editor. |
 
 You can use these interchangeable pairings interchangeably (e.g. `ir ls` works exactly like `ir list`, and `ir help ls` shows the list help screen).
 

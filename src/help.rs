@@ -48,6 +48,7 @@ pub fn print_general_help() {
     println!("    nettop    Displays a live graphical network traffic monitor.");
     println!("    dua       Launches an interactive disk usage analyzer.");
     println!("    browse    Launches an interactive terminal file browser.");
+    println!("    edit      Opens a file in the inline terminal text editor.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -62,6 +63,7 @@ pub fn print_general_help() {
     println!("    ntop      Alias for 'nettop'");
     println!("    ncdu      Alias for 'dua'");
     println!("    fm        Alias for 'browse'");
+    println!("    ed        Alias for 'edit'");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
 
@@ -846,4 +848,23 @@ pub fn print_browse_help() {
     println!("    m                     Move the selected file or directory");
     println!("    r                     Rename the selected file or directory");
     println!("    d                     Delete the selected file or directory");
+}
+
+pub fn print_edit_help() {
+    println!("ir-edit");
+    println!("\nUSAGE:");
+    println!("    ir edit <FILE>");
+    println!("\nDESCRIPTION:");
+    println!("    Opens a file in a minimalist inline terminal text editor.");
+    println!("    If FILE does not exist, it will be created on first save.");
+    println!("\nCONTROLS:");
+    println!("    Arrow keys            Move cursor (up/down/left/right)");
+    println!("    Home / End            Jump to start/end of current line");
+    println!("    Ctrl+Home / Ctrl+End  Jump to start/end of file");
+    println!("    Page Up / Page Down   Scroll one screenful up or down");
+    println!("    Enter                 Insert new line");
+    println!("    Backspace             Delete character before cursor");
+    println!("    Delete                Delete character at cursor");
+    println!("    Ctrl+S                Save the file");
+    println!("    Ctrl+Q / Esc          Quit (prompts if there are unsaved changes)");
 }

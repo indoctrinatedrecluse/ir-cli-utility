@@ -144,6 +144,9 @@ Launches an interactive disk usage analyzer (TUI).
 .B browse [<\fIpath\fR>]
 Launches an interactive dual-pane terminal file browser (TUI).
 .TP
+.B edit <\fIfile\fR>
+Opens a file in a minimalist inline terminal text editor.
+.TP
 .B time <\fIcommand\fR> [\fIargs...\fR]
 Measures and displays the execution time of a command.
 .TP
@@ -524,6 +527,11 @@ No command-line switches are supported. Specify a directory path as a positional
 No command-line switches are supported. Specify a directory path as a positional argument to browse it.
 Interactive controls: \fBq\fR quit; \fB↑/↓\fR or \fBj/k\fR navigate; \fBEnter/l\fR enter directory; \fBBackspace/h\fR go up; \fBc\fR copy; \fBm\fR move; \fBr\fR rename; \fBd\fR delete.
 
+.SS edit
+No command-line switches are supported. Provide a filename as the only positional argument.
+Interactive controls: arrow keys move cursor; \fBHome/End\fR start/end of line; \fBPage Up/Down\fR scroll; \fBCtrl+Home/End\fR file start/end; \fBEnter\fR new line; \fBBackspace\fR delete before; \fBDelete\fR delete at; \fBCtrl+S\fR save; \fBCtrl+Q\fR/\fBEsc\fR quit.
+Error handling: rejects directories; warns on binary files; reports save errors (permissions, disk full, file locked) in the status bar without crashing.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -768,6 +776,12 @@ Browse the current directory interactively:
 .TP
 Browse a specific directory:
 .B ir browse /home/user/projects
+.TP
+Open a file for editing:
+.B ir edit notes.txt
+.TP
+Edit a source file:
+.B ir edit src/main.rs
 
 .SH ALIASES
 The following command aliases are supported in-binary for convenience:
@@ -795,6 +809,8 @@ Alias for \fBnettop\fR.
 Alias for \fBdua\fR.
 .IP "fm" 12
 Alias for \fBbrowse\fR.
+.IP "ed" 12
+Alias for \fBedit\fR.
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

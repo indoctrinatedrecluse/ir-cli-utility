@@ -44,6 +44,7 @@ pub mod watch;
 pub mod nettop;
 pub mod dua;
 pub mod browse;
+pub mod edit;
 
 
 
@@ -357,6 +358,9 @@ pub struct DuaOptions {}
 #[derive(Clone, Default)]
 pub struct BrowseOptions {}
 
+#[derive(Clone, Default)]
+pub struct EditOptions {}
+
 
 
 pub fn list(options: ListOptions) {
@@ -457,6 +461,10 @@ pub fn dua(path: &str, options: DuaOptions) {
 
 pub fn browse(path: &str, options: BrowseOptions) {
     browse::browse(path, options);
+}
+
+pub fn edit(filename: &str, options: EditOptions) {
+    edit::edit(filename, options);
 }
 
 

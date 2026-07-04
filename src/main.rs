@@ -27,6 +27,7 @@ fn main() {
         "ntop" => "nettop",
         "ncdu" => "dua",
         "fm" => "browse",
+        "ed" => "edit",
         other => other,
     };
 
@@ -2278,6 +2279,33 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "edit" => {
+            let options = ir_cli_utility::EditOptions::default();
+            let mut filename = String::new();
+            let mut valid = true;
+
+            for arg in &args[2..] {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for edit.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    filename = arg.clone();
+                }
+            }
+
+            if filename.is_empty() {
+                eprintln!("Error: 'edit' requires a filename.");
+                valid = false;
+            }
+
+            if valid {
+                ir_cli_utility::edit(&filename, options);
+            } else {
+                help::print_edit_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -2338,6 +2366,8 @@ fn main() {
                     "ncdu" => help::print_dua_help(),
                     "browse" => help::print_browse_help(),
                     "fm" => help::print_browse_help(),
+                    "edit" => help::print_edit_help(),
+                    "ed" => help::print_edit_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
