@@ -39,6 +39,8 @@ pub mod sockets;
 pub mod wc;
 pub mod ln;
 pub mod chmod;
+pub mod pmon;
+
 
 
 
@@ -311,6 +313,18 @@ pub struct ChmodOptions {
     pub recursive: bool,
 }
 
+#[derive(Clone)]
+pub struct PmonOptions {
+    pub delay_ms: u64,
+}
+
+impl Default for PmonOptions {
+    fn default() -> Self {
+        PmonOptions { delay_ms: 1000 }
+    }
+}
+
+
 
 pub fn list(options: ListOptions) {
     list::list(options);
@@ -391,6 +405,11 @@ pub fn ln(target: &str, link_name: &str, options: LnOptions) {
 pub fn chmod(mode: &str, paths: Vec<String>, options: ChmodOptions) {
     chmod::chmod(mode, paths, options);
 }
+
+pub fn pmon(options: PmonOptions) {
+    pmon::pmon(options);
+}
+
 
 
 pub fn tree(path: &str, options: TreeOptions) {

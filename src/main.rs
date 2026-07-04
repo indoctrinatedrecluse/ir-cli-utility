@@ -22,6 +22,8 @@ fn main() {
         "cp" => "copy",
         "rm" => "remove",
         "ff" => "fastfetch",
+        "ptop" => "pmon",
+        "smon" => "monitor",
         other => other,
     };
 
@@ -2030,6 +2032,68 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "pmon" => {
+            let mut options = ir_cli_utility::PmonOptions::default();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-d" || arg == "--delay" {
+                    match args_iter.next() {
+                        Some(val) => {
+                            let mut raw_val = val.as_str();
+                            let mut is_ms = false;
+                            if raw_val.ends_with("ms") {
+                                raw_val = &raw_val[..raw_val.len() - 2];
+                                is_ms = true;
+                            } else if raw_val.ends_with('s') {
+                                raw_val = &raw_val[..raw_val.len() - 1];
+                            }
+
+                            match raw_val.parse::<f64>() {
+                                Ok(num) => {
+                                    if num <= 0.0 {
+                                        eprintln!("Error: Delay must be greater than zero.");
+                                        valid = false;
+                                        break;
+                                    }
+                                    options.delay_ms = if is_ms {
+                                        num.round() as u64
+                                    } else {
+                                        (num * 1000.0).round() as u64
+                                    };
+                                }
+                                Err(_) => {
+                                    eprintln!("Error: Invalid delay value '{}'.", val);
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --delay requires a value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for pmon.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    eprintln!("Error: 'pmon' action does not accept positional arguments.");
+                    valid = false;
+                    break;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::pmon(options);
+            } else {
+                help::print_pmon_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -2080,6 +2144,9 @@ fn main() {
                     "cp" => help::print_copy_help(),
                     "rm" => help::print_remove_help(),
                     "ff" => help::print_fastfetch_help(),
+                    "pmon" => help::print_pmon_help(),
+                    "ptop" => help::print_pmon_help(),
+                    "smon" => help::print_monitor_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

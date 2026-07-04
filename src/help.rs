@@ -43,6 +43,7 @@ pub fn print_general_help() {
     println!("    wc        Counts lines, words, characters, and bytes.");
     println!("    ln        Creates hard links or symbolic links.");
     println!("    chmod     Changes file permissions.");
+    println!("    pmon      Displays a live graphical process monitor.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -52,6 +53,8 @@ pub fn print_general_help() {
     println!("    cp        Alias for 'copy'");
     println!("    rm        Alias for 'remove'");
     println!("    ff        Alias for 'fastfetch'");
+    println!("    ptop      Alias for 'pmon'");
+    println!("    smon      Alias for 'monitor'");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
 
@@ -762,4 +765,21 @@ pub fn print_chmod_help() {
     println!("    ir chmod 755 script.sh                   Make file executable/writeable");
     println!("    ir chmod 444 document.txt                Make file read-only");
     println!("    ir chmod -R 755 src                      Recursively make src/ writeable");
+}
+
+pub fn print_pmon_help() {
+    println!("ir-pmon");
+    println!("\nUSAGE:");
+    println!("    ir pmon [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Displays a live graphical process monitor in the terminal.");
+    println!("\nSWITCHES:");
+    println!("    -d, --delay <VAL>  Update delay (e.g. 1.5s, 500ms, default: 1s).");
+    println!("\nCONTROLS (interactive):");
+    println!("    q                  Quit");
+    println!("    c                  Sort by CPU % (descending)");
+    println!("    m                  Sort by Memory usage (descending)");
+    println!("    n                  Sort by Process Name");
+    println!("    p                  Sort by PID");
+    println!("    k                  Kill a process by prompting for its PID");
 }

@@ -1202,6 +1202,35 @@ ir chmod -R 755 src                      # Recursively make directory writeable
 
 ---
 
+### 📊 `pmon`
+Displays a live graphical process monitor with real-time statistics (CPU/Memory gauges) and sorting options.
+
+**Usage:**
+```bash
+ir pmon [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-d`, `--delay <VAL>` | Update delay (e.g. `1.5s`, `500ms`, default: `1s`). |
+
+**Interactive Controls:**
+* `q`: Quit.
+* `c`: Sort by CPU %.
+* `m`: Sort by Memory (RSS) usage.
+* `n`: Sort by Process Name.
+* `p`: Sort by PID.
+* `k`: Kill a process (prompts for PID in raw mode).
+
+**Examples:**
+```bash
+ir pmon                                  # Launch process monitor with 1s refresh delay
+ir pmon -d 500ms                         # Launch process monitor with 500ms refresh delay
+```
+
+---
+
 ### 🔄 Command Aliases
 For convenience and familiar muscle memory, several common commands are aliased in-binary to map directly to their counterparts:
 
@@ -1214,6 +1243,8 @@ For convenience and familiar muscle memory, several common commands are aliased 
 | `cp` | `copy` | Copies files and folders. |
 | `rm` | `remove` | Removes files and folders. |
 | `ff` | `fastfetch` | Displays system information and a fancy logo. |
+| `ptop` | `pmon` | Displays a live graphical process monitor. |
+| `smon` | `monitor` | Launches the default system monitor. |
 
 You can use these interchangeable pairings interchangeably (e.g. `ir ls` works exactly like `ir list`, and `ir help ls` shows the list help screen).
 

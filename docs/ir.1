@@ -129,6 +129,9 @@ Creates a hard link or symbolic/soft link pointing to a target file or directory
 .B chmod [\fIswitches\fR] <\fImode\fR> <\fIpath...\fR>
 Changes file mode bits (permissions) of files or directories.
 .TP
+.B pmon [\fIswitches\fR]
+Displays a live graphical process monitor in the terminal.
+.TP
 .B time <\fIcommand\fR> [\fIargs...\fR]
 Measures and displays the execution time of a command.
 .TP
@@ -484,6 +487,11 @@ Forcefully remove/overwrite an existing destination file/link.
 .B -R, --recursive
 Recursively apply mode changes to directories and their contents.
 
+.SS pmon
+.TP
+.B -d, --delay <\fIduration\fR>
+Set the refresh delay interval (e.g. 1.5s, 500ms, default: 1s).
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -704,6 +712,9 @@ Make a shell script executable/writeable:
 .TP
 Recursively make a directory read-only:
 .B ir chmod -R 444 src
+.TP
+Launch live process monitor with 500ms refresh delay:
+.B ir pmon -d 500ms
 
 .SH ALIASES
 The following command aliases are supported in-binary for convenience:
@@ -721,6 +732,10 @@ Alias for \fBcopy\fR.
 Alias for \fBremove\fR.
 .IP "ff" 12
 Alias for \fBfastfetch\fR.
+.IP "ptop" 12
+Alias for \fBpmon\fR.
+.IP "smon" 12
+Alias for \fBmonitor\fR.
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.
