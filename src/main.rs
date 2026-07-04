@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions};
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -1886,6 +1886,98 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "wc" => {
+            let mut options = WcOptions::default();
+            let mut positionals = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-l" || arg == "--lines" {
+                    options.lines = true;
+                } else if arg == "-w" || arg == "--words" {
+                    options.words = true;
+                } else if arg == "-c" || arg == "--bytes" {
+                    options.bytes = true;
+                } else if arg == "-m" || arg == "--chars" {
+                    options.chars = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'l' => options.lines = true,
+                            'w' => options.words = true,
+                            'c' => options.bytes = true,
+                            'm' => options.chars = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for wc.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if options.bytes && options.chars {
+                    eprintln!("Error: -c and -m are mutually exclusive size metric switches.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::wc(positionals, options);
+            } else {
+                help::print_wc_help();
+                std::process::exit(1);
+            }
+        }
+        "ln" => {
+            let mut options = LnOptions::default();
+            let mut positionals = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-s" || arg == "--symbolic" {
+                    options.symbolic = true;
+                } else if arg == "-f" || arg == "--force" {
+                    options.force = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            's' => options.symbolic = true,
+                            'f' => options.force = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for ln.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 2 {
+                    eprintln!("Error: 'ln' action requires exactly two positional arguments: <target> <link_name>.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::ln(&positionals[0], &positionals[1], options);
+            } else {
+                help::print_ln_help();
+                std::process::exit(1);
+            }
+        }
         "help" => {
             if args.len() > 2 {
                 match args[2].as_str() {
@@ -1926,6 +2018,8 @@ fn main() {
                     "df" => help::print_df_help(),
                     "whoami" => help::print_whoami_help(),
                     "sockets" => help::print_sockets_help(),
+                    "wc" => help::print_wc_help(),
+                    "ln" => help::print_ln_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

@@ -40,6 +40,8 @@ pub fn print_general_help() {
     println!("    df        Estimates file space usage of all mounted file systems or drives.");
     println!("    whoami    Displays the current user name and domain.");
     println!("    sockets   Lists active TCP and UDP sockets with owning process.");
+    println!("    wc        Counts lines, words, characters, and bytes.");
+    println!("    ln        Creates hard links or symbolic links.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
@@ -691,4 +693,44 @@ pub fn print_sockets_help() {
     println!("    ir sockets -a                            Show all connections (listening & active)");
     println!("    ir sockets -at                           Show all TCP connections");
     println!("    ir sockets -l                            Show listening sockets only");
+}
+
+pub fn print_wc_help() {
+    println!("ir-wc");
+    println!("\nUSAGE:");
+    println!("    ir wc [SWITCHES] [PATH...]");
+    println!("\nDESCRIPTION:");
+    println!("    Counts lines, words, characters, and bytes for files or standard input.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH...] The paths of files to process. If omitted or '-', reads standard input.");
+    println!("\nSWITCHES:");
+    println!("    -l, --lines      Count newlines.");
+    println!("    -w, --words      Count words.");
+    println!("    -c, --bytes      Count bytes.");
+    println!("    -m, --chars      Count characters.");
+    println!("\nRULES:");
+    println!("    - -c and -m are mutually exclusive size metric switches.");
+    println!("\nEXAMPLES:");
+    println!("    ir wc file.txt                           Count lines, words, and bytes of file.txt");
+    println!("    ir wc -l file.txt                        Count only lines of file.txt");
+    println!("    ir wc -lw file1.txt file2.txt            Count lines and words for both files");
+    println!("    cat file.txt | ir wc                     Count lines, words, and bytes from stdin");
+}
+
+pub fn print_ln_help() {
+    println!("ir-ln");
+    println!("\nUSAGE:");
+    println!("    ir ln [SWITCHES] <TARGET> <LINK_NAME>");
+    println!("\nDESCRIPTION:");
+    println!("    Creates a link pointing to the TARGET file or directory.");
+    println!("\nARGUMENTS:");
+    println!("    <TARGET>    The existing file or directory to link to.");
+    println!("    <LINK_NAME> The name/path of the link to be created.");
+    println!("\nSWITCHES:");
+    println!("    -s, --symbolic   Create a symbolic (soft) link instead of a hard link.");
+    println!("    -f, --force      Remove/overwrite existing destination file/link.");
+    println!("\nEXAMPLES:");
+    println!("    ir ln target.txt hardlink.txt            Create a hard link");
+    println!("    ir ln -s target.txt symlink.txt          Create a symbolic link");
+    println!("    ir ln -sf target.txt existing.txt        Forcefully overwrite existing link with new symlink");
 }

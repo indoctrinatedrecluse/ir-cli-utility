@@ -120,6 +120,12 @@ Suspends execution for a specified duration (e.g. 5, 2.5s, 500ms, 1m).
 .B sockets [\fIswitches\fR]
 Lists active TCP and UDP sockets along with their owning processes (PID and name).
 .TP
+.B wc [\fIswitches\fR] [<\fIpath...\fR>]
+Counts lines, words, characters, and bytes for files or standard input.
+.TP
+.B ln [\fIswitches\fR] <\fItarget\fR> <\fIlink_name\fR>
+Creates a hard link or symbolic/soft link pointing to a target file or directory.
+.TP
 .B time <\fIcommand\fR> [\fIargs...\fR]
 Measures and displays the execution time of a command.
 .TP
@@ -446,6 +452,30 @@ Show UDP sockets only.
 .B -l, --listening
 Show listening sockets only.
 
+.SS wc
+.TP
+.B -l, --lines
+Count newlines.
+.TP
+.B -w, --words
+Count words.
+.TP
+.B -c, --bytes
+Count bytes.
+.TP
+.B -m, --chars
+Count characters.
+.PP
+\fB-c\fR and \fB-m\fR are mutually exclusive size metric switches.
+
+.SS ln
+.TP
+.B -s, --symbolic
+Create a symbolic (soft) link instead of a hard link.
+.TP
+.B -f, --force
+Forcefully remove/overwrite an existing destination file/link.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -648,6 +678,18 @@ Show current user name and domain:
 .TP
 Show all active network sockets with owning processes:
 .B ir sockets -a
+.TP
+Count lines, words, and bytes of a file:
+.B ir wc file.txt
+.TP
+Count lines and words for standard input:
+.B echo "hello" | ir wc -lw
+.TP
+Create a symbolic link:
+.B ir ln -s target.txt symlink.txt
+.TP
+Forcefully recreate a link:
+.B ir ln -sf target.txt existing.txt
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.

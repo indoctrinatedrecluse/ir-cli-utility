@@ -36,6 +36,9 @@ pub mod path;
 pub mod df;
 pub mod whoami;
 pub mod sockets;
+pub mod wc;
+pub mod ln;
+
 
 
 #[derive(Default)]
@@ -287,6 +290,20 @@ pub struct SocketsOptions {
     pub listening_only: bool,
 }
 
+#[derive(Default, Clone)]
+pub struct WcOptions {
+    pub lines: bool,
+    pub words: bool,
+    pub bytes: bool,
+    pub chars: bool,
+}
+
+#[derive(Default, Clone)]
+pub struct LnOptions {
+    pub symbolic: bool,
+    pub force: bool,
+}
+
 
 pub fn list(options: ListOptions) {
     list::list(options);
@@ -354,6 +371,14 @@ pub fn whoami(options: WhoamiOptions) {
 
 pub fn sockets(options: SocketsOptions) {
     sockets::sockets(options);
+}
+
+pub fn wc(paths: Vec<String>, options: WcOptions) {
+    wc::wc(paths, options);
+}
+
+pub fn ln(target: &str, link_name: &str, options: LnOptions) {
+    ln::ln(target, link_name, options);
 }
 
 

@@ -1100,6 +1100,75 @@ ir whoami                                # Show current user and domain
 
 ---
 
+### 🧮 `wc`
+Counts lines, words, characters, and bytes for files or standard input.
+
+**Usage:**
+```bash
+ir wc [switches] [PATH...]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH...]` | File paths to count. If omitted or `-`, reads standard input (`stdin`). |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-l`, `--lines` | Count newlines. |
+| `-w`, `--words` | Count words. |
+| `-c`, `--bytes` | Count bytes. |
+| `-m`, `--chars` | Count characters (UTF-8). |
+
+> [!NOTE]
+> - `-c` (bytes) and `-m` (chars) are mutually exclusive switches.
+> - If no switches are provided, the default is to count lines, words, and bytes (`-l`, `-w`, `-c`).
+> - Switches can be concatenated (e.g. `-lw`).
+
+**Examples:**
+```bash
+ir wc file.txt                           # Count lines, words, and bytes
+ir wc -l file.txt                        # Count only lines
+ir wc -lw file1.txt file2.txt            # Count lines and words for both files
+cat file.txt | ir wc                     # Count lines, words, and bytes from stdin
+```
+
+---
+
+### 🔗 `ln`
+Creates a hard link or symbolic/soft link pointing to a target file or directory.
+
+**Usage:**
+```bash
+ir ln [switches] <TARGET> <LINK_NAME>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<TARGET>` | The existing file or directory to link to. |
+| `<LINK_NAME>` | The name/path of the link to be created. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-s`, `--symbolic` | Create a symbolic (soft) link instead of a hard link. |
+| `-f`, `--force` | Forcefully remove/overwrite an existing destination file/link. |
+
+> [!NOTE]
+> - On Windows, symbolic link creation requires Developer Mode enabled or running from an elevated prompt.
+> - Single-character switches can be concatenated (e.g. `-sf` or `-fs`).
+
+**Examples:**
+```bash
+ir ln target.txt hardlink.txt            # Create a hard link
+ir ln -s target.txt symlink.txt          # Create a symbolic link
+ir ln -sf target.txt existing.txt        # Force overwrite with a new symlink
+```
+
+---
+
 ## 📖 Documentation
 
 On Linux, a `man` page is available in the `docs/` directory. To install it:
