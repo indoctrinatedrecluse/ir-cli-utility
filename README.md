@@ -1336,38 +1336,75 @@ ir browse /home/user/projects            # Browse a specific directory
 ---
 
 ### ✏️ `edit`
-Opens a file in a minimalist inline terminal text editor. If the file does not exist it will be created on the first save. Detects binary files and warns before editing.
+Opens a file in a minimalist inline terminal text editor. Features line numbers, undo/redo, incremental search, selection, copy/cut/paste, word navigation, auto-indent, and a persistent controls bar at the bottom of the screen. Binary files are detected and warned about before editing.
 
 **Usage:**
 ```bash
 ir edit <FILE>
+ir ed   <FILE>   # alias
 ```
 
-**Interactive Controls:**
+**Navigation:**
 | Key | Action |
 | :--- | :--- |
 | `↑` / `↓` / `←` / `→` | Move cursor |
-| `Home` / `End` | Jump to start/end of line |
+| `Ctrl+←` / `Ctrl+→` | Jump by word |
+| `Home` | Smart home (first non-whitespace, then col 0) |
+| `End` | Jump to end of line |
+| `Ctrl+Home` / `Ctrl+End` | Jump to start / end of file |
 | `Page Up` / `Page Down` | Scroll one screenful |
-| `Ctrl+Home` / `Ctrl+End` | Jump to start/end of file |
-| `Enter` | Insert new line |
+
+**Editing:**
+| Key | Action |
+| :--- | :--- |
+| `Enter` | Insert new line (inherits current line's indentation) |
 | `Backspace` | Delete character before cursor |
 | `Delete` | Delete character at cursor |
+| `Ctrl+Backspace` | Delete word before cursor |
+| `Ctrl+Delete` | Delete word after cursor |
+| `Tab` | Insert 4 spaces (or indent selected lines) |
+| `Shift+Tab` | Dedent current / selected lines |
+
+**Selection, Copy & Paste:**
+| Key | Action |
+| :--- | :--- |
+| `Shift+Arrow` | Extend selection |
+| `Ctrl+A` | Select all |
+| `Ctrl+C` | Copy selection (or current line if nothing selected) |
+| `Ctrl+X` | Cut selection (or current line if nothing selected) |
+| `Ctrl+V` | Paste |
+
+**Search & Navigation:**
+| Key | Action |
+| :--- | :--- |
+| `Ctrl+F` | Open search bar — type to filter, `↑`/`↓` for prev/next match |
+| `Ctrl+G` | Open go-to-line bar — type a number then `Enter` |
+
+**Undo / Redo:**
+| Key | Action |
+| :--- | :--- |
+| `Ctrl+Z` | Undo (up to 100 levels) |
+| `Ctrl+Y` | Redo |
+
+**File:**
+| Key | Action |
+| :--- | :--- |
 | `Ctrl+S` | Save the file |
-| `Ctrl+Q` / `Esc` | Quit (prompts if unsaved changes exist) |
+| `Ctrl+Q` / `Esc` | Quit (prompts to save if there are unsaved changes) |
 
 **Error handling:**
 * Passing a **directory** as the filename exits immediately with an error.
-* Opening an **unreadable file** shows the OS error in the editor status bar.
-* Saving to a **read-only or locked file** (or a non-existent parent directory) shows the error in the status bar without crashing.
-* Opening a **binary file** shows a prominent warning in the status bar.
+* Opening an **unreadable file** shows the OS error in the status bar.
+* Saving to a **read-only, locked, or inaccessible** file shows the error in the status bar without crashing.
+* Opening a **binary file** shows a warning in the status bar.
 
 **Examples:**
 ```bash
-ir edit notes.txt                        # Open (or create) notes.txt
-ir edit src/main.rs                      # Edit a source file
-ir ed README.md                          # Alias form
+ir edit notes.txt        # Open (or create) notes.txt
+ir edit src/main.rs      # Edit a source file
+ir ed README.md          # Alias form
 ```
+
 
 ---
 

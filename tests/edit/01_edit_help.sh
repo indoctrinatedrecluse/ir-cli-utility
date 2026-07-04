@@ -18,7 +18,11 @@ out=$("$EXECUTABLE" help edit 2>&1)
 if echo "$out" | grep -q "ir-edit" && \
    echo "$out" | grep -q "Ctrl+S" && \
    echo "$out" | grep -q "Ctrl+Q" && \
-   echo "$out" | grep -q "Arrow keys"; then
+   echo "$out" | grep -q "Ctrl+Z" && \
+   echo "$out" | grep -q "Ctrl+F" && \
+   echo "$out" | grep -q "Ctrl+G" && \
+   echo "$out" | grep -q "Ctrl+C" && \
+   echo "$out" | grep -q "Shift+Arrow"; then
     echo "✅ PASS: 'ir help edit' returned correct help text."
 else
     echo "❌ FAIL: 'ir help edit' unexpected output: $out"

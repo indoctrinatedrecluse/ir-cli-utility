@@ -14,7 +14,9 @@ $Result = 0
 # 1. Help text is correct
 Write-Host "Testing 'ir help edit'..."
 $out = & $Executable help edit 2>&1 | Out-String
-if ($out -match "ir-edit" -and $out -match "Ctrl\+S" -and $out -match "Ctrl\+Q" -and $out -match "Arrow keys") {
+if ($out -match "ir-edit" -and $out -match "Ctrl\+S" -and $out -match "Ctrl\+Q" -and
+    $out -match "Ctrl\+Z" -and $out -match "Ctrl\+F" -and $out -match "Ctrl\+G" -and
+    $out -match "Ctrl\+C" -and $out -match "Shift\+Arrow") {
     Write-Host "✅ PASS: 'ir help edit' returned correct help text."
 } else {
     Write-Host "❌ FAIL: 'ir help edit' unexpected output: $out"

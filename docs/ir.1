@@ -529,8 +529,22 @@ Interactive controls: \fBq\fR quit; \fB↑/↓\fR or \fBj/k\fR navigate; \fBEnte
 
 .SS edit
 No command-line switches are supported. Provide a filename as the only positional argument.
-Interactive controls: arrow keys move cursor; \fBHome/End\fR start/end of line; \fBPage Up/Down\fR scroll; \fBCtrl+Home/End\fR file start/end; \fBEnter\fR new line; \fBBackspace\fR delete before; \fBDelete\fR delete at; \fBCtrl+S\fR save; \fBCtrl+Q\fR/\fBEsc\fR quit.
-Error handling: rejects directories; warns on binary files; reports save errors (permissions, disk full, file locked) in the status bar without crashing.
+Line numbers are shown in the left gutter. Key bindings are displayed in a persistent controls bar at the bottom of the screen.
+.TP
+Navigation: arrow keys; \fBCtrl+Left/Right\fR jump by word; \fBHome\fR smart-home (first non-whitespace, then column 0); \fBEnd\fR end of line; \fBCtrl+Home/End\fR file start/end; \fBPage Up/Down\fR scroll.
+.TP
+Editing: \fBEnter\fR new line with auto-indent; \fBBackspace\fR delete before; \fBDelete\fR delete at; \fBCtrl+Backspace\fR delete word before; \fBCtrl+Delete\fR delete word after; \fBTab\fR insert 4 spaces (or indent selection); \fBShift+Tab\fR dedent.
+.TP
+Selection: \fBShift+Arrow\fR extend selection; \fBCtrl+A\fR select all; \fBCtrl+C\fR copy; \fBCtrl+X\fR cut; \fBCtrl+V\fR paste. Copy/cut operate on the current line when no selection is active.
+.TP
+Search and goto: \fBCtrl+F\fR opens the search bar (type to filter, Up/Down navigate matches, Enter confirm, Esc cancel); \fBCtrl+G\fR opens the go-to-line bar.
+.TP
+Undo/Redo: \fBCtrl+Z\fR undo (up to 100 levels); \fBCtrl+Y\fR redo.
+.TP
+File: \fBCtrl+S\fR save; \fBCtrl+Q\fR/\fBEsc\fR quit (prompts to save if unsaved changes exist).
+.TP
+Error handling: rejects directories; warns on binary files; reports save errors (permissions, disk full, file locked, missing parent directory) in the status bar without crashing.
+
 
 .SH EXAMPLES
 .TP
