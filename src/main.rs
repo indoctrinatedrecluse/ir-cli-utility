@@ -1,5 +1,6 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions};
+use ir_cli_utility::scrape::parse_size as scrape_parse_size;
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -28,6 +29,7 @@ fn main() {
         "ncdu" => "dua",
         "fm" => "browse",
         "ed" => "edit",
+        "dl" => "scrape",
         other => other,
     };
 
@@ -2367,7 +2369,8 @@ fn main() {
                     "browse" => help::print_browse_help(),
                     "fm" => help::print_browse_help(),
                     "edit" => help::print_edit_help(),
-                    "ed" => help::print_edit_help(),
+                    "ed"   => help::print_edit_help(),
+                    "scrape" | "dl" => help::print_scrape_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
@@ -2375,6 +2378,173 @@ fn main() {
                 }
             } else {
                 help::print_general_help();
+            }
+        }
+        "scrape" => {
+            let mut options = ScrapeOptions {
+                dest: "./output".to_string(),
+                depth: 1,
+                max_pages: 10,
+                max_size_bytes: 50 * 1024 * 1024, // 50 MiB
+                max_links: 100,
+                timeout_secs: 30,
+                ..Default::default()
+            };
+            let mut url: Option<String> = None;
+            let mut valid = true;
+            let mut rest = args[2..].iter().peekable();
+
+            while let Some(arg) = rest.next() {
+                match arg.as_str() {
+                    "--format" => {
+                        if let Some(val) = rest.next() {
+                            if val.starts_with('-') {
+                                eprintln!("Error: --format requires a value.");
+                                valid = false; break;
+                            }
+                            options.formats.push(val.to_string());
+                        } else {
+                            eprintln!("Error: --format requires a value.");
+                            valid = false; break;
+                        }
+                    }
+                    "--dest" => {
+                        if let Some(val) = rest.next() {
+                            if val.starts_with('-') {
+                                eprintln!("Error: --dest requires a directory path.");
+                                valid = false; break;
+                            }
+                            options.dest = val.to_string();
+                        } else {
+                            eprintln!("Error: --dest requires a directory path.");
+                            valid = false; break;
+                        }
+                    }
+                    "--depth" => {
+                        if let Some(val) = rest.next() {
+                            match val.parse::<usize>() {
+                                Ok(n) => options.depth = n,
+                                Err(_) => {
+                                    eprintln!("Error: --depth requires a non-negative integer.");
+                                    valid = false; break;
+                                }
+                            }
+                        } else {
+                            eprintln!("Error: --depth requires a value.");
+                            valid = false; break;
+                        }
+                    }
+                    "--max-pages" => {
+                        if let Some(val) = rest.next() {
+                            match val.parse::<usize>() {
+                                Ok(n) if n > 0 => options.max_pages = n,
+                                _ => {
+                                    eprintln!("Error: --max-pages requires a positive integer.");
+                                    valid = false; break;
+                                }
+                            }
+                        } else {
+                            eprintln!("Error: --max-pages requires a value.");
+                            valid = false; break;
+                        }
+                    }
+                    "--max-size" => {
+                        if let Some(val) = rest.next() {
+                            match scrape_parse_size(val) {
+                                Some(n) => options.max_size_bytes = n,
+                                None => {
+                                    eprintln!("Error: --max-size requires a size like '50M', '1G', '500K', or a byte count.");
+                                    valid = false; break;
+                                }
+                            }
+                        } else {
+                            eprintln!("Error: --max-size requires a value.");
+                            valid = false; break;
+                        }
+                    }
+                    "--max-links" => {
+                        if let Some(val) = rest.next() {
+                            match val.parse::<usize>() {
+                                Ok(n) if n > 0 => options.max_links = n,
+                                _ => {
+                                    eprintln!("Error: --max-links requires a positive integer.");
+                                    valid = false; break;
+                                }
+                            }
+                        } else {
+                            eprintln!("Error: --max-links requires a value.");
+                            valid = false; break;
+                        }
+                    }
+                    "--timeout" => {
+                        if let Some(val) = rest.next() {
+                            match val.parse::<u64>() {
+                                Ok(n) if n > 0 => options.timeout_secs = n,
+                                _ => {
+                                    eprintln!("Error: --timeout requires a positive integer (seconds).");
+                                    valid = false; break;
+                                }
+                            }
+                        } else {
+                            eprintln!("Error: --timeout requires a value.");
+                            valid = false; break;
+                        }
+                    }
+                    "--user-agent" => {
+                        if let Some(val) = rest.next() {
+                            if val.starts_with('-') {
+                                eprintln!("Error: --user-agent requires a string value.");
+                                valid = false; break;
+                            }
+                            options.user_agent = Some(val.to_string());
+                        } else {
+                            eprintln!("Error: --user-agent requires a value.");
+                            valid = false; break;
+                        }
+                    }
+                    "--include-video" => options.include_video = true,
+                    "--include-audio" => options.include_audio = true,
+                    "--no-images"     => options.no_images     = true,
+                    "--same-domain"   => options.same_domain   = true,
+                    "--ignore-robots" => options.ignore_robots = true,
+                    "--dry-run"       => options.dry_run       = true,
+                    "--overwrite"     => options.overwrite     = true,
+                    "--verbose" | "-v" => options.verbose      = true,
+                    other if other.starts_with('-') => {
+                        eprintln!("Error: Unknown switch '{}' for scrape.", other);
+                        valid = false; break;
+                    }
+                    other => {
+                        if url.is_some() {
+                            eprintln!("Error: Only one URL argument is allowed.");
+                            valid = false; break;
+                        }
+                        url = Some(other.to_string());
+                    }
+                }
+            }
+
+            if valid && url.is_none() {
+                eprintln!("Error: 'scrape' requires a URL argument.");
+                valid = false;
+            }
+            if valid && options.formats.is_empty() {
+                eprintln!("Error: --format is mandatory for 'scrape'.");
+                valid = false;
+            }
+            // Validate URL scheme.
+            if valid {
+                let u = url.as_deref().unwrap();
+                if !u.starts_with("http://") && !u.starts_with("https://") {
+                    eprintln!("Error: URL must begin with http:// or https://");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::scrape(url.as_deref().unwrap(), options);
+            } else {
+                help::print_scrape_help();
             }
         }
         _ => {

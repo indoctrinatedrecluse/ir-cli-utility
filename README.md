@@ -1408,6 +1408,83 @@ ir ed README.md          # Alias form
 
 ---
 
+### 🌐 `scrape`
+Visits a URL, finds all linked files whose extension matches `--format`, and downloads them to the destination directory. When `--depth > 1` the scraper crawls linked HTML pages breadth-first. A realistic browser User-Agent (Chrome/Firefox/Edge pool) and matching headers are sent automatically to avoid bot-detection.
+
+**Usage:**
+```bash
+ir scrape <URL> --format <EXT>[,EXT,...] [OPTIONS]
+ir dl     <URL> --format <EXT>[,EXT,...] [OPTIONS]   # alias
+```
+
+**Format groups** (aliases that expand to multiple extensions):
+| Group | Expands to |
+| :--- | :--- |
+| `documents` | pdf doc docx rtf odt ppt pptx xls xlsx |
+| `images` | jpg jpeg png gif svg webp ico bmp tiff |
+| `data` | json csv xml yaml yml toml |
+| `web` | html htm css js wasm |
+| `archives` | zip tar gz bz2 xz 7z rar tgz |
+| `text` | txt md rst log conf cfg ini |
+| `audio` | mp3 flac wav ogg aac m4a opus wma |
+| `video` | mp4 webm avi mkv mov flv wmv m4v ts |
+
+**Required:**
+| Switch | Description |
+| :--- | :--- |
+| `--format <EXT[,EXT,...]>` | File extension(s) to download. Comma-separated or repeated. |
+
+**Destination:**
+| Switch | Description |
+| :--- | :--- |
+| `--dest <DIR>` | Output directory (default: `./output`). Created if absent; must be writable. |
+
+**Content control:**
+| Switch | Description |
+| :--- | :--- |
+| `--include-video` | Allow video file downloads (blocked by default). |
+| `--include-audio` | Allow audio file downloads (blocked by default). |
+| `--no-images` | Skip image files even if the extension matches. |
+
+**Crawl / safety limits:**
+| Switch | Default | Description |
+| :--- | :--- | :--- |
+| `--depth <N>` | 1 | Max crawl depth (1 = start page only). |
+| `--max-pages <N>` | 10 | Max HTML pages fetched during the crawl. |
+| `--max-size <N>[K\|M\|G]` | 50M | Max total downloaded data; suffixes K, M, G supported. |
+| `--max-links <N>` | 100 | Max links followed per page. |
+| `--timeout <SECS>` | 30 | Per-request timeout in seconds. |
+
+**Behaviour:**
+| Switch | Description |
+| :--- | :--- |
+| `--same-domain` | Only follow links within the start URL's domain. |
+| `--ignore-robots` | Ignore robots.txt restrictions. |
+| `--user-agent <UA>` | Override the User-Agent header. |
+| `--dry-run` | Print what would be downloaded without writing files. |
+| `--overwrite` | Overwrite existing files (default: rename with counter). |
+| `--verbose` / `-v` | Print per-URL decisions. |
+
+**Error handling:**
+* Non-`http://`/`https://` URLs are rejected before any request is made.
+* A non-writable or missing `--dest` exits immediately with an error.
+* Per-file network errors are printed and skipped; the crawl continues.
+* Files that would exceed `--max-size` are **skipped**, never truncated.
+* `robots.txt` is fetched from the start domain; if unreachable, all paths are assumed allowed.
+* Video and audio downloads are **blocked by default** — use `--include-video` / `--include-audio` to allow them.
+
+**Examples:**
+```bash
+ir scrape https://example.com --format pdf
+ir scrape https://example.com --format pdf,docx --dest ~/downloads
+ir scrape https://example.com --format documents --depth 2
+ir scrape https://example.com --format images --max-size 100M --same-domain
+ir scrape https://example.com --format mp3 --include-audio --dry-run
+ir dl     https://example.com --format data --verbose
+```
+
+---
+
 ### 🔄 Command Aliases
 For convenience and familiar muscle memory, several common commands are aliased in-binary to map directly to their counterparts:
 
@@ -1426,6 +1503,7 @@ For convenience and familiar muscle memory, several common commands are aliased 
 | `ncdu` | `dua` | Launches an interactive disk usage analyzer. |
 | `fm` | `browse` | Launches an interactive terminal file browser. |
 | `ed` | `edit` | Opens a file in the inline terminal text editor. |
+| `dl` | `scrape` | Downloads files from a URL matching given extension(s). |
 
 You can use these interchangeable pairings interchangeably (e.g. `ir ls` works exactly like `ir list`, and `ir help ls` shows the list help screen).
 

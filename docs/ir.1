@@ -540,11 +540,67 @@ Selection: \fBShift+Arrow\fR extend selection; \fBCtrl+A\fR select all; \fBCtrl+
 Search and goto: \fBCtrl+F\fR opens the search bar (type to filter, Up/Down navigate matches, Enter confirm, Esc cancel); \fBCtrl+G\fR opens the go-to-line bar.
 .TP
 Undo/Redo: \fBCtrl+Z\fR undo (up to 100 levels); \fBCtrl+Y\fR redo.
-.TP
 File: \fBCtrl+S\fR save; \fBCtrl+Q\fR/\fBEsc\fR quit (prompts to save if unsaved changes exist).
 .TP
 Error handling: rejects directories; warns on binary files; reports save errors (permissions, disk full, file locked, missing parent directory) in the status bar without crashing.
 
+.SS scrape
+Alias: \fBdl\fR.
+Visits a URL, finds all linked files whose extension matches \fB--format\fR, and downloads them to the destination directory.
+When \fB--depth\fR > 1 the scraper crawls linked HTML pages breadth-first.
+A realistic browser User-Agent (Chrome/Firefox/Edge pool) and browser-matching headers are used automatically.
+.TP
+\fB--format\fR <EXT[,EXT,...]> (mandatory)
+File extension(s) to download, comma-separated or repeated.
+Format group aliases: \fBdocuments\fR, \fBimages\fR, \fBdata\fR, \fBweb\fR, \fBarchives\fR, \fBtext\fR, \fBaudio\fR, \fBvideo\fR.
+.TP
+\fB--dest\fR <DIR>
+Output directory (default: ./output). Created automatically if absent; must be writable.
+.TP
+\fB--include-video\fR / \fB--include-audio\fR
+Allow video or audio file downloads. Both are blocked by default.
+.TP
+\fB--no-images\fR
+Skip image files even if the extension matches.
+.TP
+\fB--depth\fR <N>
+Max crawl depth (default: 1 = start page only).
+.TP
+\fB--max-pages\fR <N>
+Max HTML pages fetched (default: 10).
+.TP
+\fB--max-size\fR <N>[K|M|G]
+Max total downloaded bytes (default: 50M). Suffixes K, M, G supported.
+.TP
+\fB--max-links\fR <N>
+Max links followed per page (default: 100).
+.TP
+\fB--timeout\fR <SECS>
+Per-request timeout in seconds (default: 30).
+.TP
+\fB--same-domain\fR
+Restrict crawl to the start URL's domain.
+.TP
+\fB--ignore-robots\fR
+Ignore robots.txt restrictions.
+.TP
+\fB--user-agent\fR <UA>
+Override the User-Agent header.
+.TP
+\fB--dry-run\fR
+Print what would be downloaded; write nothing.
+.TP
+\fB--overwrite\fR
+Overwrite existing files (default: rename with a counter suffix).
+.TP
+\fB--verbose\fR / \fB-v\fR
+Print per-URL decisions.
+.TP
+Error handling: non-http/https URLs are rejected before any request is made;
+a missing or non-writable \fB--dest\fR exits immediately;
+per-file errors are printed and skipped (crawl continues);
+files that would exceed \fB--max-size\fR are skipped, not truncated;
+robots.txt is fetched from the start domain (unreachable = unrestricted).
 
 .SH EXAMPLES
 .TP

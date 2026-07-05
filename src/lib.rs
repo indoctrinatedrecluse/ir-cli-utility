@@ -45,6 +45,7 @@ pub mod nettop;
 pub mod dua;
 pub mod browse;
 pub mod edit;
+pub mod scrape;
 
 
 
@@ -551,6 +552,50 @@ pub fn dns(host: &str) {
 
 pub fn path(options: PathOptions) {
     path::run_path(options);
+}
+
+// ---------------------------------------------------------------------------
+// Scrape
+// ---------------------------------------------------------------------------
+
+#[derive(Default, Clone)]
+pub struct ScrapeOptions {
+    /// File extensions to download (may include group aliases like "documents").
+    pub formats: Vec<String>,
+    /// Output directory (default: "./output").
+    pub dest: String,
+    /// Max crawl depth; 1 = only the start page (default).
+    pub depth: usize,
+    /// Max number of pages fetched during crawl (default: 10).
+    pub max_pages: usize,
+    /// Max total bytes downloaded across all files (default: 50 MiB).
+    pub max_size_bytes: u64,
+    /// Max links followed per page (default: 100).
+    pub max_links: usize,
+    /// Per-request timeout in seconds (default: 30).
+    pub timeout_secs: u64,
+    /// Allow video file downloads (default: false / blocked).
+    pub include_video: bool,
+    /// Allow audio file downloads (default: false / blocked).
+    pub include_audio: bool,
+    /// Skip image files even if their extension matches (default: false).
+    pub no_images: bool,
+    /// Only follow links that stay on the same domain as the start URL.
+    pub same_domain: bool,
+    /// Ignore robots.txt restrictions.
+    pub ignore_robots: bool,
+    /// Override the User-Agent string (otherwise a realistic browser UA is chosen).
+    pub user_agent: Option<String>,
+    /// Print what would be downloaded without actually writing any files.
+    pub dry_run: bool,
+    /// Print detailed per-URL decisions.
+    pub verbose: bool,
+    /// Overwrite existing files in the destination (default: rename with counter).
+    pub overwrite: bool,
+}
+
+pub fn scrape(url: &str, options: ScrapeOptions) {
+    scrape::run_scrape(url, options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {
