@@ -83,4 +83,40 @@ fi
 rm -f $TestFile $MovedFile
 rm -rf $TempDir
 
+echo "Testing alias 'ncdu' -> maps to 'dua' (via help)..."
+ncdu_out=$($Executable help ncdu 2>&1 || true)
+if echo "$ncdu_out" | grep -q "ir-dua"; then
+    echo "✅ PASS: 'ir ncdu' alias correctly routes to dua."
+else
+    echo "❌ FAIL: 'ir ncdu' did not route to dua: $ncdu_out"
+    Result=1
+fi
+
+echo "Testing alias 'fm' -> maps to 'browse' (via help)..."
+fm_out=$($Executable help fm 2>&1 || true)
+if echo "$fm_out" | grep -q "ir-browse"; then
+    echo "✅ PASS: 'ir fm' alias correctly routes to browse."
+else
+    echo "❌ FAIL: 'ir fm' did not route to browse: $fm_out"
+    Result=1
+fi
+
+echo "Testing alias 'ed' -> maps to 'edit' (via help)..."
+ed_out=$($Executable help ed 2>&1 || true)
+if echo "$ed_out" | grep -q "ir-edit"; then
+    echo "✅ PASS: 'ir ed' alias correctly routes to edit."
+else
+    echo "❌ FAIL: 'ir ed' did not route to edit: $ed_out"
+    Result=1
+fi
+
+echo "Testing alias 'dl' -> maps to 'scrape' (via help)..."
+dl_out=$($Executable help dl 2>&1 || true)
+if echo "$dl_out" | grep -q "ir-scrape"; then
+    echo "✅ PASS: 'ir dl' alias correctly routes to scrape."
+else
+    echo "❌ FAIL: 'ir dl' did not route to scrape: $dl_out"
+    Result=1
+fi
+
 exit $Result

@@ -109,6 +109,15 @@ if ($ed_out -match "ir-edit") {
     $Result = 1
 }
 
+Write-Host "Testing alias 'dl' -> maps to 'scrape' (via help)..."
+$dl_out = & $Executable help dl 2>&1 | Out-String
+if ($dl_out -match "ir-scrape") {
+    Write-Host "✅ PASS: 'ir dl' alias correctly routes to scrape."
+} else {
+    Write-Host "❌ FAIL: 'ir dl' did not route to scrape: $dl_out"
+    $Result = 1
+}
+
 # Clean up
 foreach ($file in @($TestFile, $MovedFile)) {
     if (Test-Path $file) { Remove-Item $file -Force }
