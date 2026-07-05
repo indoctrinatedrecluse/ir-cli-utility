@@ -9,8 +9,8 @@ $Executable = ".\target\debug\ir.exe"
 
 # --- Test ---
 Write-Host "Running test: echo content | ir grep 'test'"
-$Input = @("this is a test", "no match", "another test", "nope")
-$Output = ($Input | & $Executable grep "test") | Out-String
+$StdinData = @("this is a test", "no match", "another test", "nope")
+$Output = ($StdinData | & $Executable grep "test") | Out-String
 
 # --- Verification ---
 $Result = 1
