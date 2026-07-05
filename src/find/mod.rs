@@ -3,9 +3,14 @@ use std::ffi::OsStr;
 use std::fs;
 use std::io::{self, BufRead, IsTerminal};
 use std::path::Path;
+use std::time::SystemTime;
 use walkdir::{DirEntry, WalkDir};
 
 pub fn find(paths: Vec<String>, options: FindOptions) {
+    // Pre-resolve reference timestamps for --newer / --older
+    let newer_time = options.newer.as_deref().map(|p| resolve_mtime(p));
+    let older_time = options.older.as_deref().map(|p| resolve_mtime(p));
+
     let roots = if paths.is_empty() {
         stdin_roots().unwrap_or_else(|| vec![".".to_string()])
     } else {
@@ -13,8 +18,17 @@ pub fn find(paths: Vec<String>, options: FindOptions) {
     };
 
     for root in roots {
-        find_root(&root, &options);
+        find_root(&root, &options, newer_time, older_time);
     }
+}
+
+fn resolve_mtime(path: &str) -> SystemTime {
+    fs::metadata(path)
+        .and_then(|m| m.modified())
+        .unwrap_or_else(|_| {
+            eprintln!("Warning: cannot read mtime of '{}'; filter ignored.", path);
+            SystemTime::UNIX_EPOCH
+        })
 }
 
 fn stdin_roots() -> Option<Vec<String>> {
@@ -31,14 +45,10 @@ fn stdin_roots() -> Option<Vec<String>> {
         .filter(|line| !line.is_empty())
         .collect();
 
-    if roots.is_empty() {
-        None
-    } else {
-        Some(roots)
-    }
+    if roots.is_empty() { None } else { Some(roots) }
 }
 
-fn find_root(root: &str, options: &FindOptions) {
+fn find_root(root: &str, options: &FindOptions, newer_time: Option<SystemTime>, older_time: Option<SystemTime>) {
     let mut walker = WalkDir::new(root)
         .follow_links(false)
         .min_depth(options.min_depth);
@@ -50,7 +60,7 @@ fn find_root(root: &str, options: &FindOptions) {
     for entry in walker {
         match entry {
             Ok(entry) => {
-                if matches_entry(&entry, options) {
+                if matches_entry(&entry, options, newer_time, older_time) {
                     println!("{}", entry.path().display());
                 }
             }
@@ -59,29 +69,55 @@ fn find_root(root: &str, options: &FindOptions) {
     }
 }
 
-fn matches_entry(entry: &DirEntry, options: &FindOptions) -> bool {
+fn matches_entry(
+    entry: &DirEntry,
+    options: &FindOptions,
+    newer_time: Option<SystemTime>,
+    older_time: Option<SystemTime>,
+) -> bool {
+    // Type filter
     if let Some(item_type) = options.item_type {
         match item_type {
-            FindItemType::File if !entry.file_type().is_file() => return false,
-            FindItemType::Directory if !entry.file_type().is_dir() => return false,
+            FindItemType::File      if !entry.file_type().is_file() => return false,
+            FindItemType::Directory if !entry.file_type().is_dir()  => return false,
             _ => {}
         }
     }
 
+    // Name filter
     if let Some(pattern) = &options.name {
-        if !matches_name(entry.file_name(), pattern, false) {
-            return false;
-        }
+        if !matches_name(entry.file_name(), pattern, false) { return false; }
     }
-
     if let Some(pattern) = &options.case_insensitive_name {
-        if !matches_name(entry.file_name(), pattern, true) {
-            return false;
-        }
+        if !matches_name(entry.file_name(), pattern, true) { return false; }
     }
 
+    // Empty filter
     if options.empty && !is_empty(entry.path(), entry.file_type().is_dir()) {
         return false;
+    }
+
+    // Size filters (files only; directories are skipped for size checks)
+    if entry.file_type().is_file() {
+        if let Ok(meta) = entry.metadata() {
+            let size = meta.len();
+            if let Some(min) = options.min_size {
+                if size < min { return false; }
+            }
+            if let Some(max) = options.max_size {
+                if size > max { return false; }
+            }
+
+            // Time filters
+            if let Ok(mtime) = meta.modified() {
+                if let Some(ref_time) = newer_time {
+                    if mtime <= ref_time { return false; }
+                }
+                if let Some(ref_time) = older_time {
+                    if mtime >= ref_time { return false; }
+                }
+            }
+        }
     }
 
     true
@@ -140,5 +176,20 @@ fn is_empty(path: &Path, is_dir: bool) -> bool {
         fs::metadata(path)
             .map(|metadata| metadata.len() == 0)
             .unwrap_or(false)
+    }
+}
+
+/// Parse a human-friendly size string into bytes.
+/// Accepts plain integers or values with K/M/G suffixes (case-insensitive).
+pub fn parse_size(s: &str) -> Option<u64> {
+    let s = s.trim();
+    if let Some(n) = s.strip_suffix(['K', 'k']) {
+        n.trim().parse::<u64>().ok().map(|v| v * 1024)
+    } else if let Some(n) = s.strip_suffix(['M', 'm']) {
+        n.trim().parse::<u64>().ok().map(|v| v * 1024 * 1024)
+    } else if let Some(n) = s.strip_suffix(['G', 'g']) {
+        n.trim().parse::<u64>().ok().map(|v| v * 1024 * 1024 * 1024)
+    } else {
+        s.parse::<u64>().ok()
     }
 }

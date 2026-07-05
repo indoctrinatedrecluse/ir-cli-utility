@@ -92,10 +92,12 @@ fn decode_utf16(bytes: &[u8]) -> Result<String, String> {
 }
 
 fn print_text(writer: &mut dyn Write, text: &str, options: &CatOptions) -> std::io::Result<()> {
+    // Fast path: no per-line processing needed
     if !options.line_numbers
         && options.head.is_none()
         && options.tail.is_none()
         && options.range.is_none()
+        && !options.squeeze_blank
     {
         writer.write_all(text.as_bytes())?;
         return Ok(());
@@ -123,7 +125,15 @@ fn print_text(writer: &mut dyn Write, text: &str, options: &CatOptions) -> std::
         return Ok(());
     }
 
+    let mut prev_blank = false;
     for (index, line) in lines.iter().enumerate().take(end).skip(start) {
+        let is_blank = line.trim().is_empty();
+        // Skip this line if squeeze_blank is active and two consecutive blanks
+        if options.squeeze_blank && is_blank && prev_blank {
+            continue;
+        }
+        prev_blank = is_blank;
+
         if options.line_numbers {
             writeln!(writer, "{:>6}\t{}", index + 1, line)?;
         } else {

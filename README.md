@@ -119,7 +119,7 @@ ir help edit
 ---
 
 ### 📋 `list`
-Lists files and directories with detailed information.
+Lists files and directories with detailed information. Reparse points and symbolic links display target paths in `-> TARGET` format.
 
 **Usage:**
 ```bash
@@ -134,9 +134,11 @@ ir list [switches]
 | `-t` | Sorts the output by modification time, from newest to oldest. |
 | `-f` | Lists only files (excludes directories). |
 | `-l` | Lists only directories/folders (excludes files). |
+| `-h`, `--human` | Displays file sizes using KiB, MiB, GiB suffixes (IEC standard). |
 | `--filter <ext>` | Filters by file extension. |
 
 ---
+
 
 ### ✏️ `rename`
 Renames a file or folder.
@@ -299,6 +301,7 @@ ir cat [switches] <PATH> [> / >> REDIRECTION_TARGET]
 | Switch | Description |
 | :--- | :--- |
 | `-n`, `--line-numbers` | Prefix each output line with its source line number. |
+| `-s`, `--squeeze-blank` | Collapse consecutive empty lines into a single empty line. |
 | `--head <N>` | Prints the first `N` lines. |
 | `--tail <N>` | Prints the last `N` lines. |
 | `--range <START:END>` | Prints a 1-based inclusive line range. |
@@ -314,10 +317,12 @@ ir cat [switches] <PATH> [> / >> REDIRECTION_TARGET]
 **Examples:**
 ```bash
 ir cat file.txt                          # Print file.txt
+ir cat -s file.txt                       # Squeeze consecutive empty lines
 ir cat file.txt > out.txt                # Copy file.txt contents to out.txt
 ir cat file.txt > clip                   # Copy file.txt contents to system clipboard
 ir cat file.txt >> clip                  # Append file.txt contents to system clipboard
 ```
+
 
 > [!IMPORTANT]
 > * `--head`, `--tail`, and `--range` cannot be used together.
@@ -350,6 +355,9 @@ ir grep [switches] <PATTERN> [FILE...]
 | `-x`, `--line-regexp` | Match the entire line only. |
 | `-F`, `--fixed-strings` | Treat pattern as a literal string, not regex. |
 | `-E`, `--extended-regexp` | Use extended regular expression syntax. |
+| `-A <N>`, `--after-context <N>` | Print `N` lines of trailing context after matching lines. |
+| `-B <N>`, `--before-context <N>` | Print `N` lines of leading context before matching lines. |
+| `-C <N>`, `--context <N>` | Print `N` lines of leading and trailing context. |
 
 **Examples:**
 ```bash
@@ -357,6 +365,7 @@ ir grep 'error' file.txt                    # Search for 'error' in a file
 dir | ir grep 'README'                      # Search piped output from dir command
 ir list | ir grep -i '.txt'                 # Pipe from another ir command
 ir grep -n 'warning' app.log                # Show line numbers with matches
+ir grep -C 3 'panic' main.rs                # Show matches with 3 lines of context
 ir grep -c 'TODO' src/main.rs               # Count matching lines
 ```
 
@@ -385,6 +394,10 @@ ir find [PATH...] [EXPRESSION]
 | `-maxdepth <N>` | Descend at most `N` levels below each root. |
 | `-mindepth <N>` | Do not print entries shallower than `N` levels below each root. |
 | `-empty` | Match empty files and empty directories. |
+| `-min-size <SIZE>` \| `--min-size <SIZE>` | Match files at least this large. Suffixes K, M, G supported. |
+| `-max-size <SIZE>` \| `--max-size <SIZE>` | Match files at most this large. Suffixes K, M, G supported. |
+| `-newer <FILE>` \| `--newer <FILE>` | Match files modified more recently than the modification time of FILE. |
+| `-older <FILE>` \| `--older <FILE>` | Match files modified less recently than the modification time of FILE. |
 
 **Examples:**
 ```bash
@@ -392,7 +405,10 @@ ir find . -name '*.rs'                     # Find Rust files under the current d
 ir find src -type d                        # Find directories under src
 ir find . -maxdepth 1 -type f              # Find files directly under the current directory
 echo src | ir find -name '*.rs'            # Search paths supplied through stdin
+ir find . -type f --min-size 10M           # Find files larger than 10MB
+ir find . -type f --newer README.md        # Find files modified after README.md
 ```
+
 
 ---
 
@@ -702,13 +718,18 @@ ir fetch [switches] <URL>
 | `-d <data>` | Request body / POST data string. |
 | `-o <file>` | Write response body to a file instead of standard output. |
 | `-i` | Include response HTTP status line and headers in the output. |
+| `-p`, `--progress` | Show download progress bar (only with `-o`/`--output`). |
+| `--timeout <SECS>` | Set request timeout in seconds. |
+| `--no-follow-redirects` | Disable automatic redirect following. |
 
 **Examples:**
 ```bash
 ir fetch https://api.ipify.org           # Fetch public IP address
 ir fetch -i https://httpbin.org/get      # Fetch URL and print headers and body
 ir fetch -X POST -d '{"id":1}' URL       # Send a POST request with JSON payload
+ir fetch -o file.zip --progress URL      # Download a file with progress bar
 ```
+
 
 ---
 
@@ -1406,6 +1427,38 @@ ir ed README.md          # Alias form
 ```
 
 
+### 🔀 `sort`
+Sorts lines from text files or standard input and prints the result to standard output.
+
+**Usage:**
+```bash
+ir sort [switches] [FILE...]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[FILE...]` | Optional file paths to read and sort. If omitted, reads from standard input. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-r`, `--reverse` | Reverse the result of comparisons (sort descending). |
+| `-n`, `--numeric`, `--numeric-sort` | Compare according to string numerical value (supports decimals). |
+| `-u`, `--unique` | Output only the first of an equal run (remove duplicates). |
+| `-f`, `--ignore-case` | Fold lower and upper case characters together. |
+| `-c`, `--check` | Check whether input is sorted; do not sort. Exit code 1 if unsorted. |
+| `--field <N>` | Sort by Nth whitespace-delimited field (1-based index). |
+| `--separator <C>` | Use character C as field separator instead of whitespace. |
+
+**Examples:**
+```bash
+ir sort lines.txt                          # Sort lines alphabetically
+ir sort -n -r scores.txt                   # Sort numbers in descending order
+ir sort -u users.log                       # Sort lines and remove duplicates
+ir sort --field 2 --separator ',' data.csv  # Sort CSV file by the second field
+```
+
 ---
 
 ### 🌐 `scrape`
@@ -1454,6 +1507,8 @@ ir dl     <URL> --format <EXT>[,EXT,...] [OPTIONS]   # alias
 | `--max-size <N>[K\|M\|G]` | 50M | Max total downloaded data; suffixes K, M, G supported. |
 | `--max-links <N>` | 100 | Max links followed per page. |
 | `--timeout <SECS>` | 30 | Per-request timeout in seconds. |
+| `--rate-limit <MS>` | 0 | Sleep N milliseconds between HTTP requests. |
+
 
 **Behaviour:**
 | Switch | Description |

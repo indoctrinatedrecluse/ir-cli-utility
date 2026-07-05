@@ -120,6 +120,9 @@ Suspends execution for a specified duration (e.g. 5, 2.5s, 500ms, 1m).
 .B sockets [\fIswitches\fR]
 Lists active TCP and UDP sockets along with their owning processes (PID and name).
 .TP
+.B sort [\fIswitches\fR] [<\fIfile...\fR>]
+Sorts lines from text files or standard input.
+.TP
 .B wc [\fIswitches\fR] [<\fIpath...\fR>]
 Counts lines, words, characters, and bytes for files or standard input.
 .TP
@@ -163,6 +166,7 @@ Displays general help, or help for a specific \fIaction\fR.
 Run 'ir help <action>' to see the options for a specific action.
 
 .SS list
+Lists files and directories. Reparse points and symbolic links display target paths in '-> TARGET' notation.
 .TP
 .B -a
 Shows all files, including hidden ones.
@@ -178,6 +182,9 @@ Lists only files (excludes directories).
 .TP
 .B -l
 Lists only directories/folders (excludes files).
+.TP
+.B -h, --human, --human-readable
+Displays file sizes using KiB, MiB, GiB suffixes (IEC standard).
 .TP
 .B --filter \fIextension\fR
 Filters the list to only show files with the specified file \fIextension\fR.
@@ -271,6 +278,9 @@ Prints the name of each file as it is being processed.
 .B -n, --line-numbers
 Prefixes each output line with its source line number.
 .TP
+.B -s, --squeeze-blank
+Collapse consecutive empty lines into a single empty line.
+.TP
 .B --head <\fIN\fR>
 Prints the first \fIN\fR lines.
 .TP
@@ -314,6 +324,15 @@ Treats pattern as a literal string, not regex.
 .TP
 .B -E, --extended-regexp
 Uses extended regular expression syntax.
+.TP
+.B -A, --after-context <\fIN\fR>
+Print N lines of trailing context after matching lines.
+.TP
+.B -B, --before-context <\fIN\fR>
+Print N lines of leading context before matching lines.
+.TP
+.B -C, --context <\fIN\fR>
+Print N lines of leading and trailing context.
 
 .SS find
 .TP
@@ -337,6 +356,19 @@ Does not print entries shallower than \fIN\fR levels below each root.
 .TP
 .B -empty
 Matches empty files and empty directories.
+.TP
+.B -min-size, --min-size <\fISIZE\fR>
+Matches files at least this large. Suffixes K, M, G supported.
+.TP
+.B -max-size, --max-size <\fISIZE\fR>
+Matches files at most this large. Suffixes K, M, G supported.
+.TP
+.B -newer, --newer <\fIFILE\fR>
+Matches files modified more recently than the modification time of FILE.
+.TP
+.B -older, --older <\fIFILE\fR>
+Matches files modified less recently than the modification time of FILE.
+
 
 .SS diff
 .TP
@@ -473,6 +505,30 @@ Show UDP sockets only.
 .B -l, --listening
 Show listening sockets only.
 
+.SS sort
+Sorts lines from text files or standard input and prints the result.
+.TP
+.B -r, --reverse
+Reverse the result of comparisons.
+.TP
+.B -n, --numeric, --numeric-sort
+Compare according to string numerical value (supports decimals).
+.TP
+.B -u, --unique
+Output only the first of an equal run (remove duplicates).
+.TP
+.B -f, --ignore-case
+Fold lower and upper case characters together.
+.TP
+.B -c, --check
+Check whether input is sorted; do not sort. Exit code 1 if unsorted.
+.TP
+.B --field <\fIN\fR>
+Sort by Nth whitespace-delimited field (1-based index).
+.TP
+.B --separator <\fIC\fR>
+Use character C as field separator instead of whitespace.
+
 .SS wc
 .TP
 .B -l, --lines
@@ -544,6 +600,33 @@ File: \fBCtrl+S\fR save; \fBCtrl+Q\fR/\fBEsc\fR quit (prompts to save if unsaved
 .TP
 Error handling: rejects directories; warns on binary files; reports save errors (permissions, disk full, file locked, missing parent directory) in the status bar without crashing.
 
+.SS fetch
+Downloads content from a URL or queries an HTTP/HTTPS endpoint.
+.TP
+.B -X <\fImethod\fR>, --method <\fImethod\fR>
+HTTP request method (GET, POST, etc.) [Default: GET]
+.TP
+.B -H <\fIheader\fR>, --header <\fIheader\fR>
+Custom header in 'Name: Value' format (can be specified multiple times).
+.TP
+.B -d <\fIdata\fR>, --data <\fIdata\fR>
+Request body / POST data string.
+.TP
+.B -o <\fIfile\fR>, --output <\fIfile\fR>
+Write response body to a file instead of standard output.
+.TP
+.B -i
+Include HTTP status line and response headers in the output.
+.TP
+.B -p, --progress
+Show download progress bar (only with --output).
+.TP
+.B --timeout <\fISECS\fR>
+Per-request timeout in seconds.
+.TP
+.B --no-follow-redirects
+Disable automatic redirect following.
+
 .SS scrape
 Alias: \fBdl\fR.
 Visits a URL, finds all linked files whose extension matches \fB--format\fR, and downloads them to the destination directory.
@@ -577,6 +660,9 @@ Max links followed per page (default: 100).
 .TP
 \fB--timeout\fR <SECS>
 Per-request timeout in seconds (default: 30).
+.TP
+\fB--rate-limit\fR <MS>
+Sleep N milliseconds between HTTP requests (default: 0).
 .TP
 \fB--same-domain\fR
 Restrict crawl to the start URL's domain.

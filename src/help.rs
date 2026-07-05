@@ -75,12 +75,15 @@ pub fn print_list_help() {
     println!("    ir list [SWITCHES]");
     println!("\nDESCRIPTION:");
     println!("    Lists files and directories with detailed information.");
+    println!("    Reparse points/symbolic links display target paths in '-> TARGET' notation.");
     println!("\nSWITCHES:");
     println!("    -a        Shows all files, including hidden ones.");
     println!("    -s        Sorts the output by file size, from largest to smallest.");
     println!("    -t        Sorts the output by modification time, from newest to oldest.");
     println!("    -f        Lists only files (excludes directories).");
     println!("    -l        Lists only directories/folders (excludes files).");
+    println!("    -h, --human, --human-readable");
+    println!("              Displays file sizes using KiB, MiB, GiB suffixes (IEC standard).");
     println!("    --filter <ext> Filters by file extension.");
 }
 
@@ -189,6 +192,7 @@ pub fn print_cat_help() {
     println!("    <PATH>    The path to the file to print.");
     println!("\nSWITCHES:");
     println!("    -n, --line-numbers       Prefix each output line with its source line number.");
+    println!("    -s, --squeeze-blank      Collapse consecutive empty lines into a single empty line.");
     println!("        --head <N>           Prints the first N lines.");
     println!("        --tail <N>           Prints the last N lines.");
     println!("        --range <START:END>  Prints a 1-based inclusive line range.");
@@ -218,12 +222,16 @@ pub fn print_grep_help() {
     println!("    -x, --line-regexp              Match the entire line only.");
     println!("    -F, --fixed-strings            Treat pattern as a literal string, not regex.");
     println!("    -E, --extended-regexp          Use extended regular expression syntax.");
+    println!("    -A, --after-context <N>        Print N lines of trailing context after matching lines.");
+    println!("    -B, --before-context <N>       Print N lines of leading context before matching lines.");
+    println!("    -C, --context <N>              Print N lines of leading and trailing context.");
     println!("\nEXAMPLES:");
     println!("    ir grep 'error' file.txt                   Search for 'error' in a file");
     println!("    dir | ir grep 'README'                     Search piped output from dir command");
     println!("    ir list | ir grep -i '.txt'                Pipe from another ir command");
     println!("    ir grep -n 'warning' app.log               Show line numbers with matches");
     println!("    ir grep -c 'TODO' src/main.rs              Count matching lines");
+    println!("    ir grep -C 3 'panic' src/main.rs           Show matches with 3 lines of context");
 }
 
 pub fn print_find_help() {
@@ -244,11 +252,21 @@ pub fn print_find_help() {
     println!("    -maxdepth <N>       Descend at most N levels below each root.");
     println!("    -mindepth <N>       Do not print entries shallower than N levels below each root.");
     println!("    -empty              Match empty files and empty directories.");
+    println!("    -min-size, --min-size <SIZE>");
+    println!("                        Match files at least this large. Suffixes K, M, G supported.");
+    println!("    -max-size, --max-size <SIZE>");
+    println!("                        Match files at most this large. Suffixes K, M, G supported.");
+    println!("    -newer, --newer <FILE>");
+    println!("                        Match files modified more recently than the modification time of FILE.");
+    println!("    -older, --older <FILE>");
+    println!("                        Match files modified less recently than the modification time of FILE.");
     println!("\nEXAMPLES:");
     println!("    ir find . -name '*.rs'                    Find Rust files under the current directory");
     println!("    ir find src -type d                       Find directories under src");
     println!("    ir find . -maxdepth 1 -type f             Find files directly under the current directory");
     println!("    echo src | ir find -name '*.rs'           Search paths supplied through stdin");
+    println!("    ir find . -type f --min-size 10M          Find files larger than 10MB");
+    println!("    ir find . -type f --newer README.md       Find files modified after README.md");
 }
 
 pub fn print_diff_help() {
@@ -455,10 +473,14 @@ pub fn print_fetch_help() {
     println!("    -d <data>, --data <data>        Request body string (useful for POST/PUT)");
     println!("    -o <file>, --output <file>      Write response body to file instead of stdout");
     println!("    -i                              Include HTTP status line and response headers in output");
+    println!("    -p, --progress                  Show download progress bar (only with --output).");
+    println!("        --timeout <SECS>            Set request timeout in seconds.");
+    println!("        --no-follow-redirects       Do not follow redirects.");
     println!("\nEXAMPLES:");
     println!("    ir fetch https://httpbin.org/get          Fetch URL content");
     println!("    ir fetch -i https://httpbin.org/get       Fetch URL and print status and headers");
     println!("    ir fetch -X POST -d 'name=value' URL      Send a POST request with data");
+    println!("    ir fetch -o file.zip --progress URL       Download file showing progress");
 }
 
 pub fn print_env_help() {
@@ -935,6 +957,7 @@ pub fn print_scrape_help() {
     println!("                              Accepts suffixes K, M, G or a raw byte count.");
     println!("    --max-links <N>           Max links followed per page (default: 100).");
     println!("    --timeout <SECS>          Per-request timeout in seconds (default: 30).");
+    println!("    --rate-limit <MS>         Sleep N milliseconds between HTTP requests (default: 0).");
     println!("\nBEHAVIOUR:");
     println!("    --same-domain             Only follow links within the start URL's domain.");
     println!("    --ignore-robots           Ignore robots.txt restrictions.");
@@ -956,3 +979,27 @@ pub fn print_scrape_help() {
     println!("    ir scrape https://example.com --format mp3 --include-audio --dry-run");
     println!("    ir dl     https://example.com --format data --verbose");
 }
+
+pub fn print_sort_help() {
+    println!("ir-sort");
+    println!("\nUSAGE:");
+    println!("    ir sort [SWITCHES] [FILE...]");
+    println!("\nDESCRIPTION:");
+    println!("    Sorts lines from FILEs or standard input and prints the result.");
+    println!("\nARGUMENTS:");
+    println!("    [FILE...]  Optional path(s) to files to read and sort. If omitted, reads from stdin.");
+    println!("\nSWITCHES:");
+    println!("    -r, --reverse         Reverse the result of comparisons.");
+    println!("    -n, --numeric         Compare according to string numerical value (supports decimals).");
+    println!("    -u, --unique          Output only the first of an equal run (remove duplicates).");
+    println!("    -f, --ignore-case     Fold lower and upper case characters together.");
+    println!("    -c, --check           Check whether input is sorted; do not sort. Exit code 1 if unsorted.");
+    println!("        --field <N>       Sort by Nth whitespace-delimited field (1-based index).");
+    println!("        --separator <C>   Use character C as field separator instead of whitespace.");
+    println!("\nEXAMPLES:");
+    println!("    ir sort lines.txt                          Sort lines alphabetically");
+    println!("    ir sort -n -r scores.txt                   Sort numbers in descending order");
+    println!("    ir sort -u users.log                       Sort lines and remove duplicate entries");
+    println!("    ir sort --field 2 --separator ',' data.csv  Sort CSV file by the second field");
+}
+

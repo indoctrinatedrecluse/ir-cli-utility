@@ -1,6 +1,7 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions};
 use ir_cli_utility::scrape::parse_size as scrape_parse_size;
+use ir_cli_utility::find::parse_size as find_parse_size;
 
 fn is_path(s: &str) -> bool {
     s.contains('/') || s.contains('\\')
@@ -40,7 +41,9 @@ fn main() {
             let mut valid = true;
 
             while let Some(arg) = list_args.next() {
-                if arg == "--filter" {
+                if arg == "--human" || arg == "--human-readable" {
+                    options.human_readable = true;
+                } else if arg == "--filter" {
                     if options.filter.is_some() { eprintln!("Error: --filter can only be used once."); valid = false; break; }
                     if let Some(ext) = list_args.next() {
                         if ext.starts_with('-') { eprintln!("Error: --filter requires a file extension argument."); valid = false; break; }
@@ -54,6 +57,7 @@ fn main() {
                             't' => options.sort_by_time = true,
                             'f' => options.files_only = true,
                             'l' => options.folders_only = true,
+                            'h' => options.human_readable = true,
                             _ => { eprintln!("Error: Unknown switch '-{}'", char); valid = false; break; }
                         }
                     }
@@ -482,6 +486,42 @@ fn main() {
                     options.fixed_string = true;
                 } else if arg == "-E" || arg == "--extended-regexp" {
                     options.extended_regex = true;
+                } else if arg == "-A" || arg == "--after-context" {
+                    if let Some(val) = args_iter.next() {
+                        match val.parse::<usize>() {
+                            Ok(n) => options.after_context = n,
+                            Err(_) => { eprintln!("Error: -A/--after-context requires a non-negative integer."); valid = false; break; }
+                        }
+                    } else { eprintln!("Error: -A/--after-context requires a value."); valid = false; break; }
+                } else if arg.starts_with("-A") && arg.len() > 2 {
+                    match arg[2..].parse::<usize>() {
+                        Ok(n) => options.after_context = n,
+                        Err(_) => { eprintln!("Error: Unknown switch '{}'", arg); valid = false; break; }
+                    }
+                } else if arg == "-B" || arg == "--before-context" {
+                    if let Some(val) = args_iter.next() {
+                        match val.parse::<usize>() {
+                            Ok(n) => options.before_context = n,
+                            Err(_) => { eprintln!("Error: -B/--before-context requires a non-negative integer."); valid = false; break; }
+                        }
+                    } else { eprintln!("Error: -B/--before-context requires a value."); valid = false; break; }
+                } else if arg.starts_with("-B") && arg.len() > 2 {
+                    match arg[2..].parse::<usize>() {
+                        Ok(n) => options.before_context = n,
+                        Err(_) => { eprintln!("Error: Unknown switch '{}'", arg); valid = false; break; }
+                    }
+                } else if arg == "-C" || arg == "--context" {
+                    if let Some(val) = args_iter.next() {
+                        match val.parse::<usize>() {
+                            Ok(n) => { options.before_context = n; options.after_context = n; }
+                            Err(_) => { eprintln!("Error: -C/--context requires a non-negative integer."); valid = false; break; }
+                        }
+                    } else { eprintln!("Error: -C/--context requires a value."); valid = false; break; }
+                } else if arg.starts_with("-C") && arg.len() > 2 {
+                    match arg[2..].parse::<usize>() {
+                        Ok(n) => { options.before_context = n; options.after_context = n; }
+                        Err(_) => { eprintln!("Error: Unknown switch '{}'", arg); valid = false; break; }
+                    }
                 } else if arg.starts_with('-') {
                     eprintln!("Error: Unknown switch '{}' for grep.", arg);
                     valid = false;
@@ -568,6 +608,54 @@ fn main() {
                     }
                 } else if arg == "-empty" {
                     options.empty = true;
+                } else if arg == "-min-size" || arg == "--min-size" {
+                    if let Some(val) = args_iter.next() {
+                        match find_parse_size(val) {
+                            Some(n) => options.min_size = Some(n),
+                            None => {
+                                eprintln!("Error: --min-size requires a size like '50M', '1G', '500K', or a byte count.");
+                                valid = false; break;
+                            }
+                        }
+                    } else {
+                        eprintln!("Error: --min-size requires a value.");
+                        valid = false; break;
+                    }
+                } else if arg == "-max-size" || arg == "--max-size" {
+                    if let Some(val) = args_iter.next() {
+                        match find_parse_size(val) {
+                            Some(n) => options.max_size = Some(n),
+                            None => {
+                                eprintln!("Error: --max-size requires a size like '50M', '1G', '500K', or a byte count.");
+                                valid = false; break;
+                            }
+                        }
+                    } else {
+                        eprintln!("Error: --max-size requires a value.");
+                        valid = false; break;
+                    }
+                } else if arg == "-newer" || arg == "--newer" {
+                    if let Some(val) = args_iter.next() {
+                        if val.starts_with('-') {
+                            eprintln!("Error: --newer requires a file path.");
+                            valid = false; break;
+                        }
+                        options.newer = Some(val.clone());
+                    } else {
+                        eprintln!("Error: --newer requires a file path.");
+                        valid = false; break;
+                    }
+                } else if arg == "-older" || arg == "--older" {
+                    if let Some(val) = args_iter.next() {
+                        if val.starts_with('-') {
+                            eprintln!("Error: --older requires a file path.");
+                            valid = false; break;
+                        }
+                        options.older = Some(val.clone());
+                    } else {
+                        eprintln!("Error: --older requires a file path.");
+                        valid = false; break;
+                    }
                 } else if arg.starts_with('-') {
                     eprintln!("Error: Unknown switch '{}' for find.", arg);
                     valid = false;
@@ -768,6 +856,8 @@ fn main() {
             while let Some(arg) = args_iter.next() {
                 if arg == "-n" || arg == "--line-numbers" {
                     options.line_numbers = true;
+                } else if arg == "-s" || arg == "--squeeze-blank" {
+                    options.squeeze_blank = true;
                 } else if arg == "--head" {
                     match args_iter.next().and_then(|value| value.parse::<usize>().ok()) {
                         Some(count) => options.head = Some(count),
@@ -1236,14 +1326,28 @@ fn main() {
                             break;
                         }
                     }
+                } else if arg == "--timeout" {
+                    match args_iter.next().and_then(|value| value.parse::<u64>().ok()) {
+                        Some(secs) => options.timeout_secs = secs,
+                        None => {
+                            eprintln!("Error: --timeout requires a non-negative integer (seconds).");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--no-follow-redirects" {
+                    options.no_follow_redirects = true;
+                } else if arg == "-p" || arg == "--progress" {
+                    options.progress = true;
                 } else if arg.starts_with('-') && arg.len() > 1 {
                     for char in arg.chars().skip(1) {
                         match char {
                             'i' => options.include_headers = true,
+                            'p' => options.progress = true,
                             _ => {
-                                eprintln!("Error: Unknown switch '-{}' for fetch.", char);
-                                valid = false;
-                                break;
+                                  eprintln!("Error: Unknown switch '-{}' for fetch.", char);
+                                  valid = false;
+                                  break;
                             }
                         }
                     }
@@ -2371,6 +2475,7 @@ fn main() {
                     "edit" => help::print_edit_help(),
                     "ed"   => help::print_edit_help(),
                     "scrape" | "dl" => help::print_scrape_help(),
+                    "sort" => help::print_sort_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
@@ -2490,6 +2595,20 @@ fn main() {
                             valid = false; break;
                         }
                     }
+                    "--rate-limit" => {
+                        if let Some(val) = rest.next() {
+                            match val.parse::<u64>() {
+                                Ok(n) => options.rate_limit_ms = n,
+                                Err(_) => {
+                                    eprintln!("Error: --rate-limit requires a non-negative integer (milliseconds).");
+                                    valid = false; break;
+                                }
+                            }
+                        } else {
+                            eprintln!("Error: --rate-limit requires a value.");
+                            valid = false; break;
+                        }
+                    }
                     "--user-agent" => {
                         if let Some(val) = rest.next() {
                             if val.starts_with('-') {
@@ -2545,6 +2664,74 @@ fn main() {
                 ir_cli_utility::scrape(url.as_deref().unwrap(), options);
             } else {
                 help::print_scrape_help();
+            }
+        }
+        "sort" => {
+            let mut options = SortOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-r" || arg == "--reverse" {
+                    options.reverse = true;
+                } else if arg == "-n" || arg == "--numeric-sort" || arg == "--numeric" {
+                    options.numeric = true;
+                } else if arg == "-u" || arg == "--unique" {
+                    options.unique = true;
+                } else if arg == "-f" || arg == "--ignore-case" {
+                    options.ignore_case = true;
+                } else if arg == "--field" {
+                    if let Some(val) = args_iter.next() {
+                        match val.parse::<usize>() {
+                            Ok(n) => options.field = n,
+                            Err(_) => {
+                                eprintln!("Error: --field requires a positive integer.");
+                                valid = false; break;
+                            }
+                        }
+                    } else {
+                        eprintln!("Error: --field requires a value.");
+                        valid = false; break;
+                    }
+                } else if arg == "--separator" {
+                    if let Some(val) = args_iter.next() {
+                        if val.len() != 1 {
+                            eprintln!("Error: --separator requires a single character.");
+                            valid = false; break;
+                        }
+                        options.separator = val.chars().next();
+                    } else {
+                        eprintln!("Error: --separator requires a value.");
+                        valid = false; break;
+                    }
+                } else if arg == "-c" || arg == "--check" {
+                    options.check = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'r' => options.reverse = true,
+                            'n' => options.numeric = true,
+                            'u' => options.unique = true,
+                            'f' => options.ignore_case = true,
+                            'c' => options.check = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for sort.", char);
+                                valid = false; break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                ir_cli_utility::sort(positionals, options);
+            } else {
+                help::print_sort_help();
+                std::process::exit(1);
             }
         }
         _ => {

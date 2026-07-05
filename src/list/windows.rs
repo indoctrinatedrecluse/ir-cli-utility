@@ -4,7 +4,6 @@ use std::os::windows::ffi::{OsStrExt, OsStringExt};
 use std::path::Path;
 use std::mem::zeroed;
 
-// Corrected and reorganized imports
 use windows_sys::Win32::Foundation::{
     INVALID_HANDLE_VALUE,
     FILETIME,
@@ -28,24 +27,28 @@ struct FileInfo {
     name: String,
     permissions: String,
     size: u64,
-    size_formatted: String,
+    size_bytes_raw: String,   // always raw bytes for non-human mode
+    size_human: String,       // IEC (KiB/MiB/GiB) for -h mode
     created: String,
     modified: String,
     modified_ft: FILETIME,
     is_dir: bool,
+    is_symlink: bool,
+    symlink_target: Option<String>,
 }
 
 // --- Helper functions ---
 fn format_permissions(attributes: u32) -> String {
-    let dir = if attributes & FILE_ATTRIBUTE_DIRECTORY != 0 { 'd' } else { '-' };
-    let readonly = if attributes & FILE_ATTRIBUTE_READONLY != 0 { 'r' } else { '-' };
-    let reparse = if attributes & FILE_ATTRIBUTE_REPARSE_POINT != 0 { 'l' } else { '-' };
-    let hidden = if attributes & FILE_ATTRIBUTE_HIDDEN != 0 { 'h' } else { '-' };
-    let system = if attributes & FILE_ATTRIBUTE_SYSTEM != 0 { 's' } else { '-' };
+    let dir    = if attributes & FILE_ATTRIBUTE_DIRECTORY    != 0 { 'd' } else { '-' };
+    let reparse= if attributes & FILE_ATTRIBUTE_REPARSE_POINT != 0 { 'l' } else { '-' };
+    let readonly= if attributes & FILE_ATTRIBUTE_READONLY    != 0 { 'r' } else { '-' };
+    let hidden  = if attributes & FILE_ATTRIBUTE_HIDDEN      != 0 { 'h' } else { '-' };
+    let system  = if attributes & FILE_ATTRIBUTE_SYSTEM      != 0 { 's' } else { '-' };
     format!("{}{}{}{}{}", dir, reparse, readonly, hidden, system)
 }
 
-fn format_size(bytes: u64) -> String {
+/// Format bytes as a compact decimal string with a unit suffix (KB/MB/GB).
+fn format_size_decimal(bytes: u64) -> String {
     if bytes == 0 { return "0 B".to_string(); }
     const UNITS: [&str; 5] = ["B", "KB", "MB", "GB", "TB"];
     let digit_groups = (bytes as f64).log10() / (1024.0f64).log10();
@@ -54,11 +57,29 @@ fn format_size(bytes: u64) -> String {
     format!("{:.2} {}", size, UNITS[unit_index as usize])
 }
 
+/// Format bytes as an IEC human-readable string (KiB/MiB/GiB).
+fn format_size_iec(bytes: u64) -> String {
+    match bytes {
+        0                                 => "0 B".to_string(),
+        b if b >= 1024 * 1024 * 1024     => format!("{:.2} GiB", b as f64 / (1024.0 * 1024.0 * 1024.0)),
+        b if b >= 1024 * 1024            => format!("{:.2} MiB", b as f64 / (1024.0 * 1024.0)),
+        b if b >= 1024                   => format!("{:.2} KiB", b as f64 / 1024.0),
+        b                                => format!("{} B", b),
+    }
+}
+
 fn format_filetime(ft: &FILETIME) -> String {
     let mut st: SYSTEMTIME = unsafe { zeroed() };
     if unsafe { FileTimeToSystemTime(ft, &mut st) } != 0 {
         format!("{:04}-{:02}-{:02} {:02}:{:02}", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute)
     } else { "N/A".to_string() }
+}
+
+/// Read the symlink target for a path using `std::fs::read_link`.
+fn read_symlink_target(name: &str) -> Option<String> {
+    std::fs::read_link(name)
+        .ok()
+        .map(|p| p.to_string_lossy().into_owned())
 }
 // --- End of helper functions ---
 
@@ -83,17 +104,29 @@ pub fn list(options: ListOptions) {
                 let is_hidden = find_data.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN != 0;
                 if options.show_all || !is_hidden {
                     let is_dir = (find_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-                    let size = if is_dir { 0 } else { (find_data.nFileSizeHigh as u64) << 32 | find_data.nFileSizeLow as u64 };
+                    let is_symlink = (find_data.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+                    let size = if is_dir { 0 } else {
+                        (find_data.nFileSizeHigh as u64) << 32 | find_data.nFileSizeLow as u64
+                    };
+
+                    let symlink_target = if is_symlink {
+                        read_symlink_target(filename_str.as_ref())
+                    } else {
+                        None
+                    };
 
                     files.push(FileInfo {
                         name: filename_str.to_string(),
                         permissions: format_permissions(find_data.dwFileAttributes),
                         size,
-                        size_formatted: if is_dir { "---".to_string() } else { format_size(size) },
-                        created: format_filetime(&find_data.ftCreationTime),
+                        size_bytes_raw: if is_dir { "---".to_string() } else { format_size_decimal(size) },
+                        size_human:     if is_dir { "---".to_string() } else { format_size_iec(size) },
+                        created:  format_filetime(&find_data.ftCreationTime),
                         modified: format_filetime(&find_data.ftLastWriteTime),
                         modified_ft: find_data.ftLastWriteTime,
                         is_dir,
+                        is_symlink,
+                        symlink_target,
                     });
                 }
             }
@@ -139,9 +172,18 @@ pub fn list(options: ListOptions) {
     println!("{:<12} {:<10} {:<20} {:<20} {}", "Permissions", "Size", "Created", "Modified", "Name");
     println!("{:-<12} {:-<10} {:-<20} {:-<20} {:-<30}", "", "", "", "", "");
     for file in sorted_files {
+        let size_col = if options.human_readable { &file.size_human } else { &file.size_bytes_raw };
+        let name_col = if file.is_symlink {
+            match &file.symlink_target {
+                Some(target) => format!("{} -> {}", file.name, target),
+                None         => format!("{} -> ?", file.name),
+            }
+        } else {
+            file.name.clone()
+        };
         println!(
             "{:<12} {:<10} {:<20} {:<20} {}",
-            file.permissions, file.size_formatted, file.created, file.modified, file.name
+            file.permissions, size_col, file.created, file.modified, name_col
         );
     }
 }

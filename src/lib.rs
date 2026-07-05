@@ -46,6 +46,7 @@ pub mod dua;
 pub mod browse;
 pub mod edit;
 pub mod scrape;
+pub mod sort;
 
 
 
@@ -59,6 +60,8 @@ pub struct ListOptions {
     pub filter: Option<String>,
     pub files_only: bool,
     pub folders_only: bool,
+    /// Use IEC human-readable size suffixes (KiB, MiB, GiB).
+    pub human_readable: bool,
 }
 
 #[derive(Default)]
@@ -117,6 +120,8 @@ pub struct CatOptions {
     pub range: Option<(usize, usize)>,
     pub binary: bool,
     pub encoding: Option<String>,
+    /// Collapse consecutive blank lines into a single blank line.
+    pub squeeze_blank: bool,
 }
 
 #[derive(Default, Clone)]
@@ -129,6 +134,10 @@ pub struct GrepOptions {
     pub entire_line: bool,
     pub fixed_string: bool,
     pub extended_regex: bool,
+    /// Lines of context to print before each match.
+    pub before_context: usize,
+    /// Lines of context to print after each match.
+    pub after_context: usize,
 }
 
 #[derive(Default, Clone)]
@@ -139,6 +148,14 @@ pub struct FindOptions {
     pub max_depth: Option<usize>,
     pub min_depth: usize,
     pub empty: bool,
+    /// Minimum file size in bytes (inclusive).
+    pub min_size: Option<u64>,
+    /// Maximum file size in bytes (inclusive).
+    pub max_size: Option<u64>,
+    /// Match only entries modified more recently than this path's mtime.
+    pub newer: Option<String>,
+    /// Match only entries modified less recently than this path's mtime.
+    pub older: Option<String>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -220,6 +237,12 @@ pub struct FetchOptions {
     pub data: Option<String>,
     pub output: Option<String>,
     pub include_headers: bool,
+    /// Per-request timeout in seconds (0 = no timeout).
+    pub timeout_secs: u64,
+    /// Show a download progress bar when writing to a file.
+    pub progress: bool,
+    /// Disable automatic redirect following.
+    pub no_follow_redirects: bool,
 }
 
 #[derive(Default, Clone)]
@@ -592,10 +615,38 @@ pub struct ScrapeOptions {
     pub verbose: bool,
     /// Overwrite existing files in the destination (default: rename with counter).
     pub overwrite: bool,
+    /// Milliseconds to sleep between HTTP requests (default: 0 = no delay).
+    pub rate_limit_ms: u64,
 }
 
 pub fn scrape(url: &str, options: ScrapeOptions) {
     scrape::run_scrape(url, options);
+}
+
+// ---------------------------------------------------------------------------
+// Sort
+// ---------------------------------------------------------------------------
+
+#[derive(Default, Clone)]
+pub struct SortOptions {
+    /// Reverse the sort order.
+    pub reverse: bool,
+    /// Numeric sort (compare as floating-point numbers).
+    pub numeric: bool,
+    /// Output only unique lines (remove duplicates).
+    pub unique: bool,
+    /// Case-insensitive comparison.
+    pub ignore_case: bool,
+    /// Sort by the Nth whitespace-delimited field (1-indexed; 0 = whole line).
+    pub field: usize,
+    /// Field separator character (default: whitespace).
+    pub separator: Option<char>,
+    /// Check if input is already sorted; exit 0 if yes, 1 if no.
+    pub check: bool,
+}
+
+pub fn sort(paths: Vec<String>, options: SortOptions) {
+    sort::run_sort(paths, options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

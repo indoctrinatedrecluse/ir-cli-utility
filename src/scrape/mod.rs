@@ -3,6 +3,7 @@ use std::collections::{HashSet, VecDeque};
 use std::fs;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
+use std::thread;
 use std::time::Duration;
 
 // ---------------------------------------------------------------------------
@@ -199,6 +200,11 @@ pub fn run_scrape(url: &str, options: ScrapeOptions) {
             }
         };
 
+        // Rate-limit delay (after page fetch, before link processing)
+        if options.rate_limit_ms > 0 {
+            thread::sleep(Duration::from_millis(options.rate_limit_ms));
+        }
+
         // Extract all links.
         let raw_links = extract_links(&html);
         let mut links_followed = 0;
@@ -257,6 +263,10 @@ pub fn run_scrape(url: &str, options: ScrapeOptions) {
                     ) {
                         Ok(()) => {}
                         Err(e) => eprintln!("[error] download {}: {}", resolved, e),
+                    }
+                    // Rate-limit delay after each file download
+                    if options.rate_limit_ms > 0 {
+                        thread::sleep(Duration::from_millis(options.rate_limit_ms));
                     }
                     continue;
                 }
