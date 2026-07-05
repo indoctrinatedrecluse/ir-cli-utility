@@ -40,6 +40,7 @@ pub fn print_general_help() {
     println!("    df        Estimates file space usage of all mounted file systems or drives.");
     println!("    whoami    Displays the current user name and domain.");
     println!("    sockets   Lists active TCP and UDP sockets with owning process.");
+    println!("    sort      Sorts lines from text files or standard input.");
     println!("    wc        Counts lines, words, characters, and bytes.");
     println!("    ln        Creates hard links or symbolic links.");
     println!("    chmod     Changes file permissions.");
