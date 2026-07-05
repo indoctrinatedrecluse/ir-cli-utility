@@ -49,6 +49,7 @@ pub fn print_general_help() {
     println!("    dua       Launches an interactive disk usage analyzer.");
     println!("    browse    Launches an interactive terminal file browser.");
     println!("    edit      Opens a file in the inline terminal text editor.");
+    println!("    scrape    Downloads files from a URL matching given extension(s).");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -64,6 +65,7 @@ pub fn print_general_help() {
     println!("    ncdu      Alias for 'dua'");
     println!("    fm        Alias for 'browse'");
     println!("    ed        Alias for 'edit'");
+    println!("    dl        Alias for 'scrape'");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
 
