@@ -47,6 +47,7 @@ pub mod browse;
 pub mod edit;
 pub mod scrape;
 pub mod sort;
+pub mod encode;
 
 
 
@@ -268,6 +269,24 @@ pub struct Base64Options {
     pub url: bool,
     pub no_padding: bool,
     pub output: Option<String>,
+}
+
+#[derive(Default, Clone)]
+pub struct EncodeOptions {
+    pub format: String,
+    pub output: Option<String>,
+    pub no_padding: bool,
+    pub hex_upper: bool,
+    pub hex_separator: Option<String>,
+    pub url_encode_all: bool,
+}
+
+#[derive(Default, Clone)]
+pub struct DecodeOptions {
+    pub format: String,
+    pub output: Option<String>,
+    pub no_padding: bool,
+    pub hex_separator: Option<String>,
 }
 
 #[derive(Default, Clone)]
@@ -539,6 +558,14 @@ pub fn ping(host: &str, options: PingOptions) {
 
 pub fn base64(input_path: Option<&str>, options: Base64Options) {
     base64::run_base64(input_path, options);
+}
+
+pub fn encode(input_path: Option<&str>, options: EncodeOptions) {
+    encode::run_encode(input_path, options);
+}
+
+pub fn decode(input_path: Option<&str>, options: DecodeOptions) {
+    encode::run_decode(input_path, options);
 }
 
 pub fn uuid(options: UuidOptions) {

@@ -99,6 +99,12 @@ Sends ICMP Echo requests to a network host.
 .B base64 [<\fIpath\fR>] [\fIswitches\fR]
 Encodes or decodes text or files using Base64.
 .TP
+.B encode [<\fIpath\fR>] [\fIswitches\fR]
+Encodes text or files into base64, base64url, hex, url, base32, or rot13.
+.TP
+.B decode [<\fIpath\fR>] [\fIswitches\fR]
+Decodes base64, base64url, hex, url, base32, or rot13 text or files.
+.TP
 .B uuid [\fIswitches\fR]
 Generates UUIDv4 and UUIDv7 identifiers.
 .TP
@@ -818,6 +824,15 @@ Ping a network host:
 .TP
 Encode stdin to Base64:
 .B echo hello | ir base64
+.TP
+Encode string to lowercase hex:
+.B echo hello | ir encode -f hex
+.TP
+Encode binary file to unpadded Base32:
+.B ir encode -f base32 -n input.bin
+.TP
+Decode percent-encoded URL:
+.B echo hello%20world%21 | ir decode -f url
 .TP
 Decode Base64 file:
 .B ir base64 -d encoded.txt

@@ -845,6 +845,69 @@ ir base64 -u -n -o out.b64 input.bin     # URL-safe unpadded encoding to a file
 
 ---
 
+### 🔒 `encode`
+Encodes text or files into standard formats (base64, base64url, hex, url, base32, rot13).
+
+**Usage:**
+```bash
+ir encode [switches] [PATH]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH]` | Optionally read from a file. If omitted, reads from standard input. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-f, --format <fmt>` | Format to encode to: `base64`, `base64url`, `hex`, `url`, `base32`, `rot13` [Default: `base64`]. |
+| `-o, --output <file>` | Write output directly to a file instead of standard output. |
+| `-n` | Do not append padding characters (`=`) (for `base64`, `base64url`, `base32`). |
+| `--upper` | Output hex in uppercase (for `hex` format). |
+| `--separator <sep>` | Insert character/string between hex bytes (for `hex` format). |
+| `--all` | Percent-encode all characters, not just reserved/non-ascii ones (for `url` format). |
+
+**Examples:**
+```bash
+echo "hello" | ir encode -f hex                  # Encode to hex: 68656c6c6f
+ir encode -f base32 -n input.bin                 # Encode binary file to unpadded Base32
+echo "hello" | ir encode -f url --all            # Percent-encode all characters: %68%65%6C%6C%6F
+echo "hello" | ir encode -f hex --separator ":" --upper # Encode with custom separator: 68:65:6C:6C:6F
+```
+
+---
+
+### 🔓 `decode`
+Decodes encoded text or files back to their original form.
+
+**Usage:**
+```bash
+ir decode [switches] [PATH]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH]` | Optionally read from a file. If omitted, reads from standard input. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-f, --format <fmt>` | Format to decode from: `base64`, `base64url`, `hex`, `url`, `base32`, `rot13` [Default: `base64`]. |
+| `-o, --output <file>` | Write output directly to a file instead of standard output. |
+| `-n` | No padding expected (for `base64`, `base64url`, `base32`). |
+| `--separator <sep>` | Expected separator character/string between hex bytes to ignore (for `hex` format). |
+
+**Examples:**
+```bash
+echo "68656c6c6f" | ir decode -f hex            # Decode hex back to text
+ir decode -f base32 -o out.bin file.b32          # Decode Base32 file to a binary file
+echo "hello%20world%21" | ir decode -f url       # Decode percent-encoding to 'hello world!'
+```
+
+---
+
 ### 🆔 `uuid`
 Generates RFC-compliant UUIDv4 (random) and UUIDv7 (time-ordered) identifiers.
 

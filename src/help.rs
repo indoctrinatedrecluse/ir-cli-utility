@@ -28,6 +28,8 @@ pub fn print_general_help() {
     println!("    hex       Displays a hexadecimal dump of a file.");
     println!("    ping      Sends ICMP Echo requests to a network host.");
     println!("    base64    Encodes or decodes data using Base64.");
+    println!("    encode    Encodes text or files into base64, hex, url, base32, or rot13.");
+    println!("    decode    Decodes base64, hex, url, base32, or rot13 text or files.");
     println!("    uuid      Generates UUIDv4 and UUIDv7 identifiers.");
     println!("    ip        Displays local network adapter and public IP information.");
     println!("    echo      Prints text, parses escapes, and redirects to files.");
@@ -551,6 +553,47 @@ pub fn print_base64_help() {
     println!("    echo 'hello' | ir base64                 Encode text 'hello'");
     println!("    ir base64 -d encoded.txt                 Decode base64 file");
     println!("    ir base64 -u -n -o out.b64 input.bin     URL-safe unpadded encoding to a file");
+}
+
+pub fn print_encode_help() {
+    println!("ir-encode");
+    println!("\nUSAGE:");
+    println!("    ir encode [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Encodes text or files into various formats.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH]          Optionally read from a file. If omitted, reads from standard input.");
+    println!("\nSWITCHES:");
+    println!("    -f, --format <fmt>  Encoding format: base64, base64url, hex, url, base32, rot13 [Default: base64]");
+    println!("    -o, --output <file> Write output to a file instead of standard output");
+    println!("    -n              Do not append padding characters (=) (for base64, base64url, base32)");
+    println!("    --upper         Output hex in uppercase (for hex)");
+    println!("    --separator <c> Insert character/string between hex bytes (for hex)");
+    println!("    --all           Percent-encode all characters (for url format)");
+    println!("\nEXAMPLES:");
+    println!("    echo 'hello' | ir encode -f hex          Encode text to lowercase hex");
+    println!("    ir encode -f base32 -n input.bin         Base32 encode a binary file without padding");
+    println!("    echo 'hello' | ir encode -f url --all    Percent-encode all chars in 'hello'");
+    println!("    echo 'hello' | ir encode -f hex --separator ':' --upper");
+}
+
+pub fn print_decode_help() {
+    println!("ir-decode");
+    println!("\nUSAGE:");
+    println!("    ir decode [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Decodes encoded text or files into original form.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH]          Optionally read from a file. If omitted, reads from standard input.");
+    println!("\nSWITCHES:");
+    println!("    -f, --format <fmt>  Decoding format: base64, base64url, hex, url, base32, rot13 [Default: base64]");
+    println!("    -o, --output <file> Write output to a file instead of standard output");
+    println!("    -n              No padding expected (for base64, base64url, base32)");
+    println!("    --separator <c> Expected character/string between hex bytes to ignore (for hex)");
+    println!("\nEXAMPLES:");
+    println!("    echo '48656c6c6f' | ir decode -f hex     Decode hex back to 'Hello'");
+    println!("    ir decode -f base32 -o out.bin file.b32  Decode a Base32 file to a binary file");
+    println!("    echo 'hello%20world' | ir decode -f url  Decode url encoding to 'hello world'");
 }
 
 pub fn print_uuid_help() {

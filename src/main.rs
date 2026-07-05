@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions};
 use ir_cli_utility::scrape::parse_size as scrape_parse_size;
 use ir_cli_utility::find::parse_size as find_parse_size;
 
@@ -1580,6 +1580,162 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "encode" => {
+            let mut options = EncodeOptions::default();
+            options.format = "base64".to_string(); // default
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-o" || arg == "--output" {
+                    match args_iter.next() {
+                        Some(out) => options.output = Some(out.clone()),
+                        None => {
+                            eprintln!("Error: --output requires a file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-f" || arg == "--format" {
+                    match args_iter.next() {
+                        Some(f) => {
+                            let fmt = f.to_lowercase();
+                            if fmt == "base64" || fmt == "base64url" || fmt == "hex" || fmt == "base16" || fmt == "url" || fmt == "base32" || fmt == "rot13" {
+                                options.format = fmt;
+                            } else {
+                                eprintln!("Error: Invalid encode format '{}'. Supported: base64, base64url, hex, url, base32, rot13", f);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --format requires a format value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--separator" {
+                    match args_iter.next() {
+                        Some(sep) => options.hex_separator = Some(sep.clone()),
+                        None => {
+                            eprintln!("Error: --separator requires a separator character.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--upper" {
+                    options.hex_upper = true;
+                } else if arg == "--all" {
+                    options.url_encode_all = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'n' => options.no_padding = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for encode.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'encode' action accepts at most one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let input_path = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::encode(input_path, options);
+            } else {
+                help::print_encode_help();
+                std::process::exit(1);
+            }
+        }
+        "decode" => {
+            let mut options = DecodeOptions::default();
+            options.format = "base64".to_string(); // default
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-o" || arg == "--output" {
+                    match args_iter.next() {
+                        Some(out) => options.output = Some(out.clone()),
+                        None => {
+                            eprintln!("Error: --output requires a file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-f" || arg == "--format" {
+                    match args_iter.next() {
+                        Some(f) => {
+                            let fmt = f.to_lowercase();
+                            if fmt == "base64" || fmt == "base64url" || fmt == "hex" || fmt == "base16" || fmt == "url" || fmt == "base32" || fmt == "rot13" {
+                                options.format = fmt;
+                            } else {
+                                eprintln!("Error: Invalid decode format '{}'. Supported: base64, base64url, hex, url, base32, rot13", f);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --format requires a format value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--separator" {
+                    match args_iter.next() {
+                        Some(sep) => options.hex_separator = Some(sep.clone()),
+                        None => {
+                            eprintln!("Error: --separator requires a separator character.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'n' => options.no_padding = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for decode.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'decode' action accepts at most one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let input_path = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::decode(input_path, options);
+            } else {
+                help::print_decode_help();
+                std::process::exit(1);
+            }
+        }
         "uuid" => {
             let mut options = UuidOptions::default();
             options.version = 4; // default
@@ -2440,6 +2596,8 @@ fn main() {
                     "hex" => help::print_hex_help(),
                     "ping" => help::print_ping_help(),
                     "base64" => help::print_base64_help(),
+                    "encode" => help::print_encode_help(),
+                    "decode" => help::print_decode_help(),
                     "uuid" => help::print_uuid_help(),
                     "ip" => help::print_ip_help(),
                     "echo" => help::print_echo_help(),
