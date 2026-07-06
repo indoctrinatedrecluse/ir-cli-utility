@@ -56,6 +56,8 @@ pub fn print_general_help() {
     println!("    edit      Opens a file in the inline terminal text editor.");
     println!("    scrape    Downloads files from a URL matching given extension(s).");
     println!("    clock     Launches a giant digital clock, stopwatch, and countdown timer.");
+    println!("    text      Formats and case-converts strings or files.");
+    println!("    globe     Launches an interactive world map and 3D globe viewer.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -1132,3 +1134,46 @@ pub fn print_clock_help() {
     println!("    ir clock --timer 2m15s                   Open and start countdown timer");
 }
 
+pub fn print_text_help() {
+    println!("ir-text");
+    println!("\nUSAGE:");
+    println!("    ir text [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Formats and case-converts strings or files. If PATH is omitted, reads from stdin.");
+    println!("\nSWITCHES:");
+    println!("    -c, --case <format>     Case format: camel, snake, pascal, kebab, upper, lower, title, sentence, slug");
+    println!("    -w, --width <cols>      Target column width for alignment and truncation (default: 80)");
+    println!("        --align <align>     Align text: left, right, center");
+    println!("        --truncate          Truncate lines exceeding width");
+    println!("        --ellipsis <str>    Custom truncation ellipsis suffix (default: ...)");
+    println!("        --strip-ansi        Remove terminal color/ANSI escape sequences");
+    println!("        --strip-non-alphanumeric  Strip symbols, keeping only letters, numbers, and whitespace");
+    println!("    -o, --output <file>     Write formatted output to file instead of stdout");
+    println!("\nEXAMPLES:");
+    println!("    echo \"hello_world\" | ir text -c title    Prints \"Hello World\"");
+    println!("    ir text --strip-ansi logs.txt            Strip color escape codes from logs");
+    println!("    ir text --align center -w 60 data.txt    Centers lines of file within 60 characters");
+}
+
+pub fn print_globe_help() {
+    println!("ir-globe");
+    println!("\nUSAGE:");
+    println!("    ir globe [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches an interactive fullscreen 3D terminal world globe and flat map viewer.");
+    println!("    Plotted coordinates from PATH (e.g. lat,lon csv data) are rendered as blinking dots.");
+    println!("\nSWITCHES:");
+    println!("    -m, --mode <mode>       Initial view mode: 'globe' (3D) or 'map' (2D flat) [Default: globe]");
+    println!("    -c, --center <lat,lon>  Initial center coordinates (e.g. 40.7,-74.0)");
+    println!("        --day-night         Enable UTC day/night terminator shading overlay");
+    println!("\nHOTKEYS:");
+    println!("    Arrows                  Pan or rotate the globe/map view");
+    println!("    Tab / M                 Toggle between 3D Globe and 2D Flat Map views");
+    println!("    D                       Toggle day/night terminator shading");
+    println!("    + / -                   Zoom in and out on the globe projection");
+    println!("    Esc / Q                 Quit the utility");
+    println!("\nEXAMPLES:");
+    println!("    ir globe                                 Start interactive globe at 0,0 center");
+    println!("    ir globe -c 40.7,-74.0 --day-night       Start globe centered at New York with day/night shading");
+    println!("    ir globe ips.csv                         Plot geographical coordinates from CSV");
+}

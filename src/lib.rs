@@ -51,6 +51,8 @@ pub mod encode;
 pub mod json;
 pub mod plot;
 pub mod clock;
+pub mod text;
+pub mod globe;
 
 
 
@@ -719,6 +721,33 @@ pub struct ClockOptions {
 
 pub fn clock(options: ClockOptions) {
     clock::run_clock(options);
+}
+
+#[derive(Default, Clone)]
+pub struct TextOptions {
+    pub case: Option<String>,
+    pub width: Option<usize>,
+    pub align: Option<String>,
+    pub truncate: bool,
+    pub ellipsis: Option<String>,
+    pub strip_ansi: bool,
+    pub strip_non_alphanumeric: bool,
+    pub output: Option<String>,
+}
+
+pub fn text(input_path: Option<&str>, options: TextOptions) {
+    text::run_text(input_path, options);
+}
+
+#[derive(Default, Clone)]
+pub struct GlobeOptions {
+    pub mode: Option<String>,
+    pub center: Option<String>,
+    pub day_night: bool,
+}
+
+pub fn globe(input_path: Option<&str>, options: GlobeOptions) {
+    globe::run_globe(input_path, options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

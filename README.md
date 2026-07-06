@@ -1143,6 +1143,66 @@ ir clock --timer 5m30s                   # Open and start countdown timer
 
 ---
 
+### 📝 `text`
+Formats and case-converts strings or files. If no file path is specified, reads from standard input.
+
+**Usage:**
+```bash
+ir text [switches] [PATH]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-c, --case <format>` | Case format: `camel`, `snake`, `pascal`, `kebab`, `upper`, `lower`, `title`, `sentence`, `slug`. |
+| `-w, --width <cols>` | Target column width for alignment and truncation (Default: `80`). |
+| `--align <align>` | Align text: `left`, `right`, or `center`. |
+| `--truncate` | Truncate lines exceeding `--width`. |
+| `--ellipsis <str>` | Custom truncation ellipsis suffix (Default: `...`). |
+| `--strip-ansi` | Remove terminal color/ANSI escape sequences. |
+| `--strip-non-alphanumeric` | Strip symbols, keeping only letters, numbers, and whitespace. |
+| `-o, --output <file>` | Write formatted output to a file instead of standard output. |
+
+**Examples:**
+```bash
+echo "hello_world" | ir text -c title    # Prints "Hello World"
+ir text --strip-ansi logs.txt            # Strip color escape codes from logs
+ir text --align center -w 60 data.txt    # Center lines of a file within 60 characters
+```
+
+---
+
+### 🌍 `globe`
+Launches an interactive fullscreen 3D terminal world globe and flat map viewer.
+
+**Usage:**
+```bash
+ir globe [switches] [PATH]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-m, --mode <mode>` | Initial view mode: `globe` (3D spherical) or `map` (2D flat) [Default: `globe`]. |
+| `-c, --center <lat,lon>` | Initial center coordinates (e.g. `40.7,-74.0`). |
+| `--day-night` | Enable UTC day/night terminator shading overlay. |
+
+**Hotkeys:**
+* `Arrows` — Pan or rotate the globe/map view.
+* `Tab` / `M` — Toggle between 3D Globe and 2D Flat Map views.
+* `D` — Toggle day/night terminator shading.
+* `+` / `-` — Zoom in and out on the globe projection.
+* `Esc` / `Q` — Quit the interactive screen.
+
+**Examples:**
+```bash
+ir globe                                 # Start interactive globe at 0,0 center
+ir globe -c 40.7,-74.0 --day-night       # Start globe centered at New York with day/night shading
+ir globe ips.csv                         # Plot coordinates from CSV as blinking dots
+```
+
+---
+
 ### 💤 `sleep`
 Suspends execution for a specified duration. Supports suffixes: `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours). If no suffix is provided, defaults to seconds.
 

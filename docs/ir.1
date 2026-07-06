@@ -129,6 +129,12 @@ Evaluates a mathematical expression and prints the result, or launches an intera
 .B clock [\fIswitches\fR]
 Launches a fullscreen visual digital clock, stopwatch, and countdown timer.
 .TP
+.B text [\fIswitches\fR] [\fIpath\fR]
+Formats and case-converts strings or files. If path is omitted, reads from standard input.
+.TP
+.B globe [\fIswitches\fR] [\fIpath\fR]
+Launches an interactive fullscreen 3D terminal world globe and flat map viewer.
+.TP
 .B sleep <\fIseconds/duration\fR>
 Suspends execution for a specified duration (e.g. 5, 2.5s, 500ms, 1m).
 .TP
@@ -802,6 +808,45 @@ Initial countdown timer duration (e.g. 5m30s, 10m, 300).
 \fB-m, --mode\fR <MODE>
 Initial mode: \fBclock\fR, \fBstopwatch\fR, or \fBtimer\fR [Default: \fBclock\fR].
 
+.SS text
+Formats and case-converts strings or files.
+.TP
+\fB-c, --case\fR <FORMAT>
+Case format: \fBcamel\fR, \fBsnake\fR, \fBpascal\fR, \fBkebab\fR, \fBupper\fR, \fBlower\fR, \fBtitle\fR, \fBsentence\fR, \fBslug\fR.
+.TP
+\fB-w, --width\fR <COLS>
+Target column width for alignment and truncation (Default: 80).
+.TP
+\fB--align\fR <ALIGN>
+Align text: \fBleft\fR, \fBright\fR, or \fBcenter\fR.
+.TP
+\fB--truncate\fR
+Truncate lines exceeding width.
+.TP
+\fB--ellipsis\fR <STR>
+Custom truncation ellipsis suffix (Default: ...).
+.TP
+\fB--strip-ansi\fR
+Remove terminal color/ANSI escape sequences.
+.TP
+\fB--strip-non-alphanumeric\fR
+Strip symbols, keeping only letters, numbers, and whitespace.
+.TP
+\fB-o, --output\fR <FILE>
+Write formatted output to file instead of standard output.
+
+.SS globe
+Launches an interactive fullscreen 3D terminal world globe and flat map viewer.
+.TP
+\fB-m, --mode\fR <MODE>
+Initial view mode: \fBglobe\fR or \fBmap\fR [Default: globe].
+.TP
+\fB-c, --center\fR <LAT,LON>
+Initial center coordinates (e.g. 40.7,-74.0).
+.TP
+\fB--day-night\fR
+Enable UTC day/night terminator shading overlay.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -1007,6 +1052,18 @@ Open fullscreen clock:
 .TP
 Open countdown timer:
 .B ir clock --timer 5m30s
+.TP
+Convert case to title format:
+.B echo "hello_world" | ir text -c title
+.TP
+Center lines of text file within 60 columns:
+.B ir text --align center -w 60 data.txt
+.TP
+Open interactive globe:
+.B ir globe
+.TP
+Open globe centered at coordinates:
+.B ir globe -c 40.7,-74.0 --day-night
 .TP
 Sleep for 2.5 seconds:
 .B ir sleep 2.5s

@@ -1926,6 +1926,174 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "text" => {
+            let mut options = ir_cli_utility::TextOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-c" || arg == "--case" {
+                    match args_iter.next() {
+                        Some(c) => {
+                            let c_lower = c.to_lowercase();
+                            if ["camel", "snake", "pascal", "kebab", "upper", "lower", "title", "sentence", "slug"].contains(&c_lower.as_str()) {
+                                options.case = Some(c_lower);
+                            } else {
+                                eprintln!("Error: Invalid case format '{}'. Supported: camel, snake, pascal, kebab, upper, lower, title, sentence, slug", c);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --case requires a case format value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-w" || arg == "--width" {
+                    match args_iter.next().and_then(|w| w.parse::<usize>().ok()) {
+                        Some(w) if w > 0 => options.width = Some(w),
+                        _ => {
+                            eprintln!("Error: --width requires a valid positive integer.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--align" {
+                    match args_iter.next() {
+                        Some(a) => {
+                            let a_lower = a.to_lowercase();
+                            if a_lower == "left" || a_lower == "right" || a_lower == "center" {
+                                options.align = Some(a_lower);
+                            } else {
+                                eprintln!("Error: Invalid align option '{}'. Supported: left, right, center", a);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --align requires an alignment value (left, right, center).");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--truncate" {
+                    options.truncate = true;
+                } else if arg == "--ellipsis" {
+                    match args_iter.next() {
+                        Some(e) => options.ellipsis = Some(e.clone()),
+                        None => {
+                            eprintln!("Error: --ellipsis requires a string value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--strip-ansi" {
+                    options.strip_ansi = true;
+                } else if arg == "--strip-non-alphanumeric" {
+                    options.strip_non_alphanumeric = true;
+                } else if arg == "-o" || arg == "--output" {
+                    match args_iter.next() {
+                        Some(out) => options.output = Some(out.clone()),
+                        None => {
+                            eprintln!("Error: --output requires a file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for text.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'text' action accepts at most one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let input_path = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::text(input_path, options);
+            } else {
+                help::print_text_help();
+                std::process::exit(1);
+            }
+        }
+        "globe" => {
+            let mut options = ir_cli_utility::GlobeOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-m" || arg == "--mode" {
+                    match args_iter.next() {
+                        Some(m) => {
+                            let m_lower = m.to_lowercase();
+                            if m_lower == "globe" || m_lower == "map" {
+                                options.mode = Some(m_lower);
+                            } else {
+                                eprintln!("Error: Invalid mode '{}'. Supported: globe, map", m);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --mode requires a projection mode value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-c" || arg == "--center" {
+                    match args_iter.next() {
+                        Some(c) => {
+                            if c.contains(',') {
+                                options.center = Some(c.clone());
+                            } else {
+                                eprintln!("Error: --center must be formatted as 'lat,lon' (e.g. 40.7,-74.0).");
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --center requires a coordinate value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--day-night" {
+                    options.day_night = true;
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for globe.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'globe' action accepts at most one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let input_path = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::globe(input_path, options);
+            } else {
+                help::print_globe_help();
+                std::process::exit(1);
+            }
+        }
         "uuid" => {
             let mut options = UuidOptions::default();
             options.version = 4; // default
@@ -2828,6 +2996,8 @@ fn main() {
                     "scrape" | "dl" => help::print_scrape_help(),
                     "sort" => help::print_sort_help(),
                     "clock" => help::print_clock_help(),
+                    "text" => help::print_text_help(),
+                    "globe" => help::print_globe_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
