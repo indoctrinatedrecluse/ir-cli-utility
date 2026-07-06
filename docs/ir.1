@@ -123,8 +123,11 @@ Prints text and supports backslash escapes and file/clipboard ("clip") redirecti
 .B clip [\fIswitches\fR]
 Copies standard input to clipboard or prints clipboard contents.
 .TP
-.B math <\fIexpression\fR>
-Evaluates a mathematical expression and prints the result.
+.B math [<\fIexpression\fR>]
+Evaluates a mathematical expression and prints the result, or launches an interactive REPL calculator.
+.TP
+.B clock [\fIswitches\fR]
+Launches a fullscreen visual digital clock, stopwatch, and countdown timer.
 .TP
 .B sleep <\fIseconds/duration\fR>
 Suspends execution for a specified duration (e.g. 5, 2.5s, 500ms, 1m).
@@ -790,6 +793,15 @@ JSON query path (e.g. .info.value) to extract numbers from an array of JSON obje
 \fB-H, --horizontal\fR
 Render bar chart horizontally from left to right.
 
+.SS clock
+Launches a fullscreen visual digital clock, stopwatch, and countdown timer.
+.TP
+\fB-t, --timer\fR <DURATION>
+Initial countdown timer duration (e.g. 5m30s, 10m, 300).
+.TP
+\fB-m, --mode\fR <MODE>
+Initial mode: \fBclock\fR, \fBstopwatch\fR, or \fBtimer\fR [Default: \fBclock\fR].
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -985,7 +997,16 @@ Clear system clipboard:
 .B ir clip -c
 .TP
 Evaluate math expression:
-.B ir math "2 * (3.5 + 4)"
+.B ir math "sqrt(144) + sin(pi/2)"
+.TP
+Open interactive calculator REPL:
+.B ir math
+.TP
+Open fullscreen clock:
+.B ir clock
+.TP
+Open countdown timer:
+.B ir clock --timer 5m30s
 .TP
 Sleep for 2.5 seconds:
 .B ir sleep 2.5s

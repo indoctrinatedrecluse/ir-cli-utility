@@ -3,9 +3,7 @@
 # --- Setup ---
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = Resolve-Path (Join-Path $ScriptDir "..\..")
-Set-Location $RepoRoot
-cargo build --quiet
-$Executable = ".\target\debug\ir.exe"
+$Executable = Join-Path $RepoRoot "target\debug\ir.exe"
 
 # --- Test 1: Basic addition and multiplication (PEMDAS) ---
 Write-Host "Testing basic math evaluation..."
@@ -64,6 +62,26 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "PASS: Syntax error failed correctly."
 } else {
     Write-Host "FAIL: Syntax error did not return error code."
+    exit 1
+}
+
+# --- Test 7: Math functions and constants ---
+Write-Host "Testing math functions and constants..."
+$FuncOut = & $Executable math "sqrt(144) + sin(pi / 2)" | Out-String
+if ($FuncOut.Trim() -eq "13") {
+    Write-Host "PASS: Evaluated functions and constants correctly."
+} else {
+    Write-Host "FAIL: Function evaluation mismatch: '$($FuncOut.Trim())'"
+    exit 1
+}
+
+# --- Test 8: Variable assignment evaluation ---
+Write-Host "Testing variable assignment evaluation..."
+$AssignOut = & $Executable math "x = 4.5 * 2" | Out-String
+if ($AssignOut.Trim() -eq "9") {
+    Write-Host "PASS: Evaluated assignment statement correctly."
+} else {
+    Write-Host "FAIL: Assignment evaluation mismatch: '$($AssignOut.Trim())'"
     exit 1
 }
 

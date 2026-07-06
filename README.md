@@ -1085,23 +1085,60 @@ ir clip -c                               # Clear the clipboard
 ---
 
 ### 🧮 `math`
-Evaluates a mathematical expression and prints the float or integer result.
+Evaluates a mathematical expression and prints the result, or launches an interactive REPL calculator.
 
 **Usage:**
 ```bash
-ir math <EXPRESSION>
+ir math [EXPRESSION]
 ```
 
 **Arguments:**
 | Argument | Description |
 | :--- | :--- |
-| `<EXPRESSION>` | The mathematical expression string to evaluate (e.g. `'2 * (3 + 4)'`). |
+| `[EXPRESSION]` | Optional mathematical expression string to evaluate (e.g. `'sqrt(144) + sin(pi/2)'`). If omitted, starts interactive REPL. |
+
+**REPL Commands:**
+* `vars`: Lists all custom defined variables.
+* `clear`: Clears all custom variables.
+* `exit` / `quit`: Exits the interactive shell.
 
 **Examples:**
 ```bash
 ir math "2 * (3.5 + 4)"                  # Evaluate basic math (prints 15)
-ir math "10 % 3"                         # Modulo operator (prints 1)
-ir math "2^3^2"                          # Right-associative power (prints 512)
+ir math "sqrt(144) + sin(pi/2)"          # Evaluate functions (prints 13)
+ir math "x = 4.5 * 2"                    # Define variable 'x' (prints 9)
+ir math                                  # Launches the interactive REPL calculator
+```
+
+---
+
+### ⏰ `clock`
+Launches a fullscreen visual digital clock, stopwatch, and countdown timer.
+
+**Usage:**
+```bash
+ir clock [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-t, --timer <duration>` | Set initial countdown timer duration (e.g. `5m30s`, `10m`, `300`). Auto-starts in Timer mode. |
+| `-m, --mode <mode>` | Initial mode: `clock`, `stopwatch`, or `timer` [Default: `clock`]. |
+
+**Hotkeys:**
+* `Tab` / `C` — Cycle modes (Clock → Stopwatch → Timer).
+* `Space` — Toggle play/pause (Stopwatch / Timer).
+* `Enter` / `L` — Record lap split time (Stopwatch).
+* `R` — Reset stopwatch/timer.
+* `1`, `2`, `3` — Direct mode navigation.
+* `Esc` / `Q` — Quit.
+
+**Examples:**
+```bash
+ir clock                                 # Open clock in default Clock mode
+ir clock -m stopwatch                    # Open stopwatch directly
+ir clock --timer 5m30s                   # Open and start countdown timer
 ```
 
 ---

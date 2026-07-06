@@ -55,6 +55,7 @@ pub fn print_general_help() {
     println!("    browse    Launches an interactive terminal file browser.");
     println!("    edit      Opens a file in the inline terminal text editor.");
     println!("    scrape    Downloads files from a URL matching given extension(s).");
+    println!("    clock     Launches a giant digital clock, stopwatch, and countdown timer.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -673,17 +674,23 @@ pub fn print_clip_help() {
 pub fn print_math_help() {
     println!("ir-math");
     println!("\nUSAGE:");
-    println!("    ir math <EXPRESSION>");
+    println!("    ir math [EXPRESSION]");
     println!("\nDESCRIPTION:");
     println!("    Evaluates a mathematical expression and prints the result.");
-    println!("    Supports operators: +, -, *, /, % (modulo), ^ (power).");
-    println!("    Supports parentheses () and negative numbers.");
+    println!("    If EXPRESSION is omitted, starts an interactive REPL session.");
+    println!("    Supports operators: +, -, *, /, % (modulo), ^ (power), = (assignment).");
+    println!("    Supports functions: sin(), cos(), tan(), log(), ln(), sqrt(), abs(), round().");
+    println!("    Supports constants: pi, e.");
     println!("\nARGUMENTS:");
-    println!("    <EXPRESSION>  The mathematical expression to evaluate (should be quoted)");
+    println!("    [EXPRESSION]  Optional mathematical expression to evaluate (should be quoted).");
+    println!("\nREPL COMMANDS:");
+    println!("    vars          Lists all custom defined variables.");
+    println!("    clear         Clears all custom variables.");
+    println!("    exit / quit   Exits the interactive calculator.");
     println!("\nEXAMPLES:");
     println!("    ir math '2 * (3.5 + 4)'                  Evaluate and print 15");
-    println!("    ir math '10 % 3'                         Evaluate modulo (prints 1)");
-    println!("    ir math '2^3^2'                          Right-associative power (prints 512)");
+    println!("    ir math 'sqrt(144) + sin(pi/2)'          Evaluate functions (prints 13)");
+    println!("    ir math                                  Open interactive REPL calculator");
 }
 
 pub fn print_sleep_help() {
@@ -1099,5 +1106,29 @@ pub fn print_plot_help() {
     println!("    ir plot --smooth data.txt                       Line chart using smooth Braille graphics");
     println!("    ir plot --source json --json-key .val list.json Plot values extracted from objects in JSON list");
     println!("    ir plot -H data.txt                             Render bar chart horizontally");
+}
+
+pub fn print_clock_help() {
+    println!("ir-clock");
+    println!("\nUSAGE:");
+    println!("    ir clock [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches a fullscreen visual digital clock, stopwatch, and countdown timer dashboard.");
+    println!("    Automatically scales and centers layout according to terminal size.");
+    println!("\nSWITCHES:");
+    println!("    -t, --timer <duration>  Initial countdown timer duration (e.g. 5m30s, 10m, 300).");
+    println!("                            Specifying duration auto-starts in Timer mode.");
+    println!("    -m, --mode <mode>       Initial mode: 'clock', 'stopwatch', or 'timer' [Default: 'clock'].");
+    println!("\nHOTKEYS:");
+    println!("    Tab / C                 Cycle modes (Clock -> Stopwatch -> Timer)");
+    println!("    Space                   Toggle play/pause (Stopwatch / Timer)");
+    println!("    Enter / L               Record lap split time (Stopwatch)");
+    println!("    R                       Reset stopwatch/timer");
+    println!("    1, 2, 3                 Direct mode navigation (1: Clock, 2: Stopwatch, 3: Timer)");
+    println!("    Esc / Q                 Quit the utility");
+    println!("\nEXAMPLES:");
+    println!("    ir clock                                 Open clock in default mode");
+    println!("    ir clock -m stopwatch                    Open stopwatch directly");
+    println!("    ir clock --timer 2m15s                   Open and start countdown timer");
 }
 

@@ -2128,14 +2128,15 @@ fn main() {
             }
 
             if valid {
-                if positionals.len() != 1 {
-                    eprintln!("Error: 'math' action requires exactly one mathematical expression string argument.");
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'math' action accepts at most one mathematical expression string argument.");
                     valid = false;
                 }
             }
 
             if valid {
-                ir_cli_utility::math(&positionals[0]);
+                let expr_opt = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::math(expr_opt);
             } else {
                 help::print_math_help();
                 std::process::exit(1);
@@ -2826,6 +2827,7 @@ fn main() {
                     "ed"   => help::print_edit_help(),
                     "scrape" | "dl" => help::print_scrape_help(),
                     "sort" => help::print_sort_help(),
+                    "clock" => help::print_clock_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
@@ -3081,6 +3083,57 @@ fn main() {
                 ir_cli_utility::sort(positionals, options);
             } else {
                 help::print_sort_help();
+                std::process::exit(1);
+            }
+        }
+        "clock" => {
+            let mut options = ir_cli_utility::ClockOptions::default();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-t" || arg == "--timer" {
+                    match args_iter.next() {
+                        Some(t) => options.timer_duration = Some(t.clone()),
+                        None => {
+                            eprintln!("Error: --timer requires a duration string (e.g. 5m30s).");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-m" || arg == "--mode" {
+                    match args_iter.next() {
+                        Some(m) => {
+                            let m_lower = m.to_lowercase();
+                            if m_lower == "clock" || m_lower == "stopwatch" || m_lower == "timer" {
+                                options.mode = Some(m_lower);
+                            } else {
+                                eprintln!("Error: Invalid mode '{}'. Supported: clock, stopwatch, timer", m);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --mode requires a mode value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for clock.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    eprintln!("Error: 'clock' action does not accept positional arguments.");
+                    valid = false;
+                    break;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::clock(options);
+            } else {
+                help::print_clock_help();
                 std::process::exit(1);
             }
         }

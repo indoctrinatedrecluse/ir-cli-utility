@@ -50,6 +50,7 @@ pub mod sort;
 pub mod encode;
 pub mod json;
 pub mod plot;
+pub mod clock;
 
 
 
@@ -610,7 +611,7 @@ pub fn clip(options: ClipOptions) {
     clip::run_clip(options);
 }
 
-pub fn math(expr: &str) {
+pub fn math(expr: Option<&str>) {
     math::evaluate(expr);
 }
 
@@ -708,6 +709,16 @@ pub fn json(input_path: Option<&str>, options: JsonOptions) {
 
 pub fn plot(input_path: Option<&str>, options: PlotOptions) {
     plot::run_plot(input_path, options);
+}
+
+#[derive(Default, Clone)]
+pub struct ClockOptions {
+    pub timer_duration: Option<String>,
+    pub mode: Option<String>,
+}
+
+pub fn clock(options: ClockOptions) {
+    clock::run_clock(options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {
