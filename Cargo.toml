@@ -25,6 +25,8 @@ sha2 = "0.10"
 ureq = "2.9"
 base64 = "0.22"
 getrandom = "0.2"
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.52.0", features = [

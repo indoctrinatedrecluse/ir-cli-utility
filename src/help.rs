@@ -30,6 +30,8 @@ pub fn print_general_help() {
     println!("    base64    Encodes or decodes data using Base64.");
     println!("    encode    Encodes text or files into base64, hex, url, base32, or rot13.");
     println!("    decode    Decodes base64, hex, url, base32, or rot13 text or files.");
+    println!("    json      Pretty-prints, minifies, validates, or queries JSON data.");
+    println!("    plot      Plots numerical data in the terminal using ASCII graphics.");
     println!("    uuid      Generates UUIDv4 and UUIDv7 identifiers.");
     println!("    ip        Displays local network adapter and public IP information.");
     println!("    echo      Prints text, parses escapes, and redirects to files.");
@@ -1045,5 +1047,50 @@ pub fn print_sort_help() {
     println!("    ir sort -n -r scores.txt                   Sort numbers in descending order");
     println!("    ir sort -u users.log                       Sort lines and remove duplicate entries");
     println!("    ir sort --field 2 --separator ',' data.csv  Sort CSV file by the second field");
+}
+
+pub fn print_json_help() {
+    println!("ir-json");
+    println!("\nUSAGE:");
+    println!("    ir json [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Pretty-prints, minifies, validates, or queries JSON data from PATH or stdin.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH]                  Optional path to JSON file. If omitted, reads from standard input.");
+    println!("\nSWITCHES:");
+    println!("    -q, --query <selector>  Evaluate selector path query (e.g. '.dependencies.chrono' or '.users[0].name').");
+    println!("    -m                      Minify JSON (one line, compact spacing).");
+    println!("    -p                      Pretty-print JSON (default behavior).");
+    println!("    --indent <spaces>       Number of indentation spaces (default: 4).");
+    println!("    -o, --output <file>     Write output directly to a file instead of standard output.");
+    println!("\nEXAMPLES:");
+    println!("    ir json package.json                            Format and pretty-print JSON file");
+    println!("    echo '{{\"a\":1}}' | ir json -m                     Minify JSON string: {{\"a\":1}}");
+    println!("    ir json package.json -q .dependencies           Query dependencies object");
+    println!("    ir json data.json -q '.users[0].name'           Query nested field in array");
+    println!("    ir json input.json --indent 2 -o formatted.json Format and save with 2-space indents");
+}
+
+pub fn print_plot_help() {
+    println!("ir-plot");
+    println!("\nUSAGE:");
+    println!("    ir plot [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Plots numerical data in the terminal using ASCII graphics.");
+    println!("\nARGUMENTS:");
+    println!("    [PATH]                  Optional path to numeric data file. If omitted, reads from standard input.");
+    println!("\nSWITCHES:");
+    println!("    -t, --type <type>       Chart type: 'line', 'bar', 'scatter' (default: 'line').");
+    println!("        --title <text>      Add a title text to the top of the plot.");
+    println!("    -w, --width <cols>      Plot width in terminal characters (default: 60).");
+    println!("    -g, --height <lines>    Plot height in terminal lines (default: 15).");
+    println!("        --source <format>   Source format: 'txt', 'csv', 'json' (default: 'txt').");
+    println!("        --csv-col <index>   0-based column index to plot (default: 0, for csv format).");
+    println!("        --csv-headers       Skip the first row in CSV format (header row).");
+    println!("\nEXAMPLES:");
+    println!("    echo \"1 5 3 8 4 10\" | ir plot                   Line chart from standard input");
+    println!("    ir plot --type bar --title \"Monthly Sales\" data  Bar chart from file data");
+    println!("    ir plot --source csv --csv-col 1 data.csv       Plot the second column from a CSV file");
+    println!("    ir plot --source json list.json                 Plot a flat JSON array of numbers");
 }
 

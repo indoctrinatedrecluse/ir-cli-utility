@@ -48,6 +48,8 @@ pub mod edit;
 pub mod scrape;
 pub mod sort;
 pub mod encode;
+pub mod json;
+pub mod plot;
 
 
 
@@ -287,6 +289,26 @@ pub struct DecodeOptions {
     pub output: Option<String>,
     pub no_padding: bool,
     pub hex_separator: Option<String>,
+}
+
+#[derive(Default, Clone)]
+pub struct JsonOptions {
+    pub query: Option<String>,
+    pub minify: bool,
+    pub pretty: bool,
+    pub indent: usize,
+    pub output: Option<String>,
+}
+
+#[derive(Default, Clone)]
+pub struct PlotOptions {
+    pub chart_type: String,
+    pub title: Option<String>,
+    pub width: Option<usize>,
+    pub height: Option<usize>,
+    pub csv_col: Option<usize>,
+    pub csv_headers: bool,
+    pub source_format: String,
 }
 
 #[derive(Default, Clone)]
@@ -674,6 +696,14 @@ pub struct SortOptions {
 
 pub fn sort(paths: Vec<String>, options: SortOptions) {
     sort::run_sort(paths, options);
+}
+
+pub fn json(input_path: Option<&str>, options: JsonOptions) {
+    json::run_json(input_path, options);
+}
+
+pub fn plot(input_path: Option<&str>, options: PlotOptions) {
+    plot::run_plot(input_path, options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

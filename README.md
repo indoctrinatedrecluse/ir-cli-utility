@@ -908,6 +908,73 @@ echo "hello%20world%21" | ir decode -f url       # Decode percent-encoding to 'h
 
 ---
 
+### 🗃️ `json`
+Pretty-prints, minifies, validates, or queries JSON data.
+
+**Usage:**
+```bash
+ir json [switches] [PATH]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH]` | Optionally read from a file. If omitted, reads from standard input. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-q, --query <selector>` | Evaluate selector path query (e.g. `.dependencies.chrono` or `.users[0].name`). |
+| `-m` | Minify JSON into a single line with compact spacing. |
+| `-p` | Pretty-print JSON (default behavior). |
+| `--indent <spaces>` | Number of indentation spaces (default: 4). |
+| `-o, --output <file>` | Write output directly to a file instead of standard output. |
+
+**Examples:**
+```bash
+ir json package.json                            # Format and pretty-print JSON file
+echo '{"a":1}' | ir json -m                     # Minify JSON string: {"a":1}
+ir json package.json -q .dependencies           # Query dependencies object
+ir json data.json -q '.users[0].name'           # Query nested field in array
+ir json input.json --indent 2 -o formatted.json # Format and save with 2-space indents
+```
+
+---
+
+### 📊 `plot`
+Plots numerical data in the terminal using ASCII/Unicode block graphics.
+
+**Usage:**
+```bash
+ir plot [switches] [PATH]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH]` | Optionally read from a file. If omitted, reads from standard input. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-t, --type <type>` | Chart type: `line`, `bar`, `scatter` [Default: `line`]. |
+| `--title <text>` | Add a title to the top of the plot. |
+| `-w, --width <cols>` | Plot width in terminal characters (default: 60). |
+| `-g, --height <lines>` | Plot height in terminal lines (default: 15). |
+| `--source <format>` | Source format: `txt`, `csv`, `json` [Default: `txt`]. |
+| `--csv-col <index>` | 0-based column index to plot (default: 0, for CSV format). |
+| `--csv-headers` | Skip the first row in CSV format (header row). |
+
+**Examples:**
+```bash
+echo "1 5 3 8 4 10" | ir plot                   # Line chart from standard input
+ir plot --type bar --title "Monthly Sales" data  # Bar chart from file data
+ir plot --source csv --csv-col 1 data.csv       # Plot second column from CSV
+ir plot --source json list.json                 # Plot a flat JSON array of numbers
+```
+
+---
+
 ### 🆔 `uuid`
 Generates RFC-compliant UUIDv4 (random) and UUIDv7 (time-ordered) identifiers.
 

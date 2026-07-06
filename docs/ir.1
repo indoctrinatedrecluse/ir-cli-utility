@@ -105,6 +105,12 @@ Encodes text or files into base64, base64url, hex, url, base32, or rot13.
 .B decode [<\fIpath\fR>] [\fIswitches\fR]
 Decodes base64, base64url, hex, url, base32, or rot13 text or files.
 .TP
+.B json [<\fIpath\fR>] [\fIswitches\fR]
+Pretty-prints, minifies, validates, or queries JSON data.
+.TP
+.B plot [<\fIpath\fR>] [\fIswitches\fR]
+Plots numerical data in the terminal using ASCII/Unicode block graphics.
+.TP
 .B uuid [\fIswitches\fR]
 Generates UUIDv4 and UUIDv7 identifiers.
 .TP
@@ -836,6 +842,18 @@ Decode percent-encoded URL:
 .TP
 Decode Base64 file:
 .B ir base64 -d encoded.txt
+.TP
+Pretty-print and format JSON file:
+.B ir json package.json
+.TP
+Query key in JSON file:
+.B ir json package.json -q .dependencies
+.TP
+Plot numbers from standard input:
+.B echo "1 5 3 8 4 10" | ir plot
+.TP
+Plot second column from a CSV file:
+.B ir plot --source csv --csv-col 1 data.csv
 .TP
 Generate time-ordered UUIDv7:
 .B ir uuid -v 7

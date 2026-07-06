@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions};
 use ir_cli_utility::scrape::parse_size as scrape_parse_size;
 use ir_cli_utility::find::parse_size as find_parse_size;
 
@@ -1736,6 +1736,181 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "json" => {
+            let mut options = JsonOptions::default();
+            options.indent = 4; // default
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-q" || arg == "--query" {
+                    match args_iter.next() {
+                        Some(q) => options.query = Some(q.clone()),
+                        None => {
+                            eprintln!("Error: --query requires a selector path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-o" || arg == "--output" {
+                    match args_iter.next() {
+                        Some(out) => options.output = Some(out.clone()),
+                        None => {
+                            eprintln!("Error: --output requires a file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--indent" {
+                    match args_iter.next().and_then(|i| i.parse::<usize>().ok()) {
+                        Some(ind) => options.indent = ind,
+                        None => {
+                            eprintln!("Error: --indent requires a valid positive integer.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'm' => options.minify = true,
+                            'p' => options.pretty = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for json.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'json' action accepts at most one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let input_path = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::json(input_path, options);
+            } else {
+                help::print_json_help();
+                std::process::exit(1);
+            }
+        }
+        "plot" => {
+            let mut options = PlotOptions::default();
+            options.chart_type = "line".to_string(); // default
+            options.source_format = "txt".to_string(); // default
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-t" || arg == "--type" {
+                    match args_iter.next() {
+                        Some(t) => {
+                            let t_lower = t.to_lowercase();
+                            if t_lower == "line" || t_lower == "bar" || t_lower == "scatter" {
+                                options.chart_type = t_lower;
+                            } else {
+                                eprintln!("Error: Invalid chart type '{}'. Supported: line, bar, scatter", t);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --type requires a chart type value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--title" {
+                    match args_iter.next() {
+                        Some(title) => options.title = Some(title.clone()),
+                        None => {
+                            eprintln!("Error: --title requires a text title.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-w" || arg == "--width" {
+                    match args_iter.next().and_then(|w| w.parse::<usize>().ok()) {
+                        Some(w) => options.width = Some(w),
+                        None => {
+                            eprintln!("Error: --width requires a valid positive integer.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-g" || arg == "--height" {
+                    match args_iter.next().and_then(|h| h.parse::<usize>().ok()) {
+                        Some(h) => options.height = Some(h),
+                        None => {
+                            eprintln!("Error: --height requires a valid positive integer.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--csv-col" {
+                    match args_iter.next().and_then(|c| c.parse::<usize>().ok()) {
+                        Some(c) => options.csv_col = Some(c),
+                        None => {
+                            eprintln!("Error: --csv-col requires a valid 0-indexed column integer.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "--csv-headers" {
+                    options.csv_headers = true;
+                } else if arg == "--source" {
+                    match args_iter.next() {
+                        Some(s) => {
+                            let s_lower = s.to_lowercase();
+                            if s_lower == "txt" || s_lower == "csv" || s_lower == "json" {
+                                options.source_format = s_lower;
+                            } else {
+                                eprintln!("Error: Invalid source format '{}'. Supported: txt, csv, json", s);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --source requires a format value (txt, csv, json).");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for plot.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'plot' action accepts at most one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let input_path = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::plot(input_path, options);
+            } else {
+                help::print_plot_help();
+                std::process::exit(1);
+            }
+        }
         "uuid" => {
             let mut options = UuidOptions::default();
             options.version = 4; // default
@@ -2598,6 +2773,8 @@ fn main() {
                     "base64" => help::print_base64_help(),
                     "encode" => help::print_encode_help(),
                     "decode" => help::print_decode_help(),
+                    "json" => help::print_json_help(),
+                    "plot" => help::print_plot_help(),
                     "uuid" => help::print_uuid_help(),
                     "ip" => help::print_ip_help(),
                     "echo" => help::print_echo_help(),
