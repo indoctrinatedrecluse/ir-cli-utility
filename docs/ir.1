@@ -700,6 +700,96 @@ per-file errors are printed and skipped (crawl continues);
 files that would exceed \fB--max-size\fR are skipped, not truncated;
 robots.txt is fetched from the start domain (unreachable = unrestricted).
 
+.SS encode
+Encodes text or files into various formats.
+.TP
+\fB-f, --format\fR <FORMAT>
+Format to encode into: \fBbase64\fR, \fBbase64url\fR, \fBhex\fR, \fBurl\fR, \fBbase32\fR, \fBrot13\fR [Default: \fBbase64\fR].
+.TP
+\fB-o, --output\fR <FILE>
+Write output directly to a file instead of stdout.
+.TP
+\fB-n\fR
+No padding (for base64, base64url, base32).
+.TP
+\fB--upper\fR
+Output uppercase hex letters (for hex).
+.TP
+\fB--separator\fR <SEP>
+Separator character/string to insert between hex bytes.
+.TP
+\fB--all\fR
+Percent-encode all characters, not just non-alphanumeric ones (for url).
+
+.SS decode
+Decodes base64, base64url, hex, url, base32, or rot13 text or files.
+.TP
+\fB-f, --format\fR <FORMAT>
+Format to decode from: \fBbase64\fR, \fBbase64url\fR, \fBhex\fR, \fBurl\fR, \fBbase32\fR, \fBrot13\fR [Default: \fBbase64\fR].
+.TP
+\fB-o, --output\fR <FILE>
+Write output directly to a file instead of stdout.
+.TP
+\fB-n\fR
+No padding expected.
+.TP
+\fB--separator\fR <SEP>
+Separator character/string to strip out before decoding hex.
+
+.SS json
+Formats, minifies, validates, or queries JSON data.
+.TP
+\fB-q, --query\fR <SELECTOR>
+Query path selector (e.g. .dependencies.chrono or .users[0].name).
+.TP
+\fB-m\fR
+Minify JSON into a single line with compact spacing.
+.TP
+\fB-p\fR
+Pretty-print JSON (default behavior).
+.TP
+\fB--indent\fR <SPACES>
+Number of indentation spaces (default: 4).
+.TP
+\fB-o, --output\fR <FILE>
+Write output directly to a file instead of stdout.
+
+.SS plot
+Plots numerical data in the terminal using ASCII/Unicode block graphics.
+.TP
+\fB-t, --type\fR <TYPE>
+Chart type: \fBline\fR, \fBbar\fR, \fBscatter\fR [Default: \fBline\fR].
+.TP
+\fB--title\fR <TEXT>
+Add a title to the top of the plot.
+.TP
+\fB-w, --width\fR <COLS>
+Plot width in characters (default: auto-fit terminal width).
+.TP
+\fB-g, --height\fR <LINES>
+Plot height in lines (default: auto-fit terminal height).
+.TP
+\fB--source\fR <FORMAT>
+Source format: \fBtxt\fR, \fBcsv\fR, \fBjson\fR [Default: \fBtxt\fR].
+.TP
+\fB--csv-col\fR <INDEX>
+0-based column index to plot (default: 0, for CSV format).
+.TP
+\fB--csv-headers\fR
+Skip the first row in CSV format (header row).
+.TP
+\fB--smooth\fR
+Render high-resolution charts using Unicode Braille characters.
+.TP
+\fB--log\fR
+Apply base-10 logarithmic scaling to data points.
+.TP
+\fB--json-key\fR <SELECTOR>
+JSON query path (e.g. .info.value) to extract numbers from an array of JSON objects.
+.TP
+\fB-H, --horizontal\fR
+Render bar chart horizontally from left to right.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:

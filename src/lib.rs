@@ -309,6 +309,10 @@ pub struct PlotOptions {
     pub csv_col: Option<usize>,
     pub csv_headers: bool,
     pub source_format: String,
+    pub smooth: bool,
+    pub log_scale: bool,
+    pub json_key: Option<String>,
+    pub horizontal: bool,
 }
 
 #[derive(Default, Clone)]

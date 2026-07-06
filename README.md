@@ -959,11 +959,15 @@ ir plot [switches] [PATH]
 | :--- | :--- |
 | `-t, --type <type>` | Chart type: `line`, `bar`, `scatter` [Default: `line`]. |
 | `--title <text>` | Add a title to the top of the plot. |
-| `-w, --width <cols>` | Plot width in terminal characters (default: 60). |
-| `-g, --height <lines>` | Plot height in terminal lines (default: 15). |
+| `-w, --width <cols>` | Plot width in terminal characters (default: auto-fit terminal width). |
+| `-g, --height <lines>` | Plot height in terminal lines (default: auto-fit terminal height). |
 | `--source <format>` | Source format: `txt`, `csv`, `json` [Default: `txt`]. |
 | `--csv-col <index>` | 0-based column index to plot (default: 0, for CSV format). |
 | `--csv-headers` | Skip the first row in CSV format (header row). |
+| `--smooth` | Render high-resolution charts using Unicode Braille characters. |
+| `--log` | Apply base-10 logarithmic scaling to data points. |
+| `--json-key <path>` | JSON query path (e.g. `.info.value`) to extract numbers from an array of JSON objects. |
+| `-H, --horizontal` | Render bar chart horizontally from left to right. |
 
 **Examples:**
 ```bash
@@ -971,6 +975,9 @@ echo "1 5 3 8 4 10" | ir plot                   # Line chart from standard input
 ir plot --type bar --title "Monthly Sales" data  # Bar chart from file data
 ir plot --source csv --csv-col 1 data.csv       # Plot second column from CSV
 ir plot --source json list.json                 # Plot a flat JSON array of numbers
+ir plot --smooth data.txt                       # Render line chart with Unicode Braille
+ir plot --source json --json-key .val list.json # Query and plot nested values from JSON array
+ir plot -H data.txt                             # Render bar chart horizontally
 ```
 
 ---

@@ -1887,6 +1887,21 @@ fn main() {
                             break;
                         }
                     }
+                } else if arg == "--smooth" {
+                    options.smooth = true;
+                } else if arg == "--log" {
+                    options.log_scale = true;
+                } else if arg == "--json-key" {
+                    match args_iter.next() {
+                        Some(k) => options.json_key = Some(k.clone()),
+                        None => {
+                            eprintln!("Error: --json-key requires a field selector.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-H" || arg == "--horizontal" {
+                    options.horizontal = true;
                 } else if arg.starts_with('-') && arg.len() > 1 {
                     eprintln!("Error: Unknown switch '{}' for plot.", arg);
                     valid = false;

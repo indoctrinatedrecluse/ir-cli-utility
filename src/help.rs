@@ -1076,21 +1076,28 @@ pub fn print_plot_help() {
     println!("\nUSAGE:");
     println!("    ir plot [SWITCHES] [PATH]");
     println!("\nDESCRIPTION:");
-    println!("    Plots numerical data in the terminal using ASCII graphics.");
+    println!("    Plots numerical data in the terminal using ASCII/Unicode block graphics.");
     println!("\nARGUMENTS:");
     println!("    [PATH]                  Optional path to numeric data file. If omitted, reads from standard input.");
     println!("\nSWITCHES:");
     println!("    -t, --type <type>       Chart type: 'line', 'bar', 'scatter' (default: 'line').");
     println!("        --title <text>      Add a title text to the top of the plot.");
-    println!("    -w, --width <cols>      Plot width in terminal characters (default: 60).");
-    println!("    -g, --height <lines>    Plot height in terminal lines (default: 15).");
+    println!("    -w, --width <cols>      Plot width in terminal characters (default: auto-fit terminal).");
+    println!("    -g, --height <lines>    Plot height in terminal lines (default: auto-fit terminal).");
     println!("        --source <format>   Source format: 'txt', 'csv', 'json' (default: 'txt').");
     println!("        --csv-col <index>   0-based column index to plot (default: 0, for csv format).");
     println!("        --csv-headers       Skip the first row in CSV format (header row).");
+    println!("        --smooth            Render high-resolution chart using Unicode Braille characters.");
+    println!("        --log               Apply base-10 logarithmic scaling to data points.");
+    println!("        --json-key <key>    JSON key path (e.g. .info.value) to extract from an array of JSON objects.");
+    println!("    -H, --horizontal        Render bar chart horizontally.");
     println!("\nEXAMPLES:");
     println!("    echo \"1 5 3 8 4 10\" | ir plot                   Line chart from standard input");
     println!("    ir plot --type bar --title \"Monthly Sales\" data  Bar chart from file data");
     println!("    ir plot --source csv --csv-col 1 data.csv       Plot the second column from a CSV file");
     println!("    ir plot --source json list.json                 Plot a flat JSON array of numbers");
+    println!("    ir plot --smooth data.txt                       Line chart using smooth Braille graphics");
+    println!("    ir plot --source json --json-key .val list.json Plot values extracted from objects in JSON list");
+    println!("    ir plot -H data.txt                             Render bar chart horizontally");
 }
 
