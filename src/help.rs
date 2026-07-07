@@ -58,6 +58,8 @@ pub fn print_general_help() {
     println!("    clock     Launches a giant digital clock, stopwatch, and countdown timer.");
     println!("    text      Formats and case-converts strings or files.");
     println!("    globe     Launches an interactive world map and 3D globe viewer.");
+    println!("    log       Parses, queries, and aggregates statistics from log files.");
+    println!("    life      Launches Conway's Game of Life interactive terminal simulator.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -1176,4 +1178,46 @@ pub fn print_globe_help() {
     println!("    ir globe                                 Start interactive globe at 0,0 center");
     println!("    ir globe -c 40.7,-74.0 --day-night       Start globe centered at New York with day/night shading");
     println!("    ir globe ips.csv                         Plot geographical coordinates from CSV");
+}
+
+pub fn print_log_help() {
+    println!("ir-log");
+    println!("\nUSAGE:");
+    println!("    ir log [SWITCHES] [PATH]");
+    println!("\nDESCRIPTION:");
+    println!("    Parses, queries, and aggregates statistics from log files (stdin/files).");
+    println!("    Auto-detects Common Log Format (CLF), Combined Nginx/Apache format, JSON, and CSV.");
+    println!("\nSWITCHES:");
+    println!("    -f, --format <format>   Explicit log format: common, combined, json, csv, auto [Default: auto]");
+    println!("    -q, --query <expr>      SQL-like query string (e.g. \"status >= 400\", \"path contains /api\")");
+    println!("    -s, --stats             Print summary aggregation metrics instead of log lines");
+    println!("    -n, --limit <count>     Limit the output to top N lines");
+    println!("    -o, --output <file>     Write formatted output/statistics directly to a file");
+    println!("\nEXAMPLES:");
+    println!("    ir log access.log --stats                Print metrics summary for access.log");
+    println!("    ir log access.log -q \"status == 404\"     Print only lines resulting in 404 status");
+    println!("    ir log logs.json -q \"size > 5000000\"     Find requests with files larger than 5MB");
+}
+
+pub fn print_life_help() {
+    println!("ir-life");
+    println!("\nUSAGE:");
+    println!("    ir life [SWITCHES]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches Conway's Game of Life interactive terminal simulator.");
+    println!("\nSWITCHES:");
+    println!("    -f, --fps <number>      Initial simulation update rate in FPS (1..30) [Default: 10]");
+    println!("    -p, --preset <name>     Initial layout preset: random, glider-gun, pulsar [Default: random]");
+    println!("\nHOTKEYS:");
+    println!("    Space                   Play or pause the simulation");
+    println!("    Arrows                  Move the grid crosshair editor cursor");
+    println!("    Enter                   Toggle cell state (live/dead) under the cursor");
+    println!("    R                       Randomize cell states on the grid");
+    println!("    C                       Clear all cells on the grid");
+    println!("    1, 2, 3, 4              Spawn preset at cursor (1: Glider, 2: Pulsar, 3: Gosper Gun, 4: Toad)");
+    println!("    [ / ]                   Slow down or speed up simulation speed (FPS)");
+    println!("    Esc / Q                 Quit the simulation screen");
+    println!("\nEXAMPLES:");
+    println!("    ir life                                  Start Life simulator in random mode");
+    println!("    ir life --preset glider-gun --fps 15     Start with Gosper Glider Gun preset at 15 FPS");
 }

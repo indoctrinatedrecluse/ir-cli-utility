@@ -135,6 +135,12 @@ Formats and case-converts strings or files. If path is omitted, reads from stand
 .B globe [\fIswitches\fR] [\fIpath\fR]
 Launches an interactive fullscreen 3D terminal world globe and flat map viewer.
 .TP
+.B log [\fIswitches\fR] [\fIpath\fR]
+Parses, queries, and aggregates statistics from log files (stdin/files).
+.TP
+.B life [\fIswitches\fR]
+Launches Conway's Game of Life interactive terminal simulator.
+.TP
 .B sleep <\fIseconds/duration\fR>
 Suspends execution for a specified duration (e.g. 5, 2.5s, 500ms, 1m).
 .TP
@@ -847,6 +853,33 @@ Initial center coordinates (e.g. 40.7,-74.0).
 \fB--day-night\fR
 Enable UTC day/night terminator shading overlay.
 
+.SS log
+Parses, queries, and aggregates statistics from log files (stdin/files).
+.TP
+\fB-f, --format\fR <FORMAT>
+Explicit log format: \fBcommon\fR, \fBcombined\fR, \fBjson\fR, \fBcsv\fR, or \fBauto\fR [Default: auto].
+.TP
+\fB-q, --query\fR <EXPR>
+Filter query expression string (e.g. "status >= 400").
+.TP
+\fB-s, --stats\fR
+Print a summary metrics report instead of filtered log lines.
+.TP
+\fB-n, --limit\fR <COUNT>
+Limit output to top N lines.
+.TP
+\fB-o, --output\fR <FILE>
+Redirect output/metrics report directly to a file.
+
+.SS life
+Launches Conway's Game of Life interactive terminal simulator.
+.TP
+\fB-f, --fps\fR <NUMBER>
+Initial simulation update rate in FPS (1..30) [Default: 10].
+.TP
+\fB-p, --preset\fR <NAME>
+Initial board layout preset: \fBrandom\fR, \fBglider-gun\fR, or \fBpulsar\fR [Default: random].
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
@@ -1139,6 +1172,18 @@ Open a file for editing:
 .TP
 Edit a source file:
 .B ir edit src/main.rs
+.TP
+Print access.log statistics:
+.B ir log access.log --stats
+.TP
+Filter access.log for 404 status codes:
+.B ir log access.log -q "status == 404"
+.TP
+Start Conway's Game of Life simulator:
+.B ir life
+.TP
+Start Conway's Game of Life with glider gun preset:
+.B ir life --preset glider-gun --fps 15
 
 .SH ALIASES
 The following command aliases are supported in-binary for convenience:

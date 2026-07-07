@@ -53,6 +53,8 @@ pub mod plot;
 pub mod clock;
 pub mod text;
 pub mod globe;
+pub mod log_parser;
+pub mod life;
 
 
 
@@ -748,6 +750,29 @@ pub struct GlobeOptions {
 
 pub fn globe(input_path: Option<&str>, options: GlobeOptions) {
     globe::run_globe(input_path, options);
+}
+
+#[derive(Default, Clone)]
+pub struct LogOptions {
+    pub format: Option<String>,
+    pub query: Option<String>,
+    pub stats: bool,
+    pub limit: Option<usize>,
+    pub output: Option<String>,
+}
+
+pub fn log_action(input_path: Option<&str>, options: LogOptions) {
+    log_parser::run_log(input_path, options);
+}
+
+#[derive(Default, Clone)]
+pub struct LifeOptions {
+    pub fps: Option<u32>,
+    pub preset: Option<String>,
+}
+
+pub fn life_action(options: LifeOptions) {
+    life::run_life(options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

@@ -2094,6 +2094,135 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "log" => {
+            let mut options = ir_cli_utility::LogOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-f" || arg == "--format" {
+                    match args_iter.next() {
+                        Some(f) => {
+                            let f_lower = f.to_lowercase();
+                            if ["common", "combined", "json", "csv", "auto"].contains(&f_lower.as_str()) {
+                                options.format = Some(f_lower);
+                            } else {
+                                  eprintln!("Error: Invalid log format '{}'. Supported: common, combined, json, csv, auto", f);
+                                  valid = false;
+                                  break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --format requires a log format value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-q" || arg == "--query" {
+                    match args_iter.next() {
+                        Some(q) => options.query = Some(q.clone()),
+                        None => {
+                            eprintln!("Error: --query requires a query filter expression.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-s" || arg == "--stats" {
+                    options.stats = true;
+                } else if arg == "-n" || arg == "--limit" {
+                    match args_iter.next().and_then(|limit| limit.parse::<usize>().ok()) {
+                        Some(limit) if limit > 0 => options.limit = Some(limit),
+                        _ => {
+                            eprintln!("Error: --limit requires a valid positive integer limit.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-o" || arg == "--output" {
+                    match args_iter.next() {
+                        Some(out) => options.output = Some(out.clone()),
+                        None => {
+                            eprintln!("Error: --output requires an output file path.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for log action.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: 'log' action accepts at most one file path argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let input_path = positionals.get(0).map(|s| s.as_str());
+                ir_cli_utility::log_action(input_path, options);
+            } else {
+                help::print_log_help();
+                std::process::exit(1);
+            }
+        }
+        "life" => {
+            let mut options = ir_cli_utility::LifeOptions::default();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-f" || arg == "--fps" {
+                    match args_iter.next().and_then(|fps| fps.parse::<u32>().ok()) {
+                        Some(fps) if fps >= 1 && fps <= 30 => options.fps = Some(fps),
+                        _ => {
+                            eprintln!("Error: --fps must be a valid integer between 1 and 30.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg == "-p" || arg == "--preset" {
+                    match args_iter.next() {
+                        Some(p) => {
+                            let p_lower = p.to_lowercase();
+                            if ["random", "glider-gun", "pulsar"].contains(&p_lower.as_str()) {
+                                options.preset = Some(p_lower);
+                            } else {
+                                  eprintln!("Error: Invalid preset '{}'. Supported: random, glider-gun, pulsar", p);
+                                  valid = false;
+                                  break;
+                            }
+                        }
+                        None => {
+                            eprintln!("Error: --preset requires a preset pattern value.");
+                            valid = false;
+                            break;
+                        }
+                    }
+                } else if arg.starts_with('-') {
+                    eprintln!("Error: Unknown switch '{}' for life simulator.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    eprintln!("Error: 'life' action does not accept positional arguments.");
+                    valid = false;
+                    break;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::life_action(options);
+            } else {
+                help::print_life_help();
+                std::process::exit(1);
+            }
+        }
         "uuid" => {
             let mut options = UuidOptions::default();
             options.version = 4; // default
@@ -2998,6 +3127,8 @@ fn main() {
                     "clock" => help::print_clock_help(),
                     "text" => help::print_text_help(),
                     "globe" => help::print_globe_help(),
+                    "log" => help::print_log_help(),
+                    "life" => help::print_life_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();

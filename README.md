@@ -1203,6 +1203,64 @@ ir globe ips.csv                         # Plot coordinates from CSV as blinking
 
 ---
 
+### 📋 `log`
+Parses, queries, and aggregates statistics from log files. If no file path is specified, reads from standard input.
+
+**Usage:**
+```bash
+ir log [switches] [PATH]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-f, --format <format>` | Explicit log format: `common`, `combined`, `json`, `csv`, or `auto` [Default: `auto`]. |
+| `-q, --query <expr>` | Filter query expression string (e.g. `"status >= 400"`, `"path contains /api"`). |
+| `-s, --stats` | Print a summary metrics report instead of filtered log lines. |
+| `-n, --limit <count>` | Limit output to top N lines. |
+| `-o, --output <file>` | Redirect output/metrics report directly to a file. |
+
+**Examples:**
+```bash
+ir log access.log --stats                # Print metrics summary report for access.log
+ir log access.log -q "status == 404"     # Print only requests resulting in 404 status
+ir log logs.json -q "size > 5000000"     # Filter requests with body larger than 5MB
+```
+
+---
+
+### 🧬 `life`
+Launches an interactive fullscreen Conway's Game of Life cellular automaton terminal simulator.
+
+**Usage:**
+```bash
+ir life [switches]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-f, --fps <number>` | Initial simulation update rate in FPS (1..30) [Default: `10`]. |
+| `-p, --preset <name>` | Initial board layout preset: `random`, `glider-gun`, `pulsar` [Default: `random`]. |
+
+**Hotkeys:**
+* `Space` — Play or pause the cell simulation.
+* `Arrows` — Move the crosshair editor cursor.
+* `Enter` — Toggle cell state (live/dead) under the cursor.
+* `R` — Randomize cell states on the grid.
+* `C` — Clear all cells on the grid.
+* `1`, `2`, `3`, `4` — Spawn presets at cursor (1: Glider, 2: Pulsar, 3: Gosper Gun, 4: Toad).
+* `[` / `]` — Slow down or speed up simulation speed.
+* `Esc` / `Q` — Quit the simulation screen.
+
+**Examples:**
+```bash
+ir life                                  # Start Life simulator in random mode
+ir life --preset glider-gun --fps 15     # Start with Gosper Glider Gun preset at 15 FPS
+```
+
+---
+
 ### 💤 `sleep`
 Suspends execution for a specified duration. Supports suffixes: `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours). If no suffix is provided, defaults to seconds.
 
