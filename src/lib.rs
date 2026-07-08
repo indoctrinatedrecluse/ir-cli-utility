@@ -55,6 +55,8 @@ pub mod text;
 pub mod globe;
 pub mod log_parser;
 pub mod life;
+pub mod portscan;
+pub mod mac;
 
 
 
@@ -627,8 +629,18 @@ pub fn time(cmd_args: Vec<String>) {
     time::run_time(cmd_args);
 }
 
-pub fn dns(host: &str) {
-    dns::run_dns(host);
+#[derive(Default, Clone)]
+pub struct DnsOptions {
+    pub host: String,
+    pub record_type: String, // e.g. "A", "AAAA", "MX", "TXT", "CNAME", "NS", "SOA", "ANY"
+    pub server: Option<String>,
+    pub reverse: bool,
+    pub short: bool,
+    pub trace: bool,
+}
+
+pub fn dns(options: DnsOptions) {
+    dns::run_dns(options);
 }
 
 pub fn path(options: PathOptions) {
@@ -773,6 +785,31 @@ pub struct LifeOptions {
 
 pub fn life_action(options: LifeOptions) {
     life::run_life(options);
+}
+
+#[derive(Default, Clone)]
+pub struct PortscanOptions {
+    pub host: String,
+    pub ports: String,
+    pub timeout_ms: u64,
+    pub concurrency: usize,
+    pub ping_first: bool,
+    pub json: bool,
+}
+
+pub fn portscan(options: PortscanOptions) {
+    portscan::run_portscan(options);
+}
+
+#[derive(Default, Clone)]
+pub struct MacOptions {
+    pub query: Option<String>,
+    pub local: bool,
+    pub update: bool,
+}
+
+pub fn mac(options: MacOptions) {
+    mac::run_mac(options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

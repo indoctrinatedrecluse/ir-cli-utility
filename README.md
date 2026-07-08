@@ -1332,21 +1332,95 @@ ir time ir ping -c 5 google.com          # Measure ping command execution
 ---
 
 ### 🌐 `dns`
-A self-contained native DNS query tool resolving IP addresses (A/AAAA), mail exchange (MX), text records (TXT), and canonical names (CNAME) of a host. Queries system active adapters DNS addresses, falling back to public servers.
+Queries DNS records for a given host or performs reverse lookups. Can query custom servers or iteratively trace the delegation path down from root nameservers.
 
 **Usage:**
 ```bash
-ir dns <HOST>
+ir dns [switches] <HOST>
 ```
 
 **Arguments:**
 | Argument | Description |
 | :--- | :--- |
-| `<HOST>` | The hostname to query records for (e.g. `google.com`). |
+| `<HOST>` | The hostname or IP address to query. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-t, --type <record>` | DNS record type: `A`, `AAAA`, `MX`, `TXT`, `CNAME`, `NS`, `SOA`, `ANY` [Default: `A`]. |
+| `-s, --server <ip>` | Use a specific DNS server IP address instead of system defaults. |
+| `-x, --reverse` | Perform a reverse DNS PTR lookup for an IP address. |
+| `--short` | Output raw record values only (one per line, ideal for scripts). |
+| `--trace` | Iteratively trace and print the DNS delegation path starting from the root servers. |
 
 **Examples:**
 ```bash
-ir dns google.com                        # Query and display DNS records
+ir dns google.com                        # Resolve A records for google.com
+ir dns -t mx github.com                  # Resolve MX mail servers for github.com
+ir dns -s 8.8.8.8 -t any example.com     # Query all records using Google public DNS
+ir dns -x 8.8.8.8                        # Perform a reverse DNS lookup for 8.8.8.8
+ir dns --trace wikipedia.org             # Trace delegation servers from root for wikipedia.org
+```
+
+---
+
+### 🔍 `portscan`
+Multi-threaded TCP port scanner to scan open ports and active network services on a target host.
+
+**Usage:**
+```bash
+ir portscan [switches] <HOST>
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `<HOST>` | Target hostname or IP address to scan. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-p, --ports <ports>` | Target ports: comma-separated list, range (e.g. `22-80`), `all` (1-65535), or `top100` [Default: `top100`]. |
+| `-t, --timeout <ms>` | Connect timeout in milliseconds per port [Default: `500`]. |
+| `-c, --concurrency <N>` | Maximum concurrent threads to scan [Default: `100`]. |
+| `--ping-first` | Ping the host to ensure it is online before initiating a port scan. |
+| `--json` | Format the list of open ports and services as structured JSON. |
+
+**Examples:**
+```bash
+ir portscan 127.0.0.1                    # Scan top 100 ports on localhost
+ir portscan -p 22,80,443 target.com      # Scan specific ports on target.com
+ir portscan -p 80-1000 -c 200 host.com   # Scan ports 80-1000 with 200 concurrent threads
+ir portscan -p 80 --json 127.0.0.1       # Scan and print open ports as JSON
+```
+
+---
+
+### 🏷️ `mac`
+MAC address vendor OUI resolver and local network interfaces MAC addresses listing.
+
+**Usage:**
+```bash
+ir mac [switches] [MAC_ADDRESS]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[MAC_ADDRESS]` | MAC address to query (e.g. `00:50:56:12:34:56`). |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-q, --query <mac>` | Search the manufacturer vendor of a MAC address. |
+| `-l, --local` | List all MAC addresses of local network interfaces [Default]. |
+| `--update` | Download and update the local OUI vendor database from IEEE. |
+
+**Examples:**
+```bash
+ir mac                                   # List all local MAC addresses and their vendors
+ir mac 00:50:56:12:34:56                 # Lookup manufacturer for specific MAC address
+ir mac --update                          # Update the local MAC OUI vendor database from IEEE
 ```
 
 ---

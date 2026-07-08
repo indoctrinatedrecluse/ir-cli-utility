@@ -44,6 +44,8 @@ pub fn print_general_help() {
     println!("    df        Estimates file space usage of all mounted file systems or drives.");
     println!("    whoami    Displays the current user name and domain.");
     println!("    sockets   Lists active TCP and UDP sockets with owning process.");
+    println!("    portscan  Scans open TCP ports and active network services.");
+    println!("    mac       Queries OUI manufacturers and active adapter MACs.");
     println!("    sort      Sorts lines from text files or standard input.");
     println!("    wc        Counts lines, words, characters, and bytes.");
     println!("    ln        Creates hard links or symbolic links.");
@@ -730,13 +732,61 @@ pub fn print_time_help() {
 pub fn print_dns_help() {
     println!("ir-dns");
     println!("\nUSAGE:");
-    println!("    ir dns <HOST>");
+    println!("    ir dns [SWITCHES] <HOST>");
     println!("\nDESCRIPTION:");
-    println!("    Queries DNS records (A, AAAA, CNAME, MX, TXT) for a host.");
+    println!("    Queries DNS records (A, AAAA, MX, TXT, CNAME, NS, SOA, ANY) for a host.");
     println!("\nARGUMENTS:");
-    println!("    <HOST>        The hostname to resolve, e.g. google.com");
+    println!("    <HOST>                  The hostname or IP address to query");
+    println!("\nSWITCHES:");
+    println!("    -t, --type <record>     DNS record type: A, AAAA, MX, TXT, CNAME, NS, SOA, ANY [Default: A]");
+    println!("    -s, --server <ip>       Query a custom DNS server IP address");
+    println!("    -x, --reverse           Perform a reverse DNS PTR lookup for an IP address");
+    println!("    --short                 Print only the raw resolved values (one per line)");
+    println!("    --trace                 Iteratively trace delegation path from root servers down");
     println!("\nEXAMPLES:");
-    println!("    ir dns google.com                        Resolve records for google.com");
+    println!("    ir dns google.com                        Resolve A records for google.com");
+    println!("    ir dns -t mx github.com                  Resolve MX mail servers for github.com");
+    println!("    ir dns -s 8.8.8.8 -t any example.com     Query all records using Google public DNS");
+    println!("    ir dns -x 8.8.8.8                        Perform a reverse DNS lookup for 8.8.8.8");
+    println!("    ir dns --trace wikipedia.org             Trace delegation servers from root for wikipedia.org");
+}
+
+pub fn print_portscan_help() {
+    println!("ir-portscan");
+    println!("\nUSAGE:");
+    println!("    ir portscan [SWITCHES] <HOST>");
+    println!("\nDESCRIPTION:");
+    println!("    Multi-threaded TCP port scanner to scan open ports and active network services.");
+    println!("\nARGUMENTS:");
+    println!("    <HOST>                  Target hostname or IP address to scan");
+    println!("\nSWITCHES:");
+    println!("    -p, --ports <ports>     Target ports: comma-separated list, range, 'all', or 'top100' [Default: top100]");
+    println!("    -t, --timeout <ms>      Connect timeout in milliseconds per port [Default: 500ms]");
+    println!("    -c, --concurrency <N>   Maximum concurrent sockets to scan [Default: 100]");
+    println!("    --ping-first            Ping target host to ensure it is online before scanning");
+    println!("    --json                  Output results in structured JSON format");
+    println!("\nEXAMPLES:");
+    println!("    ir portscan 127.0.0.1                    Scan top 100 ports on localhost");
+    println!("    ir portscan -p 22,80,443 target.com      Scan specific ports on target.com");
+    println!("    ir portscan -p 80-1000 -c 200 host.com   Scan ports 80-1000 with 200 concurrent threads");
+}
+
+pub fn print_mac_help() {
+    println!("ir-mac");
+    println!("\nUSAGE:");
+    println!("    ir mac [SWITCHES] [MAC_ADDRESS]");
+    println!("\nDESCRIPTION:");
+    println!("    MAC address vendor OUI resolver and local network interfaces MAC addresses listing.");
+    println!("\nARGUMENTS:");
+    println!("    [MAC_ADDRESS]           MAC address to query (e.g. 00:1A:2B:3C:4D:5E)");
+    println!("\nSWITCHES:");
+    println!("    -q, --query <mac>       Search the manufacturer vendor of a MAC address");
+    println!("    -l, --local             List all MAC addresses of local network interfaces [Default]");
+    println!("        --update            Download and update the local OUI vendor database from IEEE");
+    println!("\nEXAMPLES:");
+    println!("    ir mac                                   List all local MAC addresses and their vendors");
+    println!("    ir mac 00:1A:2B:3C:4D:5E                 Lookup manufacturer for specific MAC address");
+    println!("    ir mac --update                          Update the local MAC OUI vendor database");
 }
 
 pub fn print_path_help() {

@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions};
 use ir_cli_utility::scrape::parse_size as scrape_parse_size;
 use ir_cli_utility::find::parse_size as find_parse_size;
 
@@ -2477,13 +2477,137 @@ fn main() {
             ir_cli_utility::time(cmd_args);
         }
         "dns" => {
+            let mut options = DnsOptions::default();
+            options.record_type = "A".to_string(); // default
             let mut positionals: Vec<String> = Vec::new();
             let mut valid = true;
             let mut args_iter = args[2..].iter().peekable();
 
             while let Some(arg) = args_iter.next() {
-                if arg.starts_with('-') && arg.len() > 1 {
-                    eprintln!("Error: Unknown switch '{}' for dns.", arg);
+                if arg == "-t" || arg == "--type" {
+                    if let Some(val) = args_iter.next() {
+                        let val_upper = val.to_uppercase();
+                        if ["A", "AAAA", "MX", "TXT", "CNAME", "NS", "SOA", "ANY"].contains(&val_upper.as_str()) {
+                            options.record_type = val_upper;
+                        } else {
+                            eprintln!("Error: Invalid DNS record type '{}'. Supported types: A, AAAA, MX, TXT, CNAME, NS, SOA, ANY.", val);
+                            valid = false;
+                            break;
+                        }
+                    } else {
+                        eprintln!("Error: -t/--type requires a record type argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "-s" || arg == "--server" {
+                    if let Some(val) = args_iter.next() {
+                        options.server = Some(val.clone());
+                    } else {
+                        eprintln!("Error: -s/--server requires a resolver address argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "-x" || arg == "--reverse" {
+                    options.reverse = true;
+                } else if arg == "--short" {
+                    options.short = true;
+                } else if arg == "--trace" {
+                    options.trace = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    let chars: Vec<char> = arg.chars().skip(1).collect();
+                    let mut is_valid_combo = true;
+                    for &c in &chars {
+                        if c == 'x' {
+                            options.reverse = true;
+                        } else {
+                            is_valid_combo = false;
+                            break;
+                        }
+                    }
+                    if !is_valid_combo {
+                        eprintln!("Error: Unknown switch '{}' for dns.", arg);
+                        valid = false;
+                        break;
+                    }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: 'dns' action requires exactly one host/IP argument.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                options.host = positionals[0].clone();
+                if options.trace && (options.short || options.server.is_some()) {
+                    eprintln!("Error: --trace is incompatible with --short or -s/--server options.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::dns(options);
+            } else {
+                help::print_dns_help();
+                std::process::exit(1);
+            }
+        }
+        "portscan" => {
+            let mut options = PortscanOptions::default();
+            options.ports = "top100".to_string(); // default
+            options.timeout_ms = 500; // default
+            options.concurrency = 100; // default
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-p" || arg == "--ports" {
+                    if let Some(val) = args_iter.next() {
+                        options.ports = val.clone();
+                    } else {
+                        eprintln!("Error: -p/--ports requires a ports range argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "-t" || arg == "--timeout" {
+                    if let Some(val) = args_iter.next() {
+                        if let Ok(ms) = val.parse::<u64>() {
+                            options.timeout_ms = ms;
+                        } else {
+                            eprintln!("Error: Invalid timeout '{}'. Must be a positive integer.", val);
+                            valid = false;
+                            break;
+                        }
+                    } else {
+                        eprintln!("Error: -t/--timeout requires a milliseconds argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "-c" || arg == "--concurrency" {
+                    if let Some(val) = args_iter.next() {
+                        if let Ok(threads) = val.parse::<usize>() {
+                            options.concurrency = threads;
+                        } else {
+                            eprintln!("Error: Invalid concurrency '{}'. Must be a positive integer.", val);
+                            valid = false;
+                            break;
+                        }
+                    } else {
+                        eprintln!("Error: -c/--concurrency requires a number of threads argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "--ping-first" {
+                    options.ping_first = true;
+                } else if arg == "--json" {
+                    options.json = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for portscan.", arg);
                     valid = false;
                     break;
                 } else {
@@ -2493,15 +2617,88 @@ fn main() {
 
             if valid {
                 if positionals.len() != 1 {
-                    eprintln!("Error: 'dns' action requires exactly one host string argument.");
+                    eprintln!("Error: 'portscan' action requires exactly one host/IP argument.");
                     valid = false;
                 }
             }
 
             if valid {
-                ir_cli_utility::dns(&positionals[0]);
+                options.host = positionals[0].clone();
+                ir_cli_utility::portscan(options);
             } else {
-                help::print_dns_help();
+                help::print_portscan_help();
+                std::process::exit(1);
+            }
+        }
+        "mac" => {
+            let mut options = MacOptions::default();
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-q" || arg == "--query" {
+                    if let Some(val) = args_iter.next() {
+                        options.query = Some(val.clone());
+                    } else {
+                        eprintln!("Error: -q/--query requires a MAC address argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "-l" || arg == "--local" {
+                    options.local = true;
+                } else if arg == "--update" {
+                    options.update = true;
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    let chars: Vec<char> = arg.chars().skip(1).collect();
+                    let mut is_valid_combo = true;
+                    for &c in &chars {
+                        if c == 'l' {
+                            options.local = true;
+                        } else {
+                            is_valid_combo = false;
+                            break;
+                        }
+                    }
+                    if !is_valid_combo {
+                        eprintln!("Error: Unknown switch '{}' for mac.", arg);
+                        valid = false;
+                        break;
+                    }
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if !positionals.is_empty() {
+                    if options.query.is_none() {
+                        options.query = Some(positionals[0].clone());
+                    } else {
+                        eprintln!("Error: Multiple MAC addresses specified.");
+                        valid = false;
+                    }
+                }
+            }
+
+            if valid {
+                let mut modes = 0;
+                if options.query.is_some() { modes += 1; }
+                if options.local { modes += 1; }
+                if options.update { modes += 1; }
+                
+                if modes == 0 {
+                    options.local = true;
+                } else if modes > 1 {
+                    eprintln!("Error: Switches --query, --local, and --update are mutually exclusive.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::mac(options);
+            } else {
+                help::print_mac_help();
                 std::process::exit(1);
             }
         }
@@ -3096,6 +3293,8 @@ fn main() {
                     "sleep" => help::print_sleep_help(),
                     "time" => help::print_time_help(),
                     "dns" => help::print_dns_help(),
+                    "portscan" => help::print_portscan_help(),
+                    "mac" => help::print_mac_help(),
                     "path" => help::print_path_help(),
                     "df" => help::print_df_help(),
                     "whoami" => help::print_whoami_help(),

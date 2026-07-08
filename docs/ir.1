@@ -180,8 +180,14 @@ Opens a file in a minimalist inline terminal text editor.
 .B time <\fIcommand\fR> [\fIargs...\fR]
 Measures and displays the execution time of a command.
 .TP
-.B dns <\fIhost\fR>
-Queries standard DNS records (A, AAAA, MX, TXT, CNAME) for a host.
+.B dns [\fIswitches\fR] <\fIhost\fR>
+Queries DNS records (A, AAAA, MX, TXT, CNAME, NS, SOA, ANY) for a host.
+.TP
+.B portscan [\fIswitches\fR] <\fIhost\fR>
+Multi-threaded TCP port scanner to scan open ports and active services.
+.TP
+.B mac [\fIswitches\fR] [\fImac_address\fR]
+MAC address vendor OUI resolver and local network interfaces MAC addresses listing.
 .TP
 .B path [\fIswitches\fR]
 Views, adds, or removes directories from system PATH environment.
@@ -879,6 +885,53 @@ Initial simulation update rate in FPS (1..30) [Default: 10].
 .TP
 \fB-p, --preset\fR <NAME>
 Initial board layout preset: \fBrandom\fR, \fBglider-gun\fR, or \fBpulsar\fR [Default: random].
+.SS dns
+Queries DNS records (A, AAAA, MX, TXT, CNAME, NS, SOA, ANY) for a host.
+.TP
+\fB-t, --type\fR <RECORD>
+DNS record type: A, AAAA, MX, TXT, CNAME, NS, SOA, ANY [Default: A].
+.TP
+\fB-s, --server\fR <IP>
+Query a custom DNS server IP address.
+.TP
+\fB-x, --reverse\fR
+Perform a reverse DNS PTR lookup for an IP address.
+.TP
+\fB--short\fR
+Print only the raw resolved values (one per line).
+.TP
+\fB--trace\fR
+Iteratively trace delegation path from root servers down.
+
+.SS portscan
+Multi-threaded TCP port scanner to scan open ports and active services.
+.TP
+\fB-p, --ports\fR <PORTS>
+Target ports: comma-separated list, range, 'all', or 'top100' [Default: top100].
+.TP
+\fB-t, --timeout\fR <MS>
+Connect timeout in milliseconds per port [Default: 500ms].
+.TP
+\fB-c, --concurrency\fR <N>
+Maximum concurrent sockets to scan [Default: 100].
+.TP
+\fB--ping-first\fR
+Ping target host to ensure it is online before scanning.
+.TP
+\fB--json\fR
+Output results in structured JSON format.
+
+.SS mac
+MAC address vendor OUI resolver and local network interfaces MAC addresses listing.
+.TP
+\fB-q, --query\fR <MAC>
+Search the manufacturer vendor of a MAC address.
+.TP
+\fB-l, --local\fR
+List all MAC addresses of local network interfaces [Default].
+.TP
+\fB--update\fR
+Download and update the local OUI vendor database from IEEE.
 
 .SH EXAMPLES
 .TP
@@ -1184,6 +1237,24 @@ Start Conway's Game of Life simulator:
 .TP
 Start Conway's Game of Life with glider gun preset:
 .B ir life --preset glider-gun --fps 15
+.TP
+Query custom DNS server for MX records:
+.B ir dns -s 8.8.8.8 -t MX google.com
+.TP
+Trace DNS delegation path starting from root nameservers:
+.B ir dns --trace wikipedia.org
+.TP
+Scan ports on local machine:
+.B ir portscan 127.0.0.1
+.TP
+Scan specific port range on target host:
+.B ir portscan -p 20-100 target.com
+.TP
+List active local adapter MAC addresses and manufacturers:
+.B ir mac
+.TP
+Query manufacturer vendor of a specific MAC address:
+.B ir mac 00:50:56:12:34:56
 
 .SH ALIASES
 The following command aliases are supported in-binary for convenience:
