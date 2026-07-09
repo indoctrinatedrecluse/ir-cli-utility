@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions, ServeOptions, MatrixOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions, ServeOptions, MatrixOptions, GitInfoOptions};
 use ir_cli_utility::scrape::parse_size as scrape_parse_size;
 use ir_cli_utility::find::parse_size as find_parse_size;
 
@@ -31,6 +31,7 @@ fn main() {
         "fm" => "browse",
         "ed" => "edit",
         "dl" => "scrape",
+        "gin" => "gitinfo",
         other => other,
     };
 
@@ -2842,6 +2843,48 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "gitinfo" => {
+            let mut options = GitInfoOptions::default();
+            options.source = ".".to_string();
+
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "--source" {
+                    if let Some(val) = args_iter.next() {
+                        options.source = val.clone();
+                    } else {
+                        eprintln!("Error: --source requires a directory path.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for gitinfo.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: Multiple repository paths specified.");
+                    valid = false;
+                } else if positionals.len() == 1 {
+                    options.source = positionals[0].clone();
+                }
+            }
+
+            if valid {
+                ir_cli_utility::gitinfo(options);
+            } else {
+                help::print_gitinfo_help();
+                std::process::exit(1);
+            }
+        }
         "path" => {
             let mut options = PathOptions::default();
             let mut positionals: Vec<String> = Vec::new();
@@ -3437,6 +3480,8 @@ fn main() {
                     "mac" => help::print_mac_help(),
                     "serve" => help::print_serve_help(),
                     "matrix" => help::print_matrix_help(),
+                    "gitinfo" => help::print_gitinfo_help(),
+                    "gin" => help::print_gitinfo_help(),
                     "path" => help::print_path_help(),
                     "df" => help::print_df_help(),
                     "whoami" => help::print_whoami_help(),

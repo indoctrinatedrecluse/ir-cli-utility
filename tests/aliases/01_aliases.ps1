@@ -118,6 +118,15 @@ if ($dl_out -match "ir-scrape") {
     $Result = 1
 }
 
+Write-Host "Testing alias 'gin' -> maps to 'gitinfo' (via help)..."
+$gin_out = & $Executable help gin 2>&1 | Out-String
+if ($gin_out -match "ir-gitinfo") {
+    Write-Host "✅ PASS: 'ir gin' alias correctly routes to gitinfo."
+} else {
+    Write-Host "❌ FAIL: 'ir gin' did not route to gitinfo: $gin_out"
+    $Result = 1
+}
+
 # Clean up
 foreach ($file in @($TestFile, $MovedFile)) {
     if (Test-Path $file) { Remove-Item $file -Force }

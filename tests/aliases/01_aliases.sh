@@ -119,4 +119,13 @@ else
     Result=1
 fi
 
+echo "Testing alias 'gin' -> maps to 'gitinfo' (via help)..."
+gin_out=$($Executable help gin 2>&1 || true)
+if echo "$gin_out" | grep -q "ir-gitinfo"; then
+    echo "✅ PASS: 'ir gin' alias correctly routes to gitinfo."
+else
+    echo "❌ FAIL: 'ir gin' did not route to gitinfo: $gin_out"
+    Result=1
+fi
+
 exit $Result

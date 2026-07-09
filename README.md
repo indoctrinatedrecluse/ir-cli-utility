@@ -1495,6 +1495,43 @@ ir matrix -f 30                          # Run Matrix digital rain at 30 FPS
 
 ---
 
+### 🗃️ `gitinfo`
+Launches a full-screen interactive Git repository TUI dashboard. Parses the local Git database natively without invoking external `git` CLI binaries.
+
+**Usage:**
+```bash
+ir gitinfo [switches] [DIRECTORY]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[DIRECTORY]` | Path to the Git repository root [Default: current directory `.`]. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `--source <path>` | Path to the Git repository root [Default: current directory `.`]. |
+
+**TUI Interactive Tabs:**
+* **`1` (History & Graph):** Scrollable commit history list displaying short SHA, commit messages, and reference decorations (local/remote branches and tags) with a split details pane.
+* **`2` (Changes Status):** uncommitted modifications list (modified, untracked, deleted files) showing size and modification date.
+* **`3` (Refs & Branches):** Lists all branches (local/remote) and tags with their latest commit SHA.
+* **`4` (Repository Stats):** Summary statistics: active branch, contribution commits counts per author, repository sizes breakdown.
+
+**Interactive Keys:**
+* `1` / `2` / `3` / `4`: Switch between respective TUI tabs.
+* `Up` / `Down` / `PgUp` / `PgDn`: Navigate and scroll lists selection.
+* `Esc` / `q`: Exit dashboard cleanly.
+
+**Examples:**
+```bash
+ir gitinfo                               # Launch dashboard for current directory
+ir gitinfo --source /path/to/repo        # Launch dashboard for a custom repository path
+```
+
+---
+
 ### 🛣️ `path`
 Views, adds, or removes directories from user system PATH environment variables permanently. On Windows, modifies HKCU Registry and broadcasts environment changes. On Linux, modifies standard shell profiles (`.bashrc` / `.zshrc` / `.profile`).
 
@@ -1995,6 +2032,7 @@ For convenience and familiar muscle memory, several common commands are aliased 
 | `fm` | `browse` | Launches an interactive terminal file browser. |
 | `ed` | `edit` | Opens a file in the inline terminal text editor. |
 | `dl` | `scrape` | Downloads files from a URL matching given extension(s). |
+| `gin` | `gitinfo` | Launches an interactive Git repository TUI dashboard. |
 
 You can use these interchangeable pairings interchangeably (e.g. `ir ls` works exactly like `ir list`, and `ir help ls` shows the list help screen).
 

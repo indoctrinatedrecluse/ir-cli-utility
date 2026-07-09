@@ -59,6 +59,7 @@ pub mod portscan;
 pub mod mac;
 pub mod serve;
 pub mod matrix;
+pub mod gitinfo;
 
 
 
@@ -834,6 +835,15 @@ pub struct MatrixOptions {
 
 pub fn matrix(options: MatrixOptions) {
     matrix::run_matrix(options);
+}
+
+#[derive(Default, Clone)]
+pub struct GitInfoOptions {
+    pub source: String,
+}
+
+pub fn gitinfo(options: GitInfoOptions) {
+    gitinfo::run_gitinfo(options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

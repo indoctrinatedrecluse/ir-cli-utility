@@ -64,6 +64,7 @@ pub fn print_general_help() {
     println!("    log       Parses, queries, and aggregates statistics from log files.");
     println!("    life      Launches Conway's Game of Life interactive terminal simulator.");
     println!("    matrix    Launches an interactive Matrix rain and Doom fire visualizer.");
+    println!("    gitinfo   Launches an interactive Git repository TUI dashboard.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -80,6 +81,7 @@ pub fn print_general_help() {
     println!("    fm        Alias for 'browse'");
     println!("    ed        Alias for 'edit'");
     println!("    dl        Alias for 'scrape'");
+    println!("    gin       Alias for 'gitinfo'");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
 
@@ -830,6 +832,33 @@ pub fn print_matrix_help() {
     println!("    ir matrix                                Start the Matrix digital rain screensaver");
     println!("    ir matrix fire                           Start the procedural Doom fire visualizer");
     println!("    ir matrix -f 30                          Start the Matrix rain at 30 FPS");
+}
+
+pub fn print_gitinfo_help() {
+    println!("ir-gitinfo");
+    println!("\nUSAGE:");
+    println!("    ir gitinfo [DIRECTORY]");
+    println!("    ir gitinfo --source [DIRECTORY]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches a full-screen interactive Git repository TUI dashboard.");
+    println!("    Parses local database files natively without calling local git binaries.");
+    println!("\nARGUMENTS / SWITCHES:");
+    println!("    [DIRECTORY]             Path to the Git repository root [Default: .]");
+    println!("    --source [DIRECTORY]    Path to the Git repository root [Default: .]");
+    println!("\nTUI INTERACTIVE TABS:");
+    println!("    [1] History & Graph     Scrollable commit list with decorations and detail view pane.");
+    println!("    [2] Changes Status      Modified, untracked, and deleted uncommitted status changes.");
+    println!("    [3] Refs & Branches     Local branches, remote references, and tags details list.");
+    println!("    [4] Repository Stats    Repository summary metadata, size, and contributor standings.");
+    println!("\nTUI HOTKEYS:");
+    println!("    1 / 2 / 3 / 4           Switch between respective TUI tabs");
+    println!("    Up / Down               Navigate or scroll selection in lists");
+    println!("    PgUp / PgDn             Page scroll in lists");
+    println!("    Esc / q                 Quit dashboard and return to command line");
+    println!("\nEXAMPLES:");
+    println!("    ir gitinfo                               Start dashboard for current directory");
+    println!("    ir gitinfo --source /path/to/repo        Start dashboard targeting custom path");
+    println!("    ir gin                                   Shortcut alias launch");
 }
 
 pub fn print_path_help() {

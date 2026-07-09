@@ -189,6 +189,9 @@ Multi-threaded TCP port scanner to scan open ports and active services.
 .B mac [\fIswitches\fR] [\fImac_address\fR]
 MAC address vendor OUI resolver and local network interfaces MAC addresses listing.
 .TP
+.B gitinfo [\fIswitches\fR] [\fIdirectory\fR]
+Launches a full-screen interactive Git repository TUI dashboard.
+.TP
 .B path [\fIswitches\fR]
 Views, adds, or removes directories from system PATH environment.
 .TP
@@ -932,6 +935,32 @@ List all MAC addresses of local network interfaces [Default].
 .TP
 \fB--update\fR
 Download and update the local OUI vendor database from IEEE.
+.SS serve
+Launches a zero-configuration local HTTP static file server.
+.TP
+\fB-p, --port\fR <PORT>
+Port number to bind the server to [Default: 8080].
+.TP
+\fB-b, --bind\fR <ADDRESS>
+IP address interface to bind to [Default: 127.0.0.1].
+.TP
+\fB-c, --cache\fR <SECONDS>
+Custom Cache-Control max-age header value.
+
+.SS matrix
+Launches a flashy interactive retro screensaver visualizer in the terminal.
+.TP
+\fB-m, --mode\fR <NAME>
+Screensaver effect mode: 'matrix' or 'fire' [Default: matrix].
+.TP
+\fB-f, --fps\fR <FPS>
+Animation refresh rate in frames per second (1..60) [Default: 15].
+
+.SS gitinfo
+Launches a full-screen interactive Git repository TUI dashboard.
+.TP
+\fB--source\fR <DIRECTORY>
+Path to the Git repository root to open [Default: current directory].
 
 .SH EXAMPLES
 .TP
@@ -1255,6 +1284,24 @@ List active local adapter MAC addresses and manufacturers:
 .TP
 Query manufacturer vendor of a specific MAC address:
 .B ir mac 00:50:56:12:34:56
+.TP
+Serve current directory on port 8080:
+.B ir serve
+.TP
+Serve specific directory on port 3000:
+.B ir serve -p 3000 /var/www/html
+.TP
+Start Matrix digital rain screensaver:
+.B ir matrix
+.TP
+Start retro Doom fire screensaver simulator:
+.B ir matrix fire
+.TP
+Launch Git TUI dashboard for current repository:
+.B ir gitinfo
+.TP
+Launch Git TUI dashboard targeting custom repository:
+.B ir gitinfo --source /home/user/myproject
 
 .SH ALIASES
 The following command aliases are supported in-binary for convenience:
@@ -1284,6 +1331,8 @@ Alias for \fBdua\fR.
 Alias for \fBbrowse\fR.
 .IP "ed" 12
 Alias for \fBedit\fR.
+.IP "gin" 12
+Alias for \fBgitinfo\fR.
 
 .SH AUTHOR
 Written by indoctrinatedrecluse.
