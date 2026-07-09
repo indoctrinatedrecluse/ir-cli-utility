@@ -1425,6 +1425,76 @@ ir mac --update                          # Update the local MAC OUI vendor datab
 
 ---
 
+### 🌐 `serve`
+A zero-configuration, lightweight local HTTP static file server designed for development, testing, and debugging.
+
+**Usage:**
+```bash
+ir serve [switches] [DIRECTORY]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[DIRECTORY]` | The directory path to serve files from [Default: current directory `.`]. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-p, --port <port>` | Port number to bind the server to [Default: `8080`]. |
+| `-b, --bind <address>` | Network interface IP address to bind to [Default: `127.0.0.1`]. |
+| `-c, --cache <seconds>` | Cache-Control `max-age` value in seconds [Default: no-store]. |
+
+**Caveats:**
+* **Development Only:** This server is designed strictly for local development and debugging. It lacks TLS/HTTPS support, rate limiting, and standard production hardening. Do not expose sensitive files on public networks.
+* **Synchronous Threading:** Handled using native standard library threads, not an async runtime loop.
+* **Basic MIME Mapping:** Auto-detects common extensions. Unmapped file types fallback to `application/octet-stream`.
+* **Index HTML Priority:** Directory listing is only auto-generated if there is no `index.html` file present in the requested folder.
+
+**Examples:**
+```bash
+ir serve                                 # Serve current directory on port 8080
+ir serve -p 3000 /var/www/html           # Serve /var/www/html on port 3000
+ir serve -b 0.0.0.0 -c 3600              # Serve publicly on all interfaces with 1 hour caching
+```
+
+---
+
+### ⚡ `matrix`
+An interactive terminal-based screensaver engine featuring the Matrix green digital rain cascading code and retro procedural Doom fire animations.
+
+**Usage:**
+```bash
+ir matrix [switches] [MODE]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[MODE]` | Screensaver animation style: `matrix` or `fire` [Default: `matrix`]. |
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-m, --mode <name>` | The screensaver style mode: `matrix` or `fire`. |
+| `-f, --fps <fps>` | Set target animation speed in frames per second (1..60) [Default: `15`]. |
+
+**Interactive Controls (Real-time):**
+* `Space`: Pause or resume the animation.
+* `+` / `-`: Increase or decrease the animation update speed (FPS).
+* `c` / `C`: Cycle through color schemes (Green, Cyan, Red, Magenta, Blue, Rainbow).
+* `d` / `D`: Adjust drop density (matrix mode) or wind drift direction (fire mode).
+* `Esc` / `q`: Quit the screensaver and restore terminal screen and cursor cleanly.
+
+**Examples:**
+```bash
+ir matrix                                # Start Matrix digital rain screensaver
+ir matrix fire                           # Start retro procedural fire simulator
+ir matrix -f 30                          # Run Matrix digital rain at 30 FPS
+```
+
+---
+
 ### 🛣️ `path`
 Views, adds, or removes directories from user system PATH environment variables permanently. On Windows, modifies HKCU Registry and broadcasts environment changes. On Linux, modifies standard shell profiles (`.bashrc` / `.zshrc` / `.profile`).
 

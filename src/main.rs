@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions, ServeOptions, MatrixOptions};
 use ir_cli_utility::scrape::parse_size as scrape_parse_size;
 use ir_cli_utility::find::parse_size as find_parse_size;
 
@@ -2702,6 +2702,146 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "serve" => {
+            let mut options = ServeOptions::default();
+            options.directory = ".".to_string();
+            options.port = 8080;
+            options.bind = "127.0.0.1".to_string();
+            options.cache_seconds = 0;
+
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-p" || arg == "--port" {
+                    if let Some(val) = args_iter.next() {
+                        match val.parse::<u16>() {
+                            Ok(p) => options.port = p,
+                            Err(_) => {
+                                eprintln!("Error: Invalid port number '{}'.", val);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        eprintln!("Error: -p/--port requires a port number.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "-b" || arg == "--bind" {
+                    if let Some(val) = args_iter.next() {
+                        options.bind = val.clone();
+                    } else {
+                        eprintln!("Error: -b/--bind requires an IP address.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "-c" || arg == "--cache" {
+                    if let Some(val) = args_iter.next() {
+                        match val.parse::<u64>() {
+                            Ok(sec) => options.cache_seconds = sec,
+                            Err(_) => {
+                                eprintln!("Error: Invalid cache duration '{}'.", val);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        eprintln!("Error: -c/--cache requires a duration in seconds.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for serve.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: Multiple directory paths specified.");
+                    valid = false;
+                } else if positionals.len() == 1 {
+                    options.directory = positionals[0].clone();
+                }
+            }
+
+            if valid {
+                ir_cli_utility::serve(options);
+            } else {
+                help::print_serve_help();
+                std::process::exit(1);
+            }
+        }
+        "matrix" => {
+            let mut options = MatrixOptions::default();
+            options.mode = "matrix".to_string();
+            options.fps = 15;
+
+            let mut positionals: Vec<String> = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+
+            while let Some(arg) = args_iter.next() {
+                if arg == "-m" || arg == "--mode" {
+                    if let Some(val) = args_iter.next() {
+                        options.mode = val.to_lowercase();
+                    } else {
+                        eprintln!("Error: -m/--mode requires a mode name ('matrix' or 'fire').");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "-f" || arg == "--fps" {
+                    if let Some(val) = args_iter.next() {
+                        match val.parse::<u32>() {
+                            Ok(f) if f >= 1 && f <= 60 => options.fps = f,
+                            _ => {
+                                eprintln!("Error: Invalid FPS '{}'. Must be between 1 and 60.", val);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    } else {
+                        eprintln!("Error: -f/--fps requires an integer FPS value.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for matrix.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: Multiple modes specified.");
+                    valid = false;
+                } else if positionals.len() == 1 {
+                    options.mode = positionals[0].to_lowercase();
+                }
+            }
+
+            if valid {
+                if options.mode != "matrix" && options.mode != "fire" {
+                    eprintln!("Error: Unsupported mode '{}'. Use 'matrix' or 'fire'.", options.mode);
+                    valid = false;
+                }
+            }
+
+            if valid {
+                ir_cli_utility::matrix(options);
+            } else {
+                help::print_matrix_help();
+                std::process::exit(1);
+            }
+        }
         "path" => {
             let mut options = PathOptions::default();
             let mut positionals: Vec<String> = Vec::new();
@@ -3295,6 +3435,8 @@ fn main() {
                     "dns" => help::print_dns_help(),
                     "portscan" => help::print_portscan_help(),
                     "mac" => help::print_mac_help(),
+                    "serve" => help::print_serve_help(),
+                    "matrix" => help::print_matrix_help(),
                     "path" => help::print_path_help(),
                     "df" => help::print_df_help(),
                     "whoami" => help::print_whoami_help(),

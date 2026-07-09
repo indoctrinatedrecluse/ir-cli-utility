@@ -57,6 +57,8 @@ pub mod log_parser;
 pub mod life;
 pub mod portscan;
 pub mod mac;
+pub mod serve;
+pub mod matrix;
 
 
 
@@ -810,6 +812,28 @@ pub struct MacOptions {
 
 pub fn mac(options: MacOptions) {
     mac::run_mac(options);
+}
+
+#[derive(Default, Clone)]
+pub struct ServeOptions {
+    pub directory: String,
+    pub port: u16,
+    pub bind: String,
+    pub cache_seconds: u64,
+}
+
+pub fn serve(options: ServeOptions) {
+    serve::run_serve(options);
+}
+
+#[derive(Default, Clone)]
+pub struct MatrixOptions {
+    pub mode: String,
+    pub fps: u32,
+}
+
+pub fn matrix(options: MatrixOptions) {
+    matrix::run_matrix(options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

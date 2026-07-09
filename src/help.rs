@@ -57,11 +57,13 @@ pub fn print_general_help() {
     println!("    browse    Launches an interactive terminal file browser.");
     println!("    edit      Opens a file in the inline terminal text editor.");
     println!("    scrape    Downloads files from a URL matching given extension(s).");
+    println!("    serve     Launches a zero-config local HTTP static file server.");
     println!("    clock     Launches a giant digital clock, stopwatch, and countdown timer.");
     println!("    text      Formats and case-converts strings or files.");
     println!("    globe     Launches an interactive world map and 3D globe viewer.");
     println!("    log       Parses, queries, and aggregates statistics from log files.");
     println!("    life      Launches Conway's Game of Life interactive terminal simulator.");
+    println!("    matrix    Launches an interactive Matrix rain and Doom fire visualizer.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -787,6 +789,47 @@ pub fn print_mac_help() {
     println!("    ir mac                                   List all local MAC addresses and their vendors");
     println!("    ir mac 00:1A:2B:3C:4D:5E                 Lookup manufacturer for specific MAC address");
     println!("    ir mac --update                          Update the local MAC OUI vendor database");
+}
+
+pub fn print_serve_help() {
+    println!("ir-serve");
+    println!("\nUSAGE:");
+    println!("    ir serve [SWITCHES] [DIRECTORY]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches a zero-configuration local HTTP static file server.");
+    println!("\nARGUMENTS:");
+    println!("    [DIRECTORY]             The root directory folder to serve [Default: .]");
+    println!("\nSWITCHES:");
+    println!("    -p, --port <port>       Port number to bind the server to [Default: 8080]");
+    println!("    -b, --bind <address>    IP address interface to bind to [Default: 127.0.0.1]");
+    println!("    -c, --cache <seconds>   Custom Cache-Control max-age header value [Default: no cache]");
+    println!("\nEXAMPLES:");
+    println!("    ir serve                                 Serve current directory on port 8080");
+    println!("    ir serve -p 3000 /var/www/html           Serve /var/www/html on port 3000");
+    println!("    ir serve -b 0.0.0.0 -c 3600              Serve publicly with 1 hour caching");
+}
+
+pub fn print_matrix_help() {
+    println!("ir-matrix");
+    println!("\nUSAGE:");
+    println!("    ir matrix [SWITCHES] [MODE]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches a flashy interactive retro screensaver visualizer in the terminal.");
+    println!("\nARGUMENTS:");
+    println!("    [MODE]                  Screensaver effect mode: 'matrix' or 'fire' [Default: matrix]");
+    println!("\nSWITCHES:");
+    println!("    -m, --mode <name>       Screensaver effect mode: 'matrix' or 'fire'");
+    println!("    -f, --fps <fps>         Animation refresh rate in frames per second (1..60) [Default: 15]");
+    println!("\nINTERACTIVE KEYS:");
+    println!("    Space                   Pause or resume the animation");
+    println!("    + / -                   Increase or decrease the frame rate");
+    println!("    c / C                   Cycle through color schemes");
+    println!("    d / D                   Adjust drop density (matrix) or wind drift direction (fire)");
+    println!("    Esc / q                 Quit screen and restore terminal cleanly");
+    println!("\nEXAMPLES:");
+    println!("    ir matrix                                Start the Matrix digital rain screensaver");
+    println!("    ir matrix fire                           Start the procedural Doom fire visualizer");
+    println!("    ir matrix -f 30                          Start the Matrix rain at 30 FPS");
 }
 
 pub fn print_path_help() {
