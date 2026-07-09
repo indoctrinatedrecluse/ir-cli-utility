@@ -726,13 +726,20 @@ pub fn run_gitinfo(options: GitInfoOptions) {
         match current_tab {
             0 => {
                 // TAB 1: HISTORY & GRAPH
-                let commits_list_width = (width * 60) / 100;
-                let details_width = width.saturating_sub(commits_list_width).saturating_sub(3);
+                let details_width = if width > 90 { 50 } else { (width * 45) / 100 };
+                let commits_list_width = width.saturating_sub(details_width).saturating_sub(3);
 
                 let selected_commit = if !commits.is_empty() && history_scroll < commits.len() {
                     Some(&commits[history_scroll])
                 } else {
                     None
+                };
+
+                let message_lines = if let Some(c) = &selected_commit {
+                    let line_limit = details_width.saturating_sub(2);
+                    wrap_text(&c.message, line_limit)
+                } else {
+                    Vec::new()
                 };
 
                 for row_y in 0..content_height {
@@ -867,21 +874,9 @@ pub fn run_gitinfo(options: GitInfoOptions) {
                                 "\x1B[1;37mMessage:\x1B[0m".to_string()
                             }
                         }
-                        Some(c) if row_y >= 5 && (row_y - 5) < c.message.lines().count() => {
-                            let line = c.message.lines().nth(row_y - 5).unwrap_or("");
-                            let line_limit = details_width.saturating_sub(2);
-                            let truncated_line = if line.chars().count() > line_limit {
-                                if line_limit > 3 {
-                                    let mut tr: String = line.chars().take(line_limit - 3).collect();
-                                    tr.push_str("...");
-                                    tr
-                                } else {
-                                    "".to_string()
-                                }
-                            } else {
-                                line.to_string()
-                            };
-                            format!("  {}", truncated_line)
+                        Some(_) if row_y >= 5 && (row_y - 5) < message_lines.len() => {
+                            let line = &message_lines[row_y - 5];
+                            format!("  {}", line)
                         }
                         _ => "".to_string(),
                     };
@@ -1057,4 +1052,43 @@ fn format_size(bytes: u64) -> String {
     } else {
         format!("{} B", bytes)
     }
+}
+
+fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
+    let mut lines = Vec::new();
+    for paragraph in text.lines() {
+        if paragraph.trim().is_empty() {
+            lines.push("".to_string());
+            continue;
+        }
+        let mut current_line = String::new();
+        for word in paragraph.split_whitespace() {
+            if word.chars().count() > max_width {
+                if !current_line.is_empty() {
+                    lines.push(current_line);
+                    current_line = String::new();
+                }
+                let mut word_chars = word.chars().peekable();
+                while word_chars.peek().is_some() {
+                    let chunk: String = word_chars.by_ref().take(max_width).collect();
+                    lines.push(chunk);
+                }
+            } else {
+                let space_needed = if current_line.is_empty() { 0 } else { 1 };
+                if current_line.chars().count() + space_needed + word.chars().count() > max_width {
+                    lines.push(current_line);
+                    current_line = word.to_string();
+                } else {
+                    if !current_line.is_empty() {
+                        current_line.push(' ');
+                    }
+                    current_line.push_str(word);
+                }
+            }
+        }
+        if !current_line.is_empty() {
+            lines.push(current_line);
+        }
+    }
+    lines
 }
