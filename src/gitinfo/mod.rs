@@ -625,10 +625,10 @@ pub fn run_gitinfo(options: GitInfoOptions) {
             Key::Esc | Key::Char('q') | Key::Char('Q') => {
                 break;
             }
-            Key::Char('1') => { current_tab = 0; }
-            Key::Char('2') => { current_tab = 1; }
-            Key::Char('3') => { current_tab = 2; }
-            Key::Char('4') => { current_tab = 3; }
+            Key::Char('1') => { if current_tab != 0 { current_tab = 0; print!("\x1B[2J"); } }
+            Key::Char('2') => { if current_tab != 1 { current_tab = 1; print!("\x1B[2J"); } }
+            Key::Char('3') => { if current_tab != 2 { current_tab = 2; print!("\x1B[2J"); } }
+            Key::Char('4') => { if current_tab != 3 { current_tab = 3; print!("\x1B[2J"); } }
             
             Key::Up => {
                 match current_tab {
@@ -716,9 +716,9 @@ pub fn run_gitinfo(options: GitInfoOptions) {
                 frame.push_str(&format!("\x1B[37m  {}   \x1B[0m ", label));
             }
         }
-        frame.push_str("\n");
+        frame.push_str("\x1B[K\n");
         frame.push_str(&"━".repeat(width));
-        frame.push_str("\n");
+        frame.push_str("\x1B[K\n");
 
         // 2. Body based on selected Tab
         let content_height = height.saturating_sub(5); // header(3) + footer(2)
@@ -817,28 +817,28 @@ pub fn run_gitinfo(options: GitInfoOptions) {
                     frame.push_str(&" ".repeat(pad));
                     frame.push_str(" \x1B[90m│\x1B[0m ");
                     frame.push_str(&right_str);
-                    frame.push_str("\n");
+                    frame.push_str("\x1B[K\n");
                 }
             }
             1 => {
                 // TAB 2: CHANGES STATUS
                 frame.push_str(&format!(
-                    " \x1B[1mTracked Files:\x1B[0m {}  |  \x1B[1mChanges:\x1B[0m {} uncommitted\n\n",
+                    " \x1B[1mTracked Files:\x1B[0m {}  |  \x1B[1mChanges:\x1B[0m {} uncommitted\x1B[K\n\x1B[K\n",
                     total_tracked_files, status_items.len()
                 ));
                 let adjusted_height = content_height.saturating_sub(2);
 
                 if status_items.is_empty() {
-                    frame.push_str("  \x1B[32mNo uncommitted changes. Working directory is clean.\x1B[0m\n");
+                    frame.push_str("  \x1B[32mNo uncommitted changes. Working directory is clean.\x1B[0m\x1B[K\n");
                     for _ in 1..adjusted_height {
-                        frame.push('\n');
+                        frame.push_str("\x1B[K\n");
                     }
                 } else {
                     frame.push_str(&format!(
-                        "  {:<3} {:<60} {:<15} {}\n",
+                        "  {:<3} {:<60} {:<15} {}\x1B[K\n",
                         "ST", "FILE PATH", "SIZE", "MODIFIED TIME"
                     ));
-                    frame.push_str(&format!("  {}\n", "━".repeat(width.saturating_sub(4))));
+                    frame.push_str(&format!("  {}\x1B[K\n", "━".repeat(width.saturating_sub(4))));
 
                     for row_y in 2..adjusted_height {
                         let item_idx = row_y - 2 + status_scroll;
@@ -859,19 +859,19 @@ pub fn run_gitinfo(options: GitInfoOptions) {
 
                             let select_marker = if item_idx == status_scroll { "\x1B[1;32m>\x1B[0m" } else { " " };
                             frame.push_str(&format!(
-                                "{} {} {:<60} {:<15} {}\n",
+                                "{} {} {:<60} {:<15} {}\x1B[K\n",
                                 select_marker, status_lbl, truncated_path, format_size(item.size), item.mtime
                             ));
                         } else {
-                            frame.push('\n');
+                            frame.push_str("\x1B[K\n");
                         }
                     }
                 }
             }
             2 => {
                 // TAB 3: REFERENCES & BRANCHES
-                frame.push_str(&format!("  {:<25} {:<42} {}\n", "REF LABEL", "COMMIT HASH", "REF TYPE"));
-                frame.push_str(&format!("  {}\n", "━".repeat(width.saturating_sub(4))));
+                frame.push_str(&format!("  {:<25} {:<42} {}\x1B[K\n", "REF LABEL", "COMMIT HASH", "REF TYPE"));
+                frame.push_str(&format!("  {}\x1B[K\n", "━".repeat(width.saturating_sub(4))));
                 let adjusted_height = content_height.saturating_sub(2);
 
                 for row_y in 2..adjusted_height {
@@ -891,11 +891,11 @@ pub fn run_gitinfo(options: GitInfoOptions) {
                         let select_marker = if ref_idx == refs_scroll { "\x1B[1;32m>\x1B[0m" } else { " " };
 
                         frame.push_str(&format!(
-                            "{}{} {:<25} {:<42} {}\n",
+                            "{}{} {:<25} {:<42} {}\x1B[K\n",
                             select_marker, active_marker, r.name, r.sha, ref_type
                         ));
                     } else {
-                        frame.push('\n');
+                        frame.push_str("\x1B[K\n");
                     }
                 }
             }
@@ -916,7 +916,7 @@ pub fn run_gitinfo(options: GitInfoOptions) {
                 for row_y in 0..content_height {
                     if row_y < stats_lines.len() {
                         frame.push_str(&stats_lines[row_y]);
-                        frame.push('\n');
+                        frame.push_str("\x1B[K\n");
                     } else {
                         let contrib_idx = row_y - stats_lines.len() + summary_scroll;
                         if contrib_idx < top_contributors.len() {
@@ -926,7 +926,7 @@ pub fn run_gitinfo(options: GitInfoOptions) {
                                 author, count
                             ));
                         }
-                        frame.push('\n');
+                        frame.push_str("\x1B[K\n");
                     }
                 }
             }
