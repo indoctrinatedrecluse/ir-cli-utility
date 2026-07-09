@@ -753,15 +753,33 @@ pub fn run_gitinfo(options: GitInfoOptions) {
                         }
                         
                         let mut ref_deco = String::new();
+                        let mut current_deco_len = 0;
+                        let max_deco_len = commits_list_width.saturating_sub(25);
+                        
                         for r in &ref_names {
-                            let color = if r.is_tag {
-                                "\x1B[1;33m" // Yellow tags
-                            } else if r.is_remote {
-                                "\x1B[1;31m" // Red remote refs
+                            let item_display_len = r.name.chars().count() + 3;
+                            if current_deco_len + item_display_len <= max_deco_len {
+                                let color = if r.is_tag {
+                                    "\x1B[1;33m" // Yellow tags
+                                } else if r.is_remote {
+                                    "\x1B[1;31m" // Red remote refs
+                                } else {
+                                    "\x1B[1;32m" // Green local branch
+                                };
+                                ref_deco.push_str(&format!("{}({}) \x1B[0m", color, r.name));
+                                current_deco_len += item_display_len;
                             } else {
-                                "\x1B[1;32m" // Green local branch
-                            };
-                            ref_deco.push_str(&format!("{}({}) \x1B[0m", color, r.name));
+                                if current_deco_len == 0 {
+                                    let allowed = max_deco_len.saturating_sub(5);
+                                    if allowed > 0 {
+                                        let truncated_name: String = r.name.chars().take(allowed).collect();
+                                        let color = if r.is_tag { "\x1B[1;33m" } else if r.is_remote { "\x1B[1;31m" } else { "\x1B[1;32m" };
+                                        ref_deco.push_str(&format!("{}({}...) \x1B[0m", color, truncated_name));
+                                        current_deco_len += allowed + 6;
+                                    }
+                                }
+                                break;
+                            }
                         }
 
                         let is_selected = commit_idx == history_scroll;
@@ -773,10 +791,18 @@ pub fn run_gitinfo(options: GitInfoOptions) {
                             graph_line = "*".to_string();
                         }
                         
-                        let msg_limit = commits_list_width.saturating_sub(18 + ref_deco.len());
+                        let prefix_len = 13 + current_deco_len;
+                        let msg_limit = commits_list_width.saturating_sub(prefix_len);
                         let clean_msg = commit.message.trim();
-                        let truncated_msg = if clean_msg.len() > msg_limit {
-                            format!("{}...", &clean_msg[..msg_limit.saturating_sub(3)])
+                        let char_count = clean_msg.chars().count();
+                        let truncated_msg = if char_count > msg_limit {
+                            if msg_limit > 3 {
+                                let mut tr: String = clean_msg.chars().take(msg_limit - 3).collect();
+                                tr.push_str("...");
+                                tr
+                            } else {
+                                "".to_string()
+                            }
                         } else {
                             clean_msg.to_string()
                         };
