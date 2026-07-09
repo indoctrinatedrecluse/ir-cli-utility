@@ -815,19 +815,69 @@ pub fn run_gitinfo(options: GitInfoOptions) {
 
                     // Render right: details panel (split line + commit details)
                     let right_str = match &selected_commit {
-                        Some(c) if row_y == 0 => format!("\x1B[1;36mCommit:\x1B[0m  {}", c.sha),
-                        Some(c) if row_y == 1 => format!("\x1B[1;36mAuthor:\x1B[0m  {} <{}>", c.author, c.email),
+                        Some(c) if row_y == 0 => {
+                            let sha_limit = details_width.saturating_sub(9);
+                            let display_sha = if c.sha.chars().count() > sha_limit {
+                                c.sha.chars().take(sha_limit).collect::<String>()
+                            } else {
+                                c.sha.clone()
+                            };
+                            format!("\x1B[1;36mCommit:\x1B[0m  {}", display_sha)
+                        }
+                        Some(c) if row_y == 1 => {
+                            let author_str = format!("{} <{}>", c.author, c.email);
+                            let author_limit = details_width.saturating_sub(9);
+                            let display_author = if author_str.chars().count() > author_limit {
+                                if author_limit > 3 {
+                                    let mut tr: String = author_str.chars().take(author_limit - 3).collect();
+                                    tr.push_str("...");
+                                    tr
+                                } else {
+                                    "".to_string()
+                                }
+                            } else {
+                                author_str
+                            };
+                            format!("\x1B[1;36mAuthor:\x1B[0m  {}", display_author)
+                        }
                         Some(c) if row_y == 2 => {
                             let dt = chrono::DateTime::from_timestamp(c.timestamp as i64, 0)
                                 .map(|d| d.with_timezone(&chrono::Local).format("%Y-%m-%d %H:%M:%S").to_string())
                                 .unwrap_or_else(|| "-".to_string());
-                            format!("\x1B[1;36mDate:\x1B[0m    {} ({})", dt, c.tz)
+                            let date_str = format!("{} ({})", dt, c.tz);
+                            let date_limit = details_width.saturating_sub(9);
+                            let display_date = if date_str.chars().count() > date_limit {
+                                if date_limit > 3 {
+                                    let mut tr: String = date_str.chars().take(date_limit - 3).collect();
+                                    tr.push_str("...");
+                                    tr
+                                } else {
+                                    "".to_string()
+                                }
+                            } else {
+                                date_str
+                            };
+                            format!("\x1B[1;36mDate:\x1B[0m    {}", display_date)
                         }
-                        Some(c) if row_y == 4 => "\x1B[1;37mMessage:\x1B[0m".to_string(),
+                        Some(_) if row_y == 4 => {
+                            let label = "Message:";
+                            if label.chars().count() > details_width {
+                                "".to_string()
+                            } else {
+                                "\x1B[1;37mMessage:\x1B[0m".to_string()
+                            }
+                        }
                         Some(c) if row_y >= 5 && (row_y - 5) < c.message.lines().count() => {
                             let line = c.message.lines().nth(row_y - 5).unwrap_or("");
-                            let truncated_line = if line.len() > details_width {
-                                format!("{}...", &line[..details_width.saturating_sub(3)])
+                            let line_limit = details_width.saturating_sub(2);
+                            let truncated_line = if line.chars().count() > line_limit {
+                                if line_limit > 3 {
+                                    let mut tr: String = line.chars().take(line_limit - 3).collect();
+                                    tr.push_str("...");
+                                    tr
+                                } else {
+                                    "".to_string()
+                                }
                             } else {
                                 line.to_string()
                             };
