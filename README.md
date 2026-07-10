@@ -1792,6 +1792,134 @@ ir chmod 444 document.txt                # Make document read-only
 ir chmod -R 755 src                      # Recursively make directory writeable
 ```
 
+
+---
+
+### 🚰 `tee`
+Copy standard input to each specified file, and also to standard output.
+
+**Usage:**
+```bash
+ir tee [switches] [FILE...]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-a`, `--append` | Append to the given FILEs, do not overwrite. |
+| `-i`, `--ignore-interrupts` | Ignore interrupt signals (SIGINT). |
+
+**Examples:**
+```bash
+echo "hello world" | ir tee out.txt          # Print to stdout and write to out.txt
+echo "hello world" | ir tee -a out.txt       # Print to stdout and append to out.txt
+```
+
+---
+
+### 🐕 `head`
+Print the first part (lines or bytes) of files or standard input.
+
+**Usage:**
+```bash
+ir head [switches] [FILE...]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-n`, `--lines <[-]N>` | Print first N lines; with leading '-', print all but the last N lines (Default: 10). |
+| `-c`, `--bytes <[-]N>` | Print first N bytes; with leading '-', print all but the last N bytes. |
+| `-q`, `--quiet`, `--silent` | Never print headers giving file names. |
+| `-v`, `--verbose` | Always print headers giving file names. |
+
+> [!NOTE]
+> - `--lines` and `--bytes` are mutually exclusive.
+> - `--quiet` and `--verbose` are mutually exclusive.
+> - Standard single-character switches can be concatenated (e.g. `ir head -qv file.txt` will raise a conflict error, but `ir head -q -n 5` can be concatenated as `ir head -qn 5` or similar).
+
+**Examples:**
+```bash
+ir head -n 5 file.txt                        # Print first 5 lines of file.txt
+ir head -n -3 file.txt                       # Print all but the last 3 lines of file.txt
+```
+
+---
+
+### 🐕 `tail`
+Print the last part (lines or bytes) of files or standard input, or follow file additions.
+
+**Usage:**
+```bash
+ir tail [switches] [FILE...]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-n`, `--lines <[+]N>` | Print last N lines; with leading '+', print starting with the Nth line (Default: 10). |
+| `-c`, `--bytes <[+]N>` | Print last N bytes; with leading '+', print starting with the Nth byte. |
+| `-f`, `--follow` | Output appended data as the file grows. |
+| `-s`, `--sleep-interval <S>` | With `-f`, sleep S seconds between iterations (Default: 1.0). |
+| `-q`, `--quiet`, `--silent` | Never print headers giving file names. |
+| `-v`, `--verbose` | Always print headers giving file names. |
+
+> [!NOTE]
+> - `--lines` and `--bytes` are mutually exclusive.
+> - `--quiet` and `--verbose` are mutually exclusive.
+
+**Examples:**
+```bash
+ir tail -n 20 file.txt                       # Print last 20 lines of file.txt
+ir tail -f log.txt                           # Live-follow additions to log.txt
+```
+
+---
+
+### 📝 `stat`
+Display file or file system metadata status.
+
+**Usage:**
+```bash
+ir stat [switches] FILE...
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-f`, `--file-system` | Display file system status instead of file status. |
+| `-c`, `--format <FORMAT>` | Use the specified FORMAT instead of the default; automatically prints a newline after each use of FORMAT. |
+| `-t`, `--terse` | Print the information in terse form. |
+
+**Format Specifiers (file status):**
+* `%a` — Access rights in octal
+* `%A` — Access rights in human readable form (e.g., `-rw-r--r--`)
+* `%b` — Number of blocks allocated
+* `%B` — The size of each block reported by `%b` (typically 512 or 4096)
+* `%d` — Device number in decimal
+* `%D` — Device number in hex
+* `%f` — Raw mode in hex
+* `%F` — File type
+* `%g` — Group ID of owner
+* `%G` — Group name of owner
+* `%h` — Number of hard links
+* `%i` — Inode number
+* `%n` — File name
+* `%o` — Optimal I/O transfer size
+* `%s` — Total size, in bytes
+* `%u` — User ID of owner
+* `%U` — User name of owner
+* `%x` — Time of last access
+* `%y` — Time of last data modification
+* `%z` — Time of last status change
+* `%w` — Time of file birth, or `-` if unknown
+
+**Examples:**
+```bash
+ir stat file.txt                             # Print detailed status of file.txt
+ir stat -c "%A %n" file.txt                  # Print permissions and filename
+```
+
 ---
 
 ### 📊 `pmon`

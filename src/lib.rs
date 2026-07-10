@@ -65,6 +65,10 @@ pub mod dbview;
 pub mod request;
 pub mod hexview;
 pub mod sysinfo;
+pub mod tee;
+pub mod head;
+pub mod tail;
+pub mod stat;
 
 
 
@@ -886,6 +890,22 @@ pub struct SysInfoOptions {}
 
 pub fn sysinfo(_options: SysInfoOptions) {
     let _ = sysinfo::run_sysinfo();
+}
+
+pub fn tee(options: tee::TeeOptions) {
+    let _ = tee::run_tee(options);
+}
+
+pub fn head(options: head::HeadOptions) {
+    let _ = head::run_head(options);
+}
+
+pub fn tail(options: tail::TailOptions) {
+    let _ = tail::run_tail(options);
+}
+
+pub fn stat(options: stat::StatOptions) {
+    let _ = stat::run_stat(options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

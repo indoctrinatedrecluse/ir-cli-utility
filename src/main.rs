@@ -2994,6 +2994,476 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "tee" => {
+            let mut options = ir_cli_utility::tee::TeeOptions {
+                files: Vec::new(),
+                append: false,
+                ignore_interrupts: false,
+            };
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+            while let Some(arg) = args_iter.next() {
+                if arg == "--append" {
+                    options.append = true;
+                } else if arg == "--ignore-interrupts" {
+                    options.ignore_interrupts = true;
+                } else if arg.starts_with('-') && arg.len() > 1 && !arg.starts_with("--") {
+                    for char in arg.chars().skip(1) {
+                        match char {
+                            'a' => options.append = true,
+                            'i' => options.ignore_interrupts = true,
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for tee.", char);
+                                valid = false;
+                                break;
+                            }
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    options.files.push(arg.clone());
+                }
+            }
+            if valid {
+                ir_cli_utility::tee(options);
+            } else {
+                help::print_tee_help();
+                std::process::exit(1);
+            }
+        }
+        "head" => {
+            let mut files = Vec::new();
+            let mut quiet = false;
+            let mut verbose = false;
+            let mut lines_val: Option<String> = None;
+            let mut bytes_val: Option<String> = None;
+            let mut valid = true;
+
+            let args_vec = &args[2..];
+            let mut i = 0;
+            while i < args_vec.len() {
+                let arg = &args_vec[i];
+                if arg == "--quiet" || arg == "--silent" {
+                    quiet = true;
+                } else if arg == "--verbose" {
+                    verbose = true;
+                } else if arg == "--lines" {
+                    if i + 1 < args_vec.len() {
+                        lines_val = Some(args_vec[i + 1].clone());
+                        i += 1;
+                    } else {
+                        eprintln!("Error: --lines requires an argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "--bytes" {
+                    if i + 1 < args_vec.len() {
+                        bytes_val = Some(args_vec[i + 1].clone());
+                        i += 1;
+                    } else {
+                        eprintln!("Error: --bytes requires an argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 && !arg.starts_with("--") {
+                    let rest = &arg[1..];
+                    if rest.chars().all(|c| c.is_ascii_digit()) {
+                        lines_val = Some(rest.to_string());
+                    } else {
+                        let chars: Vec<char> = arg.chars().skip(1).collect();
+                        let mut j = 0;
+                        while j < chars.len() {
+                            let ch = chars[j];
+                            match ch {
+                                'q' => quiet = true,
+                                'v' => verbose = true,
+                                'n' | 'c' => {
+                                    let val;
+                                    if j + 1 < chars.len() {
+                                        val = chars[j+1..].iter().collect();
+                                        j = chars.len();
+                                    } else {
+                                        if i + 1 < args_vec.len() {
+                                            val = args_vec[i + 1].clone();
+                                            i += 1;
+                                        } else {
+                                            eprintln!("Error: -{} requires an argument.", ch);
+                                            valid = false;
+                                            break;
+                                        }
+                                    }
+                                    if ch == 'n' {
+                                        lines_val = Some(val);
+                                    } else {
+                                        bytes_val = Some(val);
+                                    }
+                                }
+                                _ => {
+                                    eprintln!("Error: Unknown switch '-{}' for head.", ch);
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                            j += 1;
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    files.push(arg.clone());
+                }
+                i += 1;
+            }
+
+            if valid {
+                if lines_val.is_some() && bytes_val.is_some() {
+                    eprintln!("Error: --lines and --bytes cannot be used together.");
+                    valid = false;
+                }
+                if quiet && verbose {
+                    eprintln!("Error: --quiet and --verbose cannot be used together.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let count = if let Some(ref lv) = lines_val {
+                    let (neg, val_str) = if lv.starts_with('-') {
+                        (true, &lv[1..])
+                    } else {
+                        (false, lv.as_str())
+                    };
+                    match val_str.parse::<usize>() {
+                        Ok(num) => {
+                            if neg {
+                                ir_cli_utility::head::HeadCount::LinesAllButLast(num)
+                            } else {
+                                ir_cli_utility::head::HeadCount::Lines(num)
+                            }
+                        }
+                        Err(_) => {
+                            eprintln!("Error: Invalid lines value '{}'.", lv);
+                            valid = false;
+                            ir_cli_utility::head::HeadCount::Lines(10)
+                        }
+                    }
+                } else if let Some(ref bv) = bytes_val {
+                    let (neg, val_str) = if bv.starts_with('-') {
+                        (true, &bv[1..])
+                    } else {
+                        (false, bv.as_str())
+                    };
+                    match val_str.parse::<usize>() {
+                        Ok(num) => {
+                            if neg {
+                                ir_cli_utility::head::HeadCount::BytesAllButLast(num)
+                            } else {
+                                ir_cli_utility::head::HeadCount::Bytes(num)
+                            }
+                        }
+                        Err(_) => {
+                            eprintln!("Error: Invalid bytes value '{}'.", bv);
+                            valid = false;
+                            ir_cli_utility::head::HeadCount::Bytes(10)
+                        }
+                    }
+                } else {
+                    ir_cli_utility::head::HeadCount::Lines(10)
+                };
+
+                if valid {
+                    let options = ir_cli_utility::head::HeadOptions {
+                        files,
+                        count,
+                        quiet,
+                        verbose,
+                    };
+                    ir_cli_utility::head(options);
+                }
+            }
+
+            if !valid {
+                help::print_head_help();
+                std::process::exit(1);
+            }
+        }
+        "tail" => {
+            let mut files = Vec::new();
+            let mut quiet = false;
+            let mut verbose = false;
+            let mut follow = false;
+            let mut sleep_interval_ms = 1000;
+            let mut lines_val: Option<String> = None;
+            let mut bytes_val: Option<String> = None;
+            let mut valid = true;
+
+            let args_vec = &args[2..];
+            let mut i = 0;
+            while i < args_vec.len() {
+                let arg = &args_vec[i];
+                if arg == "--quiet" || arg == "--silent" {
+                    quiet = true;
+                } else if arg == "--verbose" {
+                    verbose = true;
+                } else if arg == "--follow" {
+                    follow = true;
+                } else if arg == "--lines" {
+                    if i + 1 < args_vec.len() {
+                        lines_val = Some(args_vec[i + 1].clone());
+                        i += 1;
+                    } else {
+                        eprintln!("Error: --lines requires an argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "--bytes" {
+                    if i + 1 < args_vec.len() {
+                        bytes_val = Some(args_vec[i + 1].clone());
+                        i += 1;
+                    } else {
+                        eprintln!("Error: --bytes requires an argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "--sleep-interval" {
+                    if i + 1 < args_vec.len() {
+                        if let Ok(sec) = args_vec[i + 1].parse::<f64>() {
+                            sleep_interval_ms = (sec * 1000.0) as u64;
+                        } else {
+                            eprintln!("Error: Invalid sleep-interval '{}'.", args_vec[i + 1]);
+                            valid = false;
+                            break;
+                        }
+                        i += 1;
+                    } else {
+                        eprintln!("Error: --sleep-interval requires an argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg.starts_with('+') && arg.len() > 1 {
+                    let rest = &arg[1..];
+                    if rest.chars().all(|c| c.is_ascii_digit()) {
+                        lines_val = Some(arg.clone());
+                    } else {
+                        files.push(arg.clone());
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 && !arg.starts_with("--") {
+                    let rest = &arg[1..];
+                    if rest.chars().all(|c| c.is_ascii_digit()) {
+                        lines_val = Some(rest.to_string());
+                    } else {
+                        let chars: Vec<char> = arg.chars().skip(1).collect();
+                        let mut j = 0;
+                        while j < chars.len() {
+                            let ch = chars[j];
+                            match ch {
+                                'q' => quiet = true,
+                                'v' => verbose = true,
+                                'f' => follow = true,
+                                'n' | 'c' | 's' => {
+                                    let val;
+                                    if j + 1 < chars.len() {
+                                        val = chars[j+1..].iter().collect();
+                                        j = chars.len();
+                                    } else {
+                                        if i + 1 < args_vec.len() {
+                                            val = args_vec[i + 1].clone();
+                                            i += 1;
+                                        } else {
+                                            eprintln!("Error: -{} requires an argument.", ch);
+                                            valid = false;
+                                            break;
+                                        }
+                                    }
+                                    if ch == 'n' {
+                                        lines_val = Some(val);
+                                    } else if ch == 'c' {
+                                        bytes_val = Some(val);
+                                    } else {
+                                        if let Ok(sec) = val.parse::<f64>() {
+                                            sleep_interval_ms = (sec * 1000.0) as u64;
+                                        } else {
+                                            eprintln!("Error: Invalid sleep-interval '{}'.", val);
+                                            valid = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                                _ => {
+                                    eprintln!("Error: Unknown switch '-{}' for tail.", ch);
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                            j += 1;
+                        }
+                    }
+                    if !valid { break; }
+                } else {
+                    files.push(arg.clone());
+                }
+                i += 1;
+            }
+
+            if valid {
+                if lines_val.is_some() && bytes_val.is_some() {
+                    eprintln!("Error: --lines and --bytes cannot be used together.");
+                    valid = false;
+                }
+                if quiet && verbose {
+                    eprintln!("Error: --quiet and --verbose cannot be used together.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let count = if let Some(ref lv) = lines_val {
+                    if lv.starts_with('+') {
+                        match lv[1..].parse::<usize>() {
+                            Ok(num) => ir_cli_utility::tail::TailCount::FromKthLine(num),
+                            Err(_) => {
+                                eprintln!("Error: Invalid lines value '{}'.", lv);
+                                valid = false;
+                                ir_cli_utility::tail::TailCount::LastLines(10)
+                            }
+                        }
+                    } else {
+                        let val_str = if lv.starts_with('-') { &lv[1..] } else { lv.as_str() };
+                        match val_str.parse::<usize>() {
+                            Ok(num) => ir_cli_utility::tail::TailCount::LastLines(num),
+                            Err(_) => {
+                                eprintln!("Error: Invalid lines value '{}'.", lv);
+                                valid = false;
+                                ir_cli_utility::tail::TailCount::LastLines(10)
+                            }
+                        }
+                    }
+                } else if let Some(ref bv) = bytes_val {
+                    if bv.starts_with('+') {
+                        match bv[1..].parse::<usize>() {
+                            Ok(num) => ir_cli_utility::tail::TailCount::FromKthByte(num),
+                            Err(_) => {
+                                eprintln!("Error: Invalid bytes value '{}'.", bv);
+                                valid = false;
+                                ir_cli_utility::tail::TailCount::LastBytes(10)
+                            }
+                        }
+                    } else {
+                        let val_str = if bv.starts_with('-') { &bv[1..] } else { bv.as_str() };
+                        match val_str.parse::<usize>() {
+                            Ok(num) => ir_cli_utility::tail::TailCount::LastBytes(num),
+                            Err(_) => {
+                                eprintln!("Error: Invalid bytes value '{}'.", bv);
+                                valid = false;
+                                ir_cli_utility::tail::TailCount::LastBytes(10)
+                            }
+                        }
+                    }
+                } else {
+                    ir_cli_utility::tail::TailCount::LastLines(10)
+                };
+
+                if valid {
+                    let options = ir_cli_utility::tail::TailOptions {
+                        files,
+                        count,
+                        follow,
+                        sleep_interval_ms,
+                        quiet,
+                        verbose,
+                    };
+                    ir_cli_utility::tail(options);
+                }
+            }
+
+            if !valid {
+                help::print_tail_help();
+                std::process::exit(1);
+            }
+        }
+        "stat" => {
+            let mut files = Vec::new();
+            let mut file_system = false;
+            let mut terse = false;
+            let mut format_val: Option<String> = None;
+            let mut valid = true;
+
+            let args_vec = &args[2..];
+            let mut i = 0;
+            while i < args_vec.len() {
+                let arg = &args_vec[i];
+                if arg == "--file-system" {
+                    file_system = true;
+                } else if arg == "--terse" {
+                    terse = true;
+                } else if arg == "--format" {
+                    if i + 1 < args_vec.len() {
+                        format_val = Some(args_vec[i + 1].clone());
+                        i += 1;
+                    } else {
+                        eprintln!("Error: --format requires an argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 && !arg.starts_with("--") {
+                    let chars: Vec<char> = arg.chars().skip(1).collect();
+                    let mut j = 0;
+                    while j < chars.len() {
+                        let ch = chars[j];
+                        match ch {
+                            'f' => file_system = true,
+                            't' => terse = true,
+                            'c' => {
+                                let val;
+                                if j + 1 < chars.len() {
+                                    val = chars[j+1..].iter().collect();
+                                    j = chars.len();
+                                } else {
+                                    if i + 1 < args_vec.len() {
+                                        val = args_vec[i + 1].clone();
+                                        i += 1;
+                                    } else {
+                                        eprintln!("Error: -c requires an argument.");
+                                        valid = false;
+                                        break;
+                                    }
+                                }
+                                format_val = Some(val);
+                            }
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for stat.", ch);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        j += 1;
+                    }
+                    if !valid { break; }
+                } else {
+                    files.push(arg.clone());
+                }
+                i += 1;
+            }
+
+            if valid {
+                if format_val.is_some() && terse {
+                    eprintln!("Error: --format and --terse cannot be used together.");
+                    valid = false;
+                }
+            }
+
+            if valid {
+                let options = ir_cli_utility::stat::StatOptions {
+                    files,
+                    file_system,
+                    format: format_val,
+                    terse,
+                };
+                ir_cli_utility::stat(options);
+            } else {
+                help::print_stat_help();
+                std::process::exit(1);
+            }
+        }
         "path" => {
             let mut options = PathOptions::default();
             let mut positionals: Vec<String> = Vec::new();

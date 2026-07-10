@@ -69,6 +69,10 @@ pub fn print_general_help() {
     println!("    request   Launches an interactive REST API Client dashboard TUI.");
     println!("    hexview   Launches an interactive byte Hex Editor/Viewer TUI.");
     println!("    sysinfo   Launches a live graphical hardware resource system monitor TUI.");
+    println!("    tee       Reads from stdin and writes to stdout and files.");
+    println!("    head      Prints the first lines or bytes of files.");
+    println!("    tail      Prints the last lines or bytes of files, or follows growth.");
+    println!("    stat      Displays file or file system metadata status.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -934,6 +938,100 @@ pub fn print_sysinfo_help() {
     println!("    Launches a real-time hardware resource and statistics system dashboard.");
     println!("\nTUI CONTROLS:");
     println!("    Esc / q                 Quit dashboard");
+}
+
+pub fn print_tee_help() {
+    println!("ir-tee");
+    println!("\nUSAGE:");
+    println!("    ir tee [SWITCHES] [FILE...]");
+    println!("\nDESCRIPTION:");
+    println!("    Copy standard input to each FILE, and also to standard output.");
+    println!("\nSWITCHES:");
+    println!("    -a, --append             Append to the given FILEs, do not overwrite");
+    println!("    -i, --ignore-interrupts  Ignore interrupt signals (SIGINT)");
+    println!("\nEXAMPLES:");
+    println!("    echo \"hello\" | ir tee out.txt           Print to stdout and write to out.txt");
+    println!("    echo \"world\" | ir tee -a out.txt        Print to stdout and append to out.txt");
+}
+
+pub fn print_head_help() {
+    println!("ir-head");
+    println!("\nUSAGE:");
+    println!("    ir head [SWITCHES] [FILE...]");
+    println!("\nDESCRIPTION:");
+    println!("    Print the first 10 lines of each FILE to standard output.");
+    println!("    With more than one FILE, precede each with a header showing the file name.");
+    println!("    With no FILE, or when FILE is -, read standard input.");
+    println!("\nSWITCHES:");
+    println!("    -n, --lines <[-]K>       Print the first K lines; with the leading '-',");
+    println!("                             print all but the last K lines of each file");
+    println!("    -c, --bytes <[-]K>       Print the first K bytes; with the leading '-',");
+    println!("                             print all but the last K bytes of each file");
+    println!("    -q, --quiet, --silent    Never print headers giving file names");
+    println!("    -v, --verbose            Always print headers giving file names");
+    println!("\nEXAMPLES:");
+    println!("    ir head -n 5 file.txt                    Print the first 5 lines of file.txt");
+    println!("    ir head -n -3 file.txt                   Print all but the last 3 lines of file.txt");
+}
+
+pub fn print_tail_help() {
+    println!("ir-tail");
+    println!("\nUSAGE:");
+    println!("    ir tail [SWITCHES] [FILE...]");
+    println!("\nDESCRIPTION:");
+    println!("    Print the last 10 lines of each FILE to standard output.");
+    println!("    With more than one FILE, precede each with a header showing the file name.");
+    println!("    With no FILE, or when FILE is -, read standard input.");
+    println!("\nSWITCHES:");
+    println!("    -n, --lines <[+]K>       Print the last K lines; with the leading '+',");
+    println!("                             print starting with the Kth line");
+    println!("    -c, --bytes <[+]K>       Print the last K bytes; with the leading '+',");
+    println!("                             print starting with the Kth byte");
+    println!("    -f, --follow             Output appended data as the file grows");
+    println!("    -s, --sleep-interval <S> With -f, sleep S seconds between iterations (Default: 1.0)");
+    println!("    -q, --quiet, --silent    Never print headers giving file names");
+    println!("    -v, --verbose            Always print headers giving file names");
+    println!("\nEXAMPLES:");
+    println!("    ir tail -n 20 file.txt                   Print the last 20 lines of file.txt");
+    println!("    ir tail -f log.txt                       Live-follow additions to log.txt");
+}
+
+pub fn print_stat_help() {
+    println!("ir-stat");
+    println!("\nUSAGE:");
+    println!("    ir stat [SWITCHES] FILE...");
+    println!("\nDESCRIPTION:");
+    println!("    Display file or file system metadata status.");
+    println!("\nSWITCHES:");
+    println!("    -f, --file-system        Display file system status instead of file status");
+    println!("    -c, --format <FORMAT>    Use the specified FORMAT instead of the default;");
+    println!("                             automatically prints a newline after each use of FORMAT");
+    println!("    -t, --terse              Print the information in terse form");
+    println!("\nFORMAT SPECIFIERS (file status):");
+    println!("    %a   Access rights in octal");
+    println!("    %A   Access rights in human readable form");
+    println!("    %b   Number of blocks allocated");
+    println!("    %B   The size of each block reported by %b");
+    println!("    %d   Device number in decimal");
+    println!("    %D   Device number in hex");
+    println!("    %f   Raw mode in hex");
+    println!("    %F   File type");
+    println!("    %g   Group ID of owner");
+    println!("    %G   Group name of owner");
+    println!("    %h   Number of hard links");
+    println!("    %i   Inode number");
+    println!("    %n   File name");
+    println!("    %o   Optimal I/O transfer size");
+    println!("    %s   Total size, in bytes");
+    println!("    %u   User ID of owner");
+    println!("    %U   User name of owner");
+    println!("    %x   Time of last access");
+    println!("    %y   Time of last data modification");
+    println!("    %z   Time of last status change");
+    println!("    %w   Time of file birth, or - if unknown");
+    println!("\nEXAMPLES:");
+    println!("    ir stat file.txt                         Print detailed status of file.txt");
+    println!("    ir stat -c \"%A %n\" file.txt              Print permissions and filename");
 }
 
 pub fn print_path_help() {

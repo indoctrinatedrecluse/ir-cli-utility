@@ -975,6 +975,63 @@ Launches an interactive byte Hex Editor and Viewer TUI.
 .SS sysinfo
 Launches a live graphical hardware resource and statistics system dashboard TUI.
 
+.SS tee
+Copy standard input to each specified file, and also to standard output.
+.TP
+\fB-a\fR, \fB--append\fR
+Append to the given FILEs, do not overwrite.
+.TP
+\fB-i\fR, \fB--ignore-interrupts\fR
+Ignore interrupt signals (SIGINT).
+
+.SS head
+Print the first part (lines or bytes) of files or standard input.
+.TP
+\fB-n\fR, \fB--lines\fR <[-]N>
+Print first N lines; with leading '-', print all but the last N lines of each file (Default: 10).
+.TP
+\fB-c\fR, \fB--bytes\fR <[-]N>
+Print first N bytes; with leading '-', print all but the last N bytes of each file.
+.TP
+\fB-q\fR, \fB--quiet\fR, \fB--silent\fR
+Never print headers giving file names.
+.TP
+\fB-v\fR, \fB--verbose\fR
+Always print headers giving file names.
+
+.SS tail
+Print the last part (lines or bytes) of files or standard input, or follow file additions.
+.TP
+\fB-n\fR, \fB--lines\fR <[+]N>
+Print last N lines; with leading '+', print starting with the Nth line of each file (Default: 10).
+.TP
+\fB-c\fR, \fB--bytes\fR <[+]N>
+Print last N bytes; with leading '+', print starting with the Nth byte of each file.
+.TP
+\fB-f\fR, \fB--follow\fR
+Output appended data as the file grows.
+.TP
+\fB-s\fR, \fB--sleep-interval\fR <S>
+With -f, sleep S seconds between iterations (Default: 1.0).
+.TP
+\fB-q\fR, \fB--quiet\fR, \fB--silent\fR
+Never print headers giving file names.
+.TP
+\fB-v\fR, \fB--verbose\fR
+Always print headers giving file names.
+
+.SS stat
+Display file or file system metadata status.
+.TP
+\fB-f\fR, \fB--file-system\fR
+Display file system status instead of file status.
+.TP
+\fB-c\fR, \fB--format\fR <FORMAT>
+Use the specified FORMAT instead of the default; automatically prints a newline after each use of FORMAT.
+.TP
+\fB-t\fR, \fB--terse\fR
+Print the information in terse form.
+
 .SH EXAMPLES
 .TP
 List all files, sorted by size:
