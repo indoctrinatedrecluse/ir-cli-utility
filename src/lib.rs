@@ -43,7 +43,7 @@ pub mod pmon;
 pub mod watch;
 pub mod nettop;
 pub mod dua;
-pub mod browse;
+
 pub mod edit;
 pub mod scrape;
 pub mod sort;
@@ -446,9 +446,6 @@ impl Default for NettopOptions {
 pub struct DuaOptions {}
 
 #[derive(Clone, Default)]
-pub struct BrowseOptions {}
-
-#[derive(Clone, Default)]
 pub struct EditOptions {}
 
 
@@ -549,9 +546,7 @@ pub fn dua(path: &str, options: DuaOptions) {
     dua::dua(path, options);
 }
 
-pub fn browse(path: &str, options: BrowseOptions) {
-    browse::browse(path, options);
-}
+
 
 pub fn edit(filename: &str, options: EditOptions) {
     edit::edit(filename, options);

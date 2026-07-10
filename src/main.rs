@@ -3545,7 +3545,7 @@ fn main() {
                 eprintln!("Error running envv: {}", e);
             }
         }
-        "fm" => {
+        "fm" | "browse" => {
             if let Err(e) = ir_cli_utility::fm::run_fm() {
                 eprintln!("Error running fm: {}", e);
             }
@@ -4078,29 +4078,7 @@ fn main() {
                 std::process::exit(1);
             }
         }
-        "browse" => {
-            let options = ir_cli_utility::BrowseOptions::default();
-            let mut path = ".".to_string();
-            let mut valid = true;
-            let mut args_iter = args[2..].iter().peekable();
 
-            while let Some(arg) = args_iter.next() {
-                if arg.starts_with('-') && arg.len() > 1 {
-                    eprintln!("Error: Unknown switch '{}' for browse.", arg);
-                    valid = false;
-                    break;
-                } else {
-                    path = arg.clone();
-                }
-            }
-
-            if valid {
-                ir_cli_utility::browse(&path, options);
-            } else {
-                help::print_browse_help();
-                std::process::exit(1);
-            }
-        }
         "edit" => {
             let options = ir_cli_utility::EditOptions::default();
             let mut filename = String::new();
