@@ -1044,7 +1044,8 @@ pub fn print_anispeak_help() {
     println!("    If no MESSAGE is specified, reads standard input.");
     println!("\nSWITCHES:");
     println!("    -a, --animal <NAME>      Select the animal character [Default: cow]");
-    println!("                             Supported: cow, crab, dino, cat, dog, duck, owl, penguin");
+    println!("                             Supported: cow, crab, dino, cat, dog, duck, owl, penguin,");
+    println!("                                        elephant, moose, stegosaurus, whale, snake, turtle, sheep");
     println!("    -w, --width <NUM>        Line-wrap width of the speech bubble [Default: 40]");
     println!("\nEXAMPLES:");
     println!("    ir anispeak \"Hello world!\"               The cow says Hello world!");
@@ -1157,17 +1158,22 @@ pub fn print_chmod_help() {
     println!("\nDESCRIPTION:");
     println!("    Changes file mode bits (permissions) of files or directories.");
     println!("\nARGUMENTS:");
-    println!("    <MODE>    Octal mode (e.g. 755, 644, 444).");
+    println!("    <MODE>    Octal mode (e.g. 755, 644) or symbolic mode (e.g. +x, u+w, go-rx, a=r).");
+    println!("              Multiple symbolic changes can be separated by commas (e.g. u+x,g-w).");
     println!("    <PATH...> One or more paths to modify.");
     println!("\nSWITCHES:");
     println!("    -R, --recursive  Recursively apply mode changes to directories and their contents.");
+    println!("    -v, --verbose    Output a diagnostic for every file processed.");
+    println!("    -c, --changes    Like verbose but report only when a change is made.");
     println!("\nWINDOWS SUPPORT:");
-    println!("    - Octal modes containing owner write bit (e.g. 200, 600, 755) remove the read-only attribute.");
-    println!("    - Octal modes without owner write bit (e.g. 400, 444, 555) set the read-only attribute.");
+    println!("    - Modes containing owner write bit (e.g. 200, 600, 755, u+w) remove the read-only attribute.");
+    println!("    - Modes without owner write bit (e.g. 400, 444, 555) set the read-only attribute.");
     println!("\nEXAMPLES:");
     println!("    ir chmod 755 script.sh                   Make file executable/writeable");
-    println!("    ir chmod 444 document.txt                Make file read-only");
-    println!("    ir chmod -R 755 src                      Recursively make src/ writeable");
+    println!("    ir chmod +x script.sh                    Add execute permission for all");
+    println!("    ir chmod u+w,g-w document.txt            Add user write, remove group write");
+    println!("    ir chmod -v -x script.sh                 Remove execute permission and print status");
+    println!("    ir chmod -R -c 644 src/                  Recursively set permissions showing changes");
 }
 
 pub fn print_pmon_help() {

@@ -1772,24 +1772,28 @@ ir chmod [switches] <MODE> <PATH...>
 **Arguments:**
 | Argument | Description |
 | :--- | :--- |
-| `<MODE>` | Octal mode string (e.g. `755`, `644`, `444`). |
+| `<MODE>` | Octal mode string (e.g. `755`, `644`) or symbolic mode (e.g. `+x`, `u+w`, `go-rx`, `a=r`). Multiple changes can be separated by commas (e.g., `u+x,g-w`). |
 | `<PATH...>` | One or more file or directory paths to modify. |
 
 **Switches:**
 | Switch | Description |
 | :--- | :--- |
 | `-R`, `--recursive` | Recursively apply mode changes to directories and their contents. |
+| `-v`, `--verbose` | Output a diagnostic for every file processed. |
+| `-c`, `--changes` | Like verbose but report only when a change is made. |
 
 > [!NOTE]
 > **Windows Support:**
-> - Octal modes containing the owner write bit (e.g. `200`, `600`, `755`) remove the read-only attribute.
-> - Octal modes without the owner write bit (e.g. `400`, `444`, `555`) set the read-only attribute.
+> - Modes containing the owner write bit (e.g. `200`, `600`, `755`, `u+w`) remove the read-only attribute.
+> - Modes without the owner write bit (e.g. `400`, `444`, `555`) set the read-only attribute.
 
 **Examples:**
 ```bash
 ir chmod 755 script.sh                   # Make script executable/writeable
-ir chmod 444 document.txt                # Make document read-only
-ir chmod -R 755 src                      # Recursively make directory writeable
+ir chmod +x script.sh                    # Add execute permissions for user, group, and other
+ir chmod u+w,g-w document.txt            # Add user write permission, remove group write
+ir chmod -v -x script.sh                 # Remove execute permission and print status message
+ir chmod -R -c 644 src                   # Recursively set writeable permission, reporting only modifications
 ```
 
 
@@ -1934,7 +1938,7 @@ ir anispeak [switches] [MESSAGE...]
 **Switches:**
 | Switch | Description |
 | :--- | :--- |
-| `-a`, `--animal <NAME>` | Select the animal template (Default: `cow`). Supported: `cow`, `crab`, `dino`, `cat`, `dog`, `duck`, `owl`, `penguin`. |
+| `-a`, `--animal <NAME>` | Select the animal template (Default: `cow`). Supported: `cow`, `crab`, `dino`, `cat`, `dog`, `duck`, `owl`, `penguin`, `elephant`, `moose`, `stegosaurus`, `whale`, `snake`, `turtle`, `sheep`. |
 | `-w`, `--width <NUM>` | Maximum word-wrap width of the speech bubble (Default: `40`). |
 
 **Examples:**

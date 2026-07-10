@@ -405,6 +405,8 @@ pub struct LnOptions {
 #[derive(Default, Clone)]
 pub struct ChmodOptions {
     pub recursive: bool,
+    pub verbose: bool,
+    pub changes: bool,
 }
 
 #[derive(Clone)]

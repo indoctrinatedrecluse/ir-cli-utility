@@ -3555,9 +3555,12 @@ fn main() {
                     message = buffer.trim_end().to_string();
                 }
 
-                let allowed_animals = ["cow", "crab", "dino", "cat", "dog", "duck", "owl", "penguin"];
+                let allowed_animals = [
+                    "cow", "crab", "dino", "cat", "dog", "duck", "owl", "penguin",
+                    "elephant", "moose", "stegosaurus", "whale", "snake", "turtle", "sheep"
+                ];
                 if !allowed_animals.contains(&animal.to_lowercase().as_str()) {
-                    eprintln!("Error: Supported animals are: cow, crab, dino, cat, dog, duck, owl, penguin.");
+                    eprintln!("Error: Supported animals are: cow, crab, dino, cat, dog, duck, owl, penguin, elephant, moose, stegosaurus, whale, snake, turtle, sheep.");
                     valid = false;
                 }
 
@@ -3819,26 +3822,48 @@ fn main() {
             let mut options = ChmodOptions::default();
             let mut positionals = Vec::new();
             let mut valid = true;
-            let mut args_iter = args[2..].iter().peekable();
+            let mut mode_found = false;
 
-            while let Some(arg) = args_iter.next() {
-                if arg == "-R" || arg == "--recursive" {
-                    options.recursive = true;
-                } else if arg.starts_with('-') && arg.len() > 1 {
-                    for char in arg.chars().skip(1) {
-                        match char {
-                            'R' => options.recursive = true,
-                            _ => {
-                                eprintln!("Error: Unknown switch '-{}' for chmod.", char);
-                                valid = false;
-                                break;
-                            }
+            let args_vec = &args[2..];
+            let mut i = 0;
+            while i < args_vec.len() {
+                let arg = &args_vec[i];
+                if mode_found {
+                    positionals.push(arg.clone());
+                } else if arg == "--" {
+                    mode_found = true;
+                } else if arg.starts_with("--") {
+                    match arg.as_str() {
+                        "--recursive" => options.recursive = true,
+                        "--verbose" => options.verbose = true,
+                        "--changes" => options.changes = true,
+                        _ => {
+                            eprintln!("Error: Unknown switch '{}' for chmod.", arg);
+                            valid = false;
+                            break;
                         }
                     }
-                    if !valid { break; }
+                } else if arg.starts_with('-') && arg.len() > 1 {
+                    let chars: Vec<char> = arg.chars().skip(1).collect();
+                    let is_option = chars.iter().all(|&c| c == 'R' || c == 'v' || c == 'c');
+                    if is_option {
+                        for &c in &chars {
+                            match c {
+                                'R' => options.recursive = true,
+                                'v' => options.verbose = true,
+                                'c' => options.changes = true,
+                                _ => unreachable!(),
+                            }
+                        }
+                    } else {
+                        mode_found = true;
+                        positionals.push(arg.clone());
+                    }
                 } else {
+                    mode_found = true;
                     positionals.push(arg.clone());
                 }
+                i += 1;
             }
 
             if valid {
