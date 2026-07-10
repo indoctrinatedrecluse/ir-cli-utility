@@ -69,6 +69,7 @@ pub mod tee;
 pub mod head;
 pub mod tail;
 pub mod stat;
+pub mod anispeak;
 
 
 
@@ -906,6 +907,10 @@ pub fn tail(options: tail::TailOptions) {
 
 pub fn stat(options: stat::StatOptions) {
     let _ = stat::run_stat(options);
+}
+
+pub fn anispeak(options: anispeak::AnispeakOptions) {
+    let _ = anispeak::run_anispeak(options);
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

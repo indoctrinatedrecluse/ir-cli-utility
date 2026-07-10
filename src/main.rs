@@ -3464,6 +3464,118 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "anispeak" => {
+            let mut positionals = Vec::new();
+            let mut animal = "cow".to_string();
+            let mut width = 40;
+            let mut valid = true;
+
+            let args_vec = &args[2..];
+            let mut i = 0;
+            while i < args_vec.len() {
+                let arg = &args_vec[i];
+                if arg == "--animal" {
+                    if i + 1 < args_vec.len() {
+                        animal = args_vec[i + 1].clone();
+                        i += 1;
+                    } else {
+                        eprintln!("Error: --animal requires a name argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg == "--width" {
+                    if i + 1 < args_vec.len() {
+                        if let Ok(w) = args_vec[i + 1].parse::<usize>() {
+                            width = w;
+                        } else {
+                            eprintln!("Error: Invalid width '{}'.", args_vec[i + 1]);
+                            valid = false;
+                            break;
+                        }
+                        i += 1;
+                    } else {
+                        eprintln!("Error: --width requires a numeric argument.");
+                        valid = false;
+                        break;
+                    }
+                } else if arg.starts_with('-') && arg.len() > 1 && !arg.starts_with("--") {
+                    let chars: Vec<char> = arg.chars().skip(1).collect();
+                    let mut j = 0;
+                    while j < chars.len() {
+                        let ch = chars[j];
+                        match ch {
+                            'a' | 'w' => {
+                                let val;
+                                if j + 1 < chars.len() {
+                                    val = chars[j+1..].iter().collect::<String>();
+                                    j = chars.len();
+                                } else {
+                                    if i + 1 < args_vec.len() {
+                                        val = args_vec[i + 1].clone();
+                                        i += 1;
+                                    } else {
+                                        eprintln!("Error: -{} requires an argument.", ch);
+                                        valid = false;
+                                        break;
+                                    }
+                                }
+                                if ch == 'a' {
+                                    animal = val;
+                                } else {
+                                    if let Ok(w) = val.parse::<usize>() {
+                                        width = w;
+                                    } else {
+                                        eprintln!("Error: Invalid width '{}'.", val);
+                                        valid = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            _ => {
+                                eprintln!("Error: Unknown switch '-{}' for anispeak.", ch);
+                                valid = false;
+                                break;
+                            }
+                        }
+                        j += 1;
+                    }
+                    if !valid { break; }
+                } else {
+                    positionals.push(arg.clone());
+                }
+                i += 1;
+            }
+
+            if valid {
+                let mut message = positionals.join(" ");
+                if message.is_empty() {
+                    use std::io::Read;
+                    let mut buffer = String::new();
+                    let _ = std::io::stdin().read_to_string(&mut buffer);
+                    message = buffer.trim_end().to_string();
+                }
+
+                let allowed_animals = ["cow", "crab", "dino", "cat", "dog", "duck", "owl", "penguin"];
+                if !allowed_animals.contains(&animal.to_lowercase().as_str()) {
+                    eprintln!("Error: Supported animals are: cow, crab, dino, cat, dog, duck, owl, penguin.");
+                    valid = false;
+                }
+
+                if valid {
+                    let options = ir_cli_utility::anispeak::AnispeakOptions {
+                        message,
+                        animal,
+                        width,
+                    };
+                    ir_cli_utility::anispeak(options);
+                }
+            }
+
+            if !valid {
+                help::print_anispeak_help();
+                std::process::exit(1);
+            }
+        }
         "path" => {
             let mut options = PathOptions::default();
             let mut positionals: Vec<String> = Vec::new();
@@ -4069,6 +4181,7 @@ fn main() {
                     "hexv" => help::print_hexview_help(),
                     "sysinfo" => help::print_sysinfo_help(),
                     "sys" => help::print_sysinfo_help(),
+                    "anispeak" => help::print_anispeak_help(),
                     "path" => help::print_path_help(),
                     "df" => help::print_df_help(),
                     "whoami" => help::print_whoami_help(),

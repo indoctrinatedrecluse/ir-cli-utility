@@ -1920,6 +1920,30 @@ ir stat file.txt                             # Print detailed status of file.txt
 ir stat -c "%A %n" file.txt                  # Print permissions and filename
 ```
 
+
+---
+
+### 🐮 `anispeak`
+A customizable cowsay clone featuring multiple animal templates and automatic speech bubble wrapping.
+
+**Usage:**
+```bash
+ir anispeak [switches] [MESSAGE...]
+```
+
+**Switches:**
+| Switch | Description |
+| :--- | :--- |
+| `-a`, `--animal <NAME>` | Select the animal template (Default: `cow`). Supported: `cow`, `crab`, `dino`, `cat`, `dog`, `duck`, `owl`, `penguin`. |
+| `-w`, `--width <NUM>` | Maximum word-wrap width of the speech bubble (Default: `40`). |
+
+**Examples:**
+```bash
+ir anispeak "Hello world!"                   # Cow says hello
+ir anispeak -a crab "Rust is great"          # Crab says Rust is great
+echo "Hi" | ir anispeak -a dino              # Dino says Hi from stdin
+```
+
 ---
 
 ### 📊 `pmon`

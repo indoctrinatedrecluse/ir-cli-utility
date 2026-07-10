@@ -73,6 +73,7 @@ pub fn print_general_help() {
     println!("    head      Prints the first lines or bytes of files.");
     println!("    tail      Prints the last lines or bytes of files, or follows growth.");
     println!("    stat      Displays file or file system metadata status.");
+    println!("    anispeak  Launches a customizable cowsay clone with animal characters.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -1032,6 +1033,23 @@ pub fn print_stat_help() {
     println!("\nEXAMPLES:");
     println!("    ir stat file.txt                         Print detailed status of file.txt");
     println!("    ir stat -c \"%A %n\" file.txt              Print permissions and filename");
+}
+
+pub fn print_anispeak_help() {
+    println!("ir-anispeak");
+    println!("\nUSAGE:");
+    println!("    ir anispeak [SWITCHES] [MESSAGE...]");
+    println!("\nDESCRIPTION:");
+    println!("    Wraps MESSAGE in a speech bubble and outputs a speaking ASCII animal.");
+    println!("    If no MESSAGE is specified, reads standard input.");
+    println!("\nSWITCHES:");
+    println!("    -a, --animal <NAME>      Select the animal character [Default: cow]");
+    println!("                             Supported: cow, crab, dino, cat, dog, duck, owl, penguin");
+    println!("    -w, --width <NUM>        Line-wrap width of the speech bubble [Default: 40]");
+    println!("\nEXAMPLES:");
+    println!("    ir anispeak \"Hello world!\"               The cow says Hello world!");
+    println!("    ir anispeak -a crab \"Rust is great\"      The crab says Rust is great");
+    println!("    echo \"Hello\" | ir anispeak -a dino       Read from stdin");
 }
 
 pub fn print_path_help() {
