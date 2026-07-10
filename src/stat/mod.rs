@@ -1,5 +1,8 @@
-use std::fs::{self, File};
+use std::fs;
+#[cfg(target_os = "windows")]
+use std::fs::File;
 use std::io;
+#[cfg(target_os = "windows")]
 use std::path::Path;
 use chrono::{DateTime, Local};
 
