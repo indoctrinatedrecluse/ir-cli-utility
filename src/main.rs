@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions, ServeOptions, MatrixOptions, GitInfoOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions, ServeOptions, MatrixOptions, GitInfoOptions, DbViewOptions, RequestOptions, HexViewOptions, SysInfoOptions};
 use ir_cli_utility::scrape::parse_size as scrape_parse_size;
 use ir_cli_utility::find::parse_size as find_parse_size;
 
@@ -32,6 +32,10 @@ fn main() {
         "ed" => "edit",
         "dl" => "scrape",
         "gin" => "gitinfo",
+        "dbv" => "dbview",
+        "req" => "request",
+        "hexv" => "hexview",
+        "sys" => "sysinfo",
         other => other,
     };
 
@@ -2885,6 +2889,111 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "dbview" => {
+            let mut options = DbViewOptions::default();
+            let mut positionals = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for dbview.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: dbview requires exactly one file path argument.");
+                    valid = false;
+                } else {
+                    options.file_path = positionals[0].clone();
+                }
+            }
+            if valid {
+                ir_cli_utility::dbview(options);
+            } else {
+                help::print_dbview_help();
+                std::process::exit(1);
+            }
+        }
+        "request" => {
+            let mut options = RequestOptions::default();
+            let mut positionals = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for request.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+            if valid {
+                if positionals.len() > 1 {
+                    eprintln!("Error: request accepts at most one URL argument.");
+                    valid = false;
+                } else if positionals.len() == 1 {
+                    options.url = Some(positionals[0].clone());
+                }
+            }
+            if valid {
+                ir_cli_utility::request(options);
+            } else {
+                help::print_request_help();
+                std::process::exit(1);
+            }
+        }
+        "hexview" => {
+            let mut options = HexViewOptions::default();
+            let mut positionals = Vec::new();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for hexview.", arg);
+                    valid = false;
+                    break;
+                } else {
+                    positionals.push(arg.clone());
+                }
+            }
+            if valid {
+                if positionals.len() != 1 {
+                    eprintln!("Error: hexview requires exactly one file path argument.");
+                    valid = false;
+                } else {
+                    options.file_path = positionals[0].clone();
+                }
+            }
+            if valid {
+                ir_cli_utility::hexview(options);
+            } else {
+                help::print_hexview_help();
+                std::process::exit(1);
+            }
+        }
+        "sysinfo" => {
+            let options = SysInfoOptions::default();
+            let mut valid = true;
+            let mut args_iter = args[2..].iter().peekable();
+            while let Some(arg) = args_iter.next() {
+                if arg.starts_with('-') && arg.len() > 1 {
+                    eprintln!("Error: Unknown switch '{}' for sysinfo.", arg);
+                    valid = false;
+                    break;
+                }
+            }
+            if valid {
+                ir_cli_utility::sysinfo(options);
+            } else {
+                help::print_sysinfo_help();
+                std::process::exit(1);
+            }
+        }
         "path" => {
             let mut options = PathOptions::default();
             let mut positionals: Vec<String> = Vec::new();
@@ -3482,6 +3591,14 @@ fn main() {
                     "matrix" => help::print_matrix_help(),
                     "gitinfo" => help::print_gitinfo_help(),
                     "gin" => help::print_gitinfo_help(),
+                    "dbview" => help::print_dbview_help(),
+                    "dbv" => help::print_dbview_help(),
+                    "request" => help::print_request_help(),
+                    "req" => help::print_request_help(),
+                    "hexview" => help::print_hexview_help(),
+                    "hexv" => help::print_hexview_help(),
+                    "sysinfo" => help::print_sysinfo_help(),
+                    "sys" => help::print_sysinfo_help(),
                     "path" => help::print_path_help(),
                     "df" => help::print_df_help(),
                     "whoami" => help::print_whoami_help(),

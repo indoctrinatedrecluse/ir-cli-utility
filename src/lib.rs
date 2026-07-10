@@ -60,6 +60,11 @@ pub mod mac;
 pub mod serve;
 pub mod matrix;
 pub mod gitinfo;
+pub mod tui_util;
+pub mod dbview;
+pub mod request;
+pub mod hexview;
+pub mod sysinfo;
 
 
 
@@ -844,6 +849,43 @@ pub struct GitInfoOptions {
 
 pub fn gitinfo(options: GitInfoOptions) {
     gitinfo::run_gitinfo(options);
+}
+
+#[derive(Default, Clone)]
+pub struct DbViewOptions {
+    pub file_path: String,
+}
+
+pub fn dbview(options: DbViewOptions) {
+    let config = dbview::DbViewConfig { file_path: options.file_path };
+    let _ = dbview::run_dbview(config);
+}
+
+#[derive(Default, Clone)]
+pub struct RequestOptions {
+    pub url: Option<String>,
+}
+
+pub fn request(options: RequestOptions) {
+    let config = request::RequestConfig { initial_url: options.url };
+    let _ = request::run_request(config);
+}
+
+#[derive(Default, Clone)]
+pub struct HexViewOptions {
+    pub file_path: String,
+}
+
+pub fn hexview(options: HexViewOptions) {
+    let config = hexview::HexViewConfig { file_path: options.file_path };
+    let _ = hexview::run_hexview(config);
+}
+
+#[derive(Default, Clone)]
+pub struct SysInfoOptions {}
+
+pub fn sysinfo(_options: SysInfoOptions) {
+    let _ = sysinfo::run_sysinfo();
 }
 
 pub fn copy_to_clipboard(text: &str) -> Result<(), String> {

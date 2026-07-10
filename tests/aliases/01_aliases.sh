@@ -128,4 +128,40 @@ else
     Result=1
 fi
 
+echo "Testing alias 'dbv' -> maps to 'dbview' (via help)..."
+dbv_out=$($Executable help dbv 2>&1 || true)
+if echo "$dbv_out" | grep -q "ir-dbview"; then
+    echo "✅ PASS: 'ir dbv' alias correctly routes to dbview."
+else
+    echo "❌ FAIL: 'ir dbv' did not route to dbview: $dbv_out"
+    Result=1
+fi
+
+echo "Testing alias 'req' -> maps to 'request' (via help)..."
+req_out=$($Executable help req 2>&1 || true)
+if echo "$req_out" | grep -q "ir-request"; then
+    echo "✅ PASS: 'ir req' alias correctly routes to request."
+else
+    echo "❌ FAIL: 'ir req' did not route to request: $req_out"
+    Result=1
+fi
+
+echo "Testing alias 'hexv' -> maps to 'hexview' (via help)..."
+hexv_out=$($Executable help hexv 2>&1 || true)
+if echo "$hexv_out" | grep -q "ir-hexview"; then
+    echo "✅ PASS: 'ir hexv' alias correctly routes to hexview."
+else
+    echo "❌ FAIL: 'ir hexv' did not route to hexview: $hexv_out"
+    Result=1
+fi
+
+echo "Testing alias 'sys' -> maps to 'sysinfo' (via help)..."
+sys_out=$($Executable help sys 2>&1 || true)
+if echo "$sys_out" | grep -q "ir-sysinfo"; then
+    echo "✅ PASS: 'ir sys' alias correctly routes to sysinfo."
+else
+    echo "❌ FAIL: 'ir sys' did not route to sysinfo: $sys_out"
+    Result=1
+fi
+
 exit $Result

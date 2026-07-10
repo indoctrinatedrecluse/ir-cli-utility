@@ -65,6 +65,10 @@ pub fn print_general_help() {
     println!("    life      Launches Conway's Game of Life interactive terminal simulator.");
     println!("    matrix    Launches an interactive Matrix rain and Doom fire visualizer.");
     println!("    gitinfo   Launches an interactive Git repository TUI dashboard.");
+    println!("    dbview    Launches an interactive CSV and SQLite database TUI browser.");
+    println!("    request   Launches an interactive REST API Client dashboard TUI.");
+    println!("    hexview   Launches an interactive byte Hex Editor/Viewer TUI.");
+    println!("    sysinfo   Launches a live graphical hardware resource system monitor TUI.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -82,6 +86,10 @@ pub fn print_general_help() {
     println!("    ed        Alias for 'edit'");
     println!("    dl        Alias for 'scrape'");
     println!("    gin       Alias for 'gitinfo'");
+    println!("    dbv       Alias for 'dbview'");
+    println!("    req       Alias for 'request'");
+    println!("    hexv      Alias for 'hexview'");
+    println!("    sys       Alias for 'sysinfo'");
     println!("\nRun 'ir help <ACTION>' for more information on a specific action.");
 }
 
@@ -859,6 +867,73 @@ pub fn print_gitinfo_help() {
     println!("    ir gitinfo                               Start dashboard for current directory");
     println!("    ir gitinfo --source /path/to/repo        Start dashboard targeting custom path");
     println!("    ir gin                                   Shortcut alias launch");
+}
+
+pub fn print_dbview_help() {
+    println!("ir-dbview");
+    println!("\nUSAGE:");
+    println!("    ir dbview [FILE]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches an interactive full-screen spreadsheet and database table browser.");
+    println!("    Natively parses CSV/TSV files and SQLite databases without external tools.");
+    println!("\nARGUMENTS:");
+    println!("    [FILE]                  Path to CSV, TSV, or SQLite (.db/.sqlite) file.");
+    println!("\nTUI INTERACTIVE CONTROLS:");
+    println!("    Arrow Keys              Scroll table rows and columns / switch SQLite tables");
+    println!("    PageUp / PageDown       Fast vertical scroll");
+    println!("    s / S                   Toggle sorting on current column");
+    println!("    /                       Open search filter bar to filter rows");
+    println!("    Enter                   Open row detail panel sidebar");
+    println!("    Esc / q                 Quit browser");
+}
+
+pub fn print_request_help() {
+    println!("ir-request");
+    println!("\nUSAGE:");
+    println!("    ir request [URL]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches an interactive HTTP REST Client dashboard.");
+    println!("\nARGUMENTS:");
+    println!("    [URL]                   Optional target URL to initialize [Default: https://httpbin.org/get].");
+    println!("\nTUI INTERACTIVE TABS:");
+    println!("    [1] Method & URL        Request target URI input and HTTP method selector");
+    println!("    [2] Headers             Header key-value pair list editor");
+    println!("    [3] Body Payload        Payload editor text area");
+    println!("    [4] Response Inspector  Response status, latency metrics, headers, and scrollable body");
+    println!("\nTUI CONTROLS:");
+    println!("    1 / 2 / 3 / 4           Switch between tabs");
+    println!("    Tab / Shift+Tab         Cycle focus between inputs");
+    println!("    Enter                   Send request / add header row");
+    println!("    Backspace               Delete focused header row");
+    println!("    Esc / q                 Quit dashboard");
+}
+
+pub fn print_hexview_help() {
+    println!("ir-hexview");
+    println!("\nUSAGE:");
+    println!("    ir hexview [FILE]");
+    println!("\nDESCRIPTION:");
+    println!("    Launches an interactive byte Hex Editor and Viewer.");
+    println!("\nARGUMENTS:");
+    println!("    [FILE]                  Path to the file to inspect or edit.");
+    println!("\nTUI CONTROLS:");
+    println!("    Arrow Keys              Move byte focus cursor");
+    println!("    Tab                     Toggle focus between Hex and ASCII panes");
+    println!("    e / E                   Toggle Hex/ASCII byte Edit/View mode");
+    println!("    g / G                   Jump to hexadecimal address offset");
+    println!("    /                       Scan search query for hex bytes or ASCII string");
+    println!("    Ctrl+S / s              Save modified bytes back to file");
+    println!("    Esc / q                 Quit hexview / exit edit mode");
+}
+
+pub fn print_sysinfo_help() {
+    println!("ir-sysinfo");
+    println!("\nUSAGE:");
+    println!("    ir sysinfo");
+    println!("\nDESCRIPTION:");
+    println!("    Launches a real-time hardware resource and statistics system dashboard.");
+    println!("\nTUI CONTROLS:");
+    println!("    Esc / q                 Quit dashboard");
 }
 
 pub fn print_path_help() {

@@ -1532,6 +1532,99 @@ ir gitinfo --source /path/to/repo        # Launch dashboard for a custom reposit
 
 ---
 
+### 🗄️ `dbview`
+Launches an interactive full-screen spreadsheet and database table TUI browser. Natively parses CSV/TSV files and SQLite databases.
+
+**Usage:**
+```bash
+ir dbview [FILE]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[FILE]` | Path to a CSV, TSV, or SQLite (`.db` / `.sqlite`) database file. |
+
+**Interactive Keys:**
+* `Arrow keys`: Scroll table rows and columns. In SQLite databases, `Left` and `Right` arrow keys cycle through tables/views.
+* `PageUp` / `PageDown`: Fast vertical scroll.
+* `s` / `S`: Toggle column sorting (Ascending / Descending / Default).
+* `/`: Toggle search filter bar to filter rows in real-time.
+* `Enter`: Toggle row detail sidebar popup.
+* `Esc` / `q`: Exit browser cleanly.
+
+---
+
+### 🔌 `request`
+Launches an interactive HTTP REST Client dashboard TUI to test APIs.
+
+**Usage:**
+```bash
+ir request [URL]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[URL]` | Optional target URL to initialize [Default: `https://httpbin.org/get`]. |
+
+**Interactive Tabs:**
+* **`1` (Method & URL):** Request method selector (`GET`, `POST`, `PUT`, `DELETE`) and URL text input bar.
+* **`2` (Headers):** Key-value list editor for custom request headers.
+* **`3` (Body Payload):** Raw text/JSON input area for payload bodies.
+* **`4` (Response Inspector):** Real-time HTTP response status code, latency, headers, and scrollable body.
+
+**Interactive Keys:**
+* `1` / `2` / `3` / `4`: Switch between respective tabs.
+* `Tab` / `Shift+Tab`: Cycle focus between input fields.
+* `Enter`: Fire the HTTP request (when URL or method is focused) or add a header row.
+* `Backspace`: Delete selected header row.
+* `Esc` / `q`: Exit request dashboard.
+
+---
+
+### 🔍 `hexview`
+Launches an interactive byte Hex Editor and Viewer TUI.
+
+**Usage:**
+```bash
+ir hexview [FILE]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[FILE]` | Path to the file to inspect or edit. |
+
+**Interactive Keys:**
+* `Arrow keys`: Move cursor focus.
+* `Tab`: Toggle cursor focus between Hex and ASCII panes.
+* `e` / `E`: Toggle Edit/View mode.
+* `g` / `G`: Jump to hexadecimal offset address.
+* `/`: Scan for hex bytes pattern or ASCII string.
+* `Ctrl+S` / `s`: Save modified bytes back to disk.
+* `Esc` / `q`: Exit hexview / exit edit mode.
+
+---
+
+### 📊 `sysinfo`
+Launches a live graphical hardware resource and statistics system dashboard TUI.
+
+**Usage:**
+```bash
+ir sysinfo
+```
+
+**Interactive Elements:**
+* **CPU Load:** Real-time percentage load bars and rolling 40-second sparkline history.
+* **RAM Usage:** Total capacity, allocation percentage progress bars, and active usage statistics.
+* **Network Speed:** Live download and upload rate sparkline graphs.
+
+**Interactive Keys:**
+* `Esc` / `q`: Exit system dashboard.
+
+---
+
 ### 🛣️ `path`
 Views, adds, or removes directories from user system PATH environment variables permanently. On Windows, modifies HKCU Registry and broadcasts environment changes. On Linux, modifies standard shell profiles (`.bashrc` / `.zshrc` / `.profile`).
 

@@ -127,6 +127,42 @@ if ($gin_out -match "ir-gitinfo") {
     $Result = 1
 }
 
+Write-Host "Testing alias 'dbv' -> maps to 'dbview' (via help)..."
+$dbv_out = & $Executable help dbv 2>&1 | Out-String
+if ($dbv_out -match "ir-dbview") {
+    Write-Host "✅ PASS: 'ir dbv' alias correctly routes to dbview."
+} else {
+    Write-Host "❌ FAIL: 'ir dbv' did not route to dbview: $dbv_out"
+    $Result = 1
+}
+
+Write-Host "Testing alias 'req' -> maps to 'request' (via help)..."
+$req_out = & $Executable help req 2>&1 | Out-String
+if ($req_out -match "ir-request") {
+    Write-Host "✅ PASS: 'ir req' alias correctly routes to request."
+} else {
+    Write-Host "❌ FAIL: 'ir req' did not route to request: $req_out"
+    $Result = 1
+}
+
+Write-Host "Testing alias 'hexv' -> maps to 'hexview' (via help)..."
+$hexv_out = & $Executable help hexv 2>&1 | Out-String
+if ($hexv_out -match "ir-hexview") {
+    Write-Host "✅ PASS: 'ir hexv' alias correctly routes to hexview."
+} else {
+    Write-Host "❌ FAIL: 'ir hexv' did not route to hexview: $hexv_out"
+    $Result = 1
+}
+
+Write-Host "Testing alias 'sys' -> maps to 'sysinfo' (via help)..."
+$sys_out = & $Executable help sys 2>&1 | Out-String
+if ($sys_out -match "ir-sysinfo") {
+    Write-Host "✅ PASS: 'ir sys' alias correctly routes to sysinfo."
+} else {
+    Write-Host "❌ FAIL: 'ir sys' did not route to sysinfo: $sys_out"
+    $Result = 1
+}
+
 # Clean up
 foreach ($file in @($TestFile, $MovedFile)) {
     if (Test-Path $file) { Remove-Item $file -Force }
