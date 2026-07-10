@@ -24,7 +24,7 @@ pub fn print_general_help() {
     println!("    ps        Displays information about active processes.");
     println!("    kill      Terminates one or more processes.");
     println!("    fetch     Downloads a URL or queries an HTTP endpoint.");
-    println!("    env       Views, searches, or formats environment variables.");
+    println!("    env       Launches an interactive TUI Environment Variable Manager.");
     println!("    hex       Displays a hexadecimal dump of a file.");
     println!("    ping      Sends ICMP Echo requests to a network host.");
     println!("    base64    Encodes or decodes data using Base64.");
@@ -54,7 +54,7 @@ pub fn print_general_help() {
     println!("    watch     Runs a command periodically, showing its output fullscreen.");
     println!("    nettop    Displays a live graphical network traffic monitor.");
     println!("    dua       Launches an interactive disk usage analyzer.");
-    println!("    browse    Launches an interactive terminal file browser.");
+    println!("    fm        Launches an interactive TUI File Manager.");
     println!("    edit      Opens a file in the inline terminal text editor.");
     println!("    scrape    Downloads files from a URL matching given extension(s).");
     println!("    serve     Launches a zero-config local HTTP static file server.");
@@ -74,6 +74,7 @@ pub fn print_general_help() {
     println!("    tail      Prints the last lines or bytes of files, or follows growth.");
     println!("    stat      Displays file or file system metadata status.");
     println!("    anispeak  Launches a customizable cowsay clone with animal characters.");
+    println!("    gitv      Launches an interactive TUI Git Log & Commit Graph Viewer.");
     println!("    help      Prints general help or help for a specific action.");
     println!("\nALIASES:");
     println!("    ls        Alias for 'list'");
@@ -87,7 +88,7 @@ pub fn print_general_help() {
     println!("    smon      Alias for 'monitor'");
     println!("    ntop      Alias for 'nettop'");
     println!("    ncdu      Alias for 'dua'");
-    println!("    fm        Alias for 'browse'");
+    println!("    browse    Alias for 'fm'");
     println!("    ed        Alias for 'edit'");
     println!("    dl        Alias for 'scrape'");
     println!("    gin       Alias for 'gitinfo'");
@@ -513,19 +514,34 @@ pub fn print_fetch_help() {
 }
 
 pub fn print_env_help() {
-    println!("ir-env");
+    println!("ir-env (ir envv)");
     println!("\nUSAGE:");
-    println!("    ir env [SWITCHES] [VARIABLE_NAME]");
+    println!("    ir env");
+    println!("    ir envv");
     println!("\nDESCRIPTION:");
-    println!("    Lists, searches, or formats environment variables.");
-    println!("\nARGUMENTS:");
-    println!("    [VARIABLE_NAME]  Optionally retrieve a single variable. PATH variables are auto-formatted line-by-line.");
-    println!("\nSWITCHES:");
-    println!("    -s <query>, --search <query>  Search for variables whose name or value contains the query");
-    println!("\nEXAMPLES:");
-    println!("    ir env                                   List all environment variables sorted alphabetically");
-    println!("    ir env -s path                           Search for environment variables containing 'path'");
-    println!("    ir env PATH                              Retrieve PATH variable, formatted cleanly line-by-line");
+    println!("    Launches an interactive TUI Environment Variable Manager.");
+    println!("    You can view, edit, and delete environment variables.");
+    println!("    Changes are persisted using 'setx' or the registry on Windows.");
+    println!("    On Unix, changes are active for the current session.");
+}
+
+pub fn print_fm_help() {
+    println!("ir-fm");
+    println!("\nUSAGE:");
+    println!("    ir fm");
+    println!("\nDESCRIPTION:");
+    println!("    Launches an interactive Ratatui-based Terminal File Manager.");
+    println!("    Allows you to navigate, copy, rename, delete files interactively.");
+    println!("    It directly wraps internal ir file operation commands.");
+}
+
+pub fn print_gitv_help() {
+    println!("ir-gitv");
+    println!("\nUSAGE:");
+    println!("    ir gitv");
+    println!("\nDESCRIPTION:");
+    println!("    Launches an interactive TUI Git Log & Commit Graph Viewer.");
+    println!("    Requires the current directory to be a valid Git repository.");
 }
 
 pub fn print_hex_help() {

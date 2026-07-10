@@ -112,8 +112,10 @@ ir help which
 ir help watch
 ir help nettop
 ir help dua
-ir help browse
+ir help fm
 ir help edit
+ir help envv
+ir help gitv
 ```
 
 ---
@@ -733,30 +735,20 @@ ir fetch -o file.zip --progress URL      # Download a file with progress bar
 
 ---
 
-### 🔍 `env`
-Lists, searches, or formats environment variables.
+### 🔍 `envv`
+Launches an interactive TUI Environment Variable Manager.
 
 **Usage:**
 ```bash
-ir env [switches] [VARIABLE_NAME]
+ir envv
+ir env
 ```
 
-**Arguments:**
-| Argument | Description |
-| :--- | :--- |
-| `[VARIABLE_NAME]` | Optionally retrieve a single variable. PATH variables are auto-formatted line-by-line. |
+**Description:**
+Provides a full-screen interactive interface to view, edit, and delete environment variables. Changes are persistent (using `setx`/registry on Windows and profile scripts on Unix).
 
-**Switches:**
-| Switch | Description |
-| :--- | :--- |
-| `-s <query>` | Filter results to variables containing the search query. |
-
-**Examples:**
-```bash
-ir env                                   # List all variables sorted alphabetically
-ir env -s path                           # Search for variables containing 'path'
-ir env PATH                              # Format and print PATH directories line-by-line
-```
+**Interactive controls:**
+`q` or `Esc` to quit; `Up/Down` or `j/k` to navigate; `e` to edit a variable; `Delete` to delete a variable; `s` to search/filter.
 
 ---
 
@@ -1495,6 +1487,24 @@ ir matrix -f 30                          # Run Matrix digital rain at 30 FPS
 
 ---
 
+### 🗂️ `gitv`
+Launches an interactive Git Log & Commit Graph Viewer (TUI).
+
+**Usage:**
+```bash
+ir gitv [PATH]
+```
+
+**Arguments:**
+| Argument | Description |
+| :--- | :--- |
+| `[PATH]` | The path to the Git repository. Defaults to current directory. |
+
+**Interactive controls:**
+`q` or `Esc` to quit; `Up/Down` or `j/k` to navigate commits.
+
+---
+
 ### 🗃️ `gitinfo`
 Launches a full-screen interactive Git repository TUI dashboard. Parses the local Git database natively without invoking external `git` CLI binaries.
 
@@ -2052,12 +2062,12 @@ ir dua /var/log                          # Scan and analyze /var/log directory
 
 ---
 
-### 🗂️ `browse`
+### 🗂️ `fm`
 Launches an interactive dual-pane terminal file browser (TUI) for the specified path.
 
 **Usage:**
 ```bash
-ir browse [PATH]
+ir fm [PATH]
 ```
 
 **Interactive Controls:**
@@ -2072,8 +2082,8 @@ ir browse [PATH]
 
 **Examples:**
 ```bash
-ir browse                                # Browse the current directory
-ir browse /home/user/projects            # Browse a specific directory
+ir fm                                    # Browse the current directory
+ir fm /home/user/projects                # Browse a specific directory
 ```
 
 ---
@@ -2278,7 +2288,7 @@ For convenience and familiar muscle memory, several common commands are aliased 
 | `smon` | `monitor` | Launches the default system monitor. |
 | `ntop` | `nettop` | Displays a live graphical network traffic monitor. |
 | `ncdu` | `dua` | Launches an interactive disk usage analyzer. |
-| `fm` | `browse` | Launches an interactive terminal file browser. |
+| `dbv` | `dbview` | Launches an interactive database viewer. |
 | `ed` | `edit` | Opens a file in the inline terminal text editor. |
 | `dl` | `scrape` | Downloads files from a URL matching given extension(s). |
 | `gin` | `gitinfo` | Launches an interactive Git repository TUI dashboard. |

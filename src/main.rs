@@ -1,5 +1,5 @@
 use std::env;
-use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, EnvOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions, ServeOptions, MatrixOptions, GitInfoOptions, DbViewOptions, RequestOptions, HexViewOptions, SysInfoOptions};
+use ir_cli_utility::{help, ListOptions, RenameOptions, CopyOptions, RemoveOptions, CreateOptions, MoveOptions, ArchiveOptions, CatOptions, GrepOptions, FindOptions, FindItemType, DiffOptions, SearchOptions, WhichOptions, TreeOptions, DuOptions, HashOptions, PsOptions, KillOptions, FetchOptions, HexOptions, PingOptions, Base64Options, EncodeOptions, DecodeOptions, UuidOptions, IpOptions, EchoOptions, ClipOptions, PathOptions, DfOptions, WhoamiOptions, SocketsOptions, WcOptions, LnOptions, ChmodOptions, ScrapeOptions, SortOptions, JsonOptions, PlotOptions, DnsOptions, PortscanOptions, MacOptions, ServeOptions, MatrixOptions, GitInfoOptions, DbViewOptions, RequestOptions, HexViewOptions, SysInfoOptions};
 use ir_cli_utility::scrape::parse_size as scrape_parse_size;
 use ir_cli_utility::find::parse_size as find_parse_size;
 
@@ -28,7 +28,6 @@ fn main() {
         "smon" => "monitor",
         "ntop" => "nettop",
         "ncdu" => "dua",
-        "fm" => "browse",
         "ed" => "edit",
         "dl" => "scrape",
         "gin" => "gitinfo",
@@ -1375,45 +1374,7 @@ fn main() {
                 help::print_fetch_help();
             }
         }
-        "env" => {
-            let mut options = EnvOptions::default();
-            let mut positionals: Vec<String> = Vec::new();
-            let mut valid = true;
-            let mut args_iter = args[2..].iter().peekable();
 
-            while let Some(arg) = args_iter.next() {
-                if arg == "-s" || arg == "--search" {
-                    match args_iter.next() {
-                        Some(q) => options.search = Some(q.clone()),
-                        None => {
-                            eprintln!("Error: --search requires a search term.");
-                            valid = false;
-                            break;
-                        }
-                    }
-                } else if arg.starts_with('-') && arg.len() > 1 {
-                    eprintln!("Error: Unknown switch '{}' for env.", arg);
-                    valid = false;
-                    break;
-                } else {
-                    positionals.push(arg.clone());
-                }
-            }
-
-            if valid {
-                if positionals.len() > 1 {
-                    eprintln!("Error: 'env' action accepts at most one environment variable name.");
-                    valid = false;
-                }
-            }
-
-            if valid {
-                let var_name = positionals.get(0).map(|s| s.as_str());
-                ir_cli_utility::env_action(var_name, options);
-            } else {
-                help::print_env_help();
-            }
-        }
         "hex" => {
             let mut options = HexOptions::default();
             options.cols = 16; // default
@@ -3579,6 +3540,21 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "envv" | "env" => {
+            if let Err(e) = ir_cli_utility::envv::run_envv() {
+                eprintln!("Error running envv: {}", e);
+            }
+        }
+        "fm" => {
+            if let Err(e) = ir_cli_utility::fm::run_fm() {
+                eprintln!("Error running fm: {}", e);
+            }
+        }
+        "gitv" => {
+            if let Err(e) = ir_cli_utility::gitv::run_gitv() {
+                eprintln!("Error running gitv: {}", e);
+            }
+        }
         "path" => {
             let mut options = PathOptions::default();
             let mut positionals: Vec<String> = Vec::new();
@@ -4176,7 +4152,7 @@ fn main() {
                     "ps" => help::print_ps_help(),
                     "kill" => help::print_kill_help(),
                     "fetch" => help::print_fetch_help(),
-                    "env" => help::print_env_help(),
+                    "env" | "envv" => help::print_env_help(),
                     "hex" => help::print_hex_help(),
                     "ping" => help::print_ping_help(),
                     "base64" => help::print_base64_help(),
@@ -4229,8 +4205,9 @@ fn main() {
                     "ntop" => help::print_nettop_help(),
                     "dua" => help::print_dua_help(),
                     "ncdu" => help::print_dua_help(),
-                    "browse" => help::print_browse_help(),
-                    "fm" => help::print_browse_help(),
+                    "browse" => help::print_fm_help(),
+                    "fm" => help::print_fm_help(),
+                    "gitv" => help::print_gitv_help(),
                     "edit" => help::print_edit_help(),
                     "ed"   => help::print_edit_help(),
                     "scrape" | "dl" => help::print_scrape_help(),

@@ -20,7 +20,7 @@ pub mod hash;
 pub mod ps;
 pub mod kill;
 pub mod fetch;
-pub mod env_action;
+
 pub mod hex;
 pub mod ping;
 pub mod base64;
@@ -70,7 +70,9 @@ pub mod head;
 pub mod tail;
 pub mod stat;
 pub mod anispeak;
-
+pub mod envv;
+pub mod fm;
+pub mod gitv;
 
 
 
@@ -268,10 +270,7 @@ pub struct FetchOptions {
     pub no_follow_redirects: bool,
 }
 
-#[derive(Default, Clone)]
-pub struct EnvOptions {
-    pub search: Option<String>,
-}
+
 
 #[derive(Default, Clone)]
 pub struct HexOptions {
@@ -592,9 +591,7 @@ pub fn fetch(url: &str, options: FetchOptions) {
     fetch::fetch(url, options);
 }
 
-pub fn env_action(var_name: Option<&str>, options: EnvOptions) {
-    env_action::env_action(var_name, options);
-}
+
 
 pub fn hex(file_path: &str, options: HexOptions) {
     hex::hex(file_path, options);

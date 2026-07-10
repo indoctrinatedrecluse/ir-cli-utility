@@ -87,8 +87,8 @@ Terminates one or more processes.
 .B fetch [<\fIurl\fR>] [\fIswitches\fR]
 Downloads a URL or queries an HTTP endpoint.
 .TP
-.B env [<\fIvariable_name\fR>] [\fIswitches\fR]
-Lists, searches, or formats environment variables.
+.B envv
+Launches an interactive TUI Environment Variable Manager.
 .TP
 .B hex [<\fIpath\fR>] [\fIswitches\fR]
 Displays a hexadecimal dump of a file.
@@ -171,7 +171,7 @@ Displays a live graphical network traffic monitor in the terminal.
 .B dua [<\fIpath\fR>]
 Launches an interactive disk usage analyzer (TUI).
 .TP
-.B browse [<\fIpath\fR>]
+.B fm [<\fIpath\fR>]
 Launches an interactive dual-pane terminal file browser (TUI).
 .TP
 .B edit <\fIfile\fR>
@@ -188,6 +188,9 @@ Multi-threaded TCP port scanner to scan open ports and active services.
 .TP
 .B mac [\fIswitches\fR] [\fImac_address\fR]
 MAC address vendor OUI resolver and local network interfaces MAC addresses listing.
+.TP
+.B gitv [<\fIpath\fR>]
+Launches an interactive Git Log & Commit Graph Viewer (TUI).
 .TP
 .B gitinfo [\fIswitches\fR] [\fIdirectory\fR]
 Launches a full-screen interactive Git repository TUI dashboard.
@@ -621,9 +624,13 @@ Set the update delay interval (e.g. 1.5s, 500ms, default: 1s).
 .SS dua
 No command-line switches are supported. Specify a directory path as a positional argument to analyze it.
 
-.SS browse
+.SS fm
 No command-line switches are supported. Specify a directory path as a positional argument to browse it.
 Interactive controls: \fBq\fR quit; \fB↑/↓\fR or \fBj/k\fR navigate; \fBEnter/l\fR enter directory; \fBBackspace/h\fR go up; \fBc\fR copy; \fBm\fR move; \fBr\fR rename; \fBd\fR delete.
+
+.SS gitv
+No command-line switches are supported. Specify a directory path as a positional argument to view its git log.
+Interactive controls: \fBq\fR quit; \fB↑/↓\fR or \fBj/k\fR navigate commits.
 
 .SS edit
 No command-line switches are supported. Provide a filename as the only positional argument.
@@ -1159,11 +1166,8 @@ Fetch URL content:
 Fetch URL and print status and headers:
 .B ir fetch -i https://httpbin.org/get
 .TP
-List environment variables sorted alphabetically:
-.B ir env
-.TP
-Format PATH directories line-by-line:
-.B ir env PATH
+Launch TUI Environment Variable Manager:
+.B ir envv
 .TP
 Hex dump of a file:
 .B ir hex file.bin
@@ -1328,10 +1332,10 @@ Scan and analyze /var/log directory:
 .B ir dua /var/log
 .TP
 Browse the current directory interactively:
-.B ir browse
+.B ir fm
 .TP
 Browse a specific directory:
-.B ir browse /home/user/projects
+.B ir fm /home/user/projects
 .TP
 Open a file for editing:
 .B ir edit notes.txt
@@ -1411,8 +1415,7 @@ Alias for \fBmonitor\fR.
 Alias for \fBnettop\fR.
 .IP "ncdu" 12
 Alias for \fBdua\fR.
-.IP "fm" 12
-Alias for \fBbrowse\fR.
+
 .IP "ed" 12
 Alias for \fBedit\fR.
 .IP "gin" 12
