@@ -91,12 +91,21 @@ if ($ncdu_out -match "ir-dua") {
     $Result = 1
 }
 
-Write-Host "Testing alias 'fm' -> maps to 'browse' (via help)..."
-$fm_out = & $Executable help fm 2>&1 | Out-String
-if ($fm_out -match "ir-browse") {
-    Write-Host "✅ PASS: 'ir fm' alias correctly routes to browse."
+Write-Host "Testing alias 'browse' -> maps to 'fm' (via help)..."
+$fm_out = & $Executable help browse 2>&1 | Out-String
+if ($fm_out -match "ir-fm") {
+    Write-Host "✅ PASS: 'ir browse' alias correctly routes to fm."
 } else {
-    Write-Host "❌ FAIL: 'ir fm' did not route to browse: $fm_out"
+    Write-Host "❌ FAIL: 'ir browse' did not route to fm: $fm_out"
+    $Result = 1
+}
+
+Write-Host "Testing alias 'env' -> maps to 'envv' (via help)..."
+$env_out = & $Executable help env 2>&1 | Out-String
+if ($env_out -match "ir-env") {
+    Write-Host "✅ PASS: 'ir env' alias correctly routes to envv."
+} else {
+    Write-Host "❌ FAIL: 'ir env' did not route to envv: $env_out"
     $Result = 1
 }
 

@@ -92,12 +92,21 @@ else
     Result=1
 fi
 
-echo "Testing alias 'fm' -> maps to 'browse' (via help)..."
-fm_out=$($Executable help fm 2>&1 || true)
-if echo "$fm_out" | grep -q "ir-browse"; then
-    echo "✅ PASS: 'ir fm' alias correctly routes to browse."
+echo "Testing alias 'browse' -> maps to 'fm' (via help)..."
+fm_out=$($Executable help browse 2>&1 || true)
+if echo "$fm_out" | grep -q "ir-fm"; then
+    echo "✅ PASS: 'ir browse' alias correctly routes to fm."
 else
-    echo "❌ FAIL: 'ir fm' did not route to browse: $fm_out"
+    echo "❌ FAIL: 'ir browse' did not route to fm: $fm_out"
+    Result=1
+fi
+
+echo "Testing alias 'env' -> maps to 'envv' (via help)..."
+env_out=$($Executable help env 2>&1 || true)
+if echo "$env_out" | grep -q "ir-env"; then
+    echo "✅ PASS: 'ir env' alias correctly routes to envv."
+else
+    echo "❌ FAIL: 'ir env' did not route to envv: $env_out"
     Result=1
 fi
 

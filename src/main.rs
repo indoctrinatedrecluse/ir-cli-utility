@@ -4195,6 +4195,11 @@ fn main() {
                     "globe" => help::print_globe_help(),
                     "log" => help::print_log_help(),
                     "life" => help::print_life_help(),
+                    "tee" => help::print_tee_help(),
+                    "head" => help::print_head_help(),
+                    "tail" => help::print_tail_help(),
+                    "stat" => help::print_stat_help(),
+                    "help" => help::print_general_help(),
                     _ => {
                         eprintln!("Error: Unknown action '{}'", args[2]);
                         help::print_general_help();
