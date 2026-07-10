@@ -24,7 +24,7 @@ pub fn print_general_help() {
     println!("    ps        Displays information about active processes.");
     println!("    kill      Terminates one or more processes.");
     println!("    fetch     Downloads a URL or queries an HTTP endpoint.");
-    println!("    env       Launches an interactive TUI Environment Variable Manager.");
+    println!("    envv      Launches an interactive TUI Environment Variable Manager.");
     println!("    hex       Displays a hexadecimal dump of a file.");
     println!("    ping      Sends ICMP Echo requests to a network host.");
     println!("    base64    Encodes or decodes data using Base64.");
@@ -1061,7 +1061,8 @@ pub fn print_anispeak_help() {
     println!("\nSWITCHES:");
     println!("    -a, --animal <NAME>      Select the animal character [Default: cow]");
     println!("                             Supported: cow, crab, dino, cat, dog, duck, owl, penguin,");
-    println!("                                        elephant, moose, stegosaurus, whale, snake, turtle, sheep");
+    println!("                                        elephant, moose, stegosaurus, whale, snake, turtle, sheep,");
+    println!("                                        bunny, koala, monkey, bear, pig, chicken, octopus, fox, rhino");
     println!("    -w, --width <NUM>        Line-wrap width of the speech bubble [Default: 40]");
     println!("\nEXAMPLES:");
     println!("    ir anispeak \"Hello world!\"               The cow says Hello world!");
