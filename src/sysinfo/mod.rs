@@ -81,8 +81,8 @@ fn get_system_metrics(
     last_net_check: &mut Instant,
 ) -> SysMetrics {
     let mut cpu_percent = 0.0;
-    let mut mem_total = 16 * 1024 * 1024 * 1024; // fallback values
-    let mut mem_used = 8 * 1024 * 1024 * 1024;
+    let mut mem_total: u64 = 16 * 1024 * 1024 * 1024; // fallback values
+    let mut mem_used: u64 = 8 * 1024 * 1024 * 1024;
 
     // 1. CPU and Memory - OS Specific
     #[cfg(target_os = "windows")]
@@ -141,10 +141,10 @@ fn get_system_metrics(
 
         // Read Memory from /proc/meminfo
         if let Ok(content) = std::fs::read_to_string("/proc/meminfo") {
-            let mut total_kb = 0;
-            let mut free_kb = 0;
-            let mut buffers_kb = 0;
-            let mut cached_kb = 0;
+            let mut total_kb: u64 = 0;
+            let mut free_kb: u64 = 0;
+            let mut buffers_kb: u64 = 0;
+            let mut cached_kb: u64 = 0;
             for line in content.lines() {
                 let parts: Vec<&str> = line.split_whitespace().collect();
                 if parts.len() >= 2 {
